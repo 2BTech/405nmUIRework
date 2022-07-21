@@ -216,3 +216,32 @@ void DataHandler::ReceiveDataline(int serialNumber, long logNumber, float no2, f
     this->dutyPercent = dutyPercent;
     dutyPercentHist.append(dutyPercent);
 }
+
+void DataHandler::LogDataline(QByteArray dataline)
+{
+    if (!dataline.endsWith('\n'))
+    {
+        dataline.append('\n');
+    }
+
+    QFile logFile(QString(WORKING_DIR).append("datafiles/405nm_").append(QDate::currentDate().toString("yyyy_MM_dd.csv")));
+
+    bool exits = logFile.exists();
+
+    // Use write only to create file if necesary, or open using append
+    if ( (!exits && logFile.open(QIODevice::Append)) || logFile.open(QIODevice::Append))
+    {
+        if (!exits)
+        {
+            logFile.write("SerialNumber,LogNumber,NO2,NO,NOx,CellTemp,CellPress,CellFlow,PDV1,PDV2,ScrubberTemp,OzoneFlow,ErrorByte,Date,Time,Mode,DutyPercent\n");
+        }
+        logFile.write(dataline);
+
+        logFile.close();
+    }
+    else
+    {
+        qDebug() << "ERROR: Failed to open log file: " << logFile.fileName() << " : " << logFile.errorString();
+    }
+
+}
