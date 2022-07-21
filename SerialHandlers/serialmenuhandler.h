@@ -12,7 +12,12 @@ public:
 public slots:
     void EchoMessage(QByteArray message);
 
+private slots:
+    void WriteTestString();
+
 private:
+    QTimer testWriteTimer;
+
     // First step in the parsing process
     void ParseReceived() override;
 };

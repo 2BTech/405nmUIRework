@@ -16,6 +16,7 @@ public:
 
     // Opens the serial port conection with the provided port name
     virtual void OpenSerialPort(QString portName);
+    virtual void Disconnect();
 
     // Moves the object and child object to the thread
     virtual void MoveToThread(QThread* thread);

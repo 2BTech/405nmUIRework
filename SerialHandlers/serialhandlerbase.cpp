@@ -31,6 +31,11 @@ void SerialHandlerBase::OpenSerialPort(QString portName)
     }
 }
 
+void SerialHandlerBase::Disconnect()
+{
+    serialPort->close();
+}
+
 #define DEBUG_SER_WRITE
 void SerialHandlerBase::WriteNextMessage()
 {
