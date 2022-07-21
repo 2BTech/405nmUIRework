@@ -45,6 +45,8 @@ protected:
     // Timer used to spread out writing messages
     QTimer writeTimer;
 
+    int bytesWritten = 0;
+
     // First step in the parsing process
     virtual void ParseReceived() = 0;
 

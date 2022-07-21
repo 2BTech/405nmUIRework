@@ -43,7 +43,7 @@ void SerialHandlerBase::WriteNextMessage()
     {
 #ifdef DEBUG_SER_WRITE
         QByteArray message = writeQueue.dequeue();
-        serialPort->write(message);
+        bytesWritten += serialPort->write(message);
         if (!serialPort->flush())
         {
             qDebug() << "Failed to flush bytes";
@@ -52,6 +52,7 @@ void SerialHandlerBase::WriteNextMessage()
         {
             qDebug() << "Failed to wait for bytes to write";
         }
+        qDebug() << "Number of bytes written: " << bytesWritten;
 #else
         serialPort.write(writeQueue.dequeue());
 #endif
