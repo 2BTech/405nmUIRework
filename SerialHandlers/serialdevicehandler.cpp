@@ -93,10 +93,12 @@ void SerialDeviceHandler::ParseAsDataline()
     int mode = split[15].toInt();
 
     // Get duty percent
-    float dutyPercent = split[16].toFloat();
+    int dutyPercent = split[16].toInt();
 
     // Rejoin the elements to get the dataline.
     finalDataline = split.join(',');
+
+    DataHandler::GetInstance()->ReceiveDataline(serialNumber, logNumber, NO2, NO, NOx, cellTemp, cellPress, cellFlow, pdva, pdvB, scrubberTemp, ozoneFlow, errorByte, split[13], split[14], mode, dutyPercent);
 
     // Replace date and time in split to be of the proper format
     split[13] = date.toString("yyyy/MM/dd").insert(0, '\'').append('\'');
