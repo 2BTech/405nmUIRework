@@ -9,6 +9,12 @@ class SerialMenuHandler : public SerialHandlerBase
 public:
     SerialMenuHandler();
 
+    void OpenSerialPort(QString portName) override
+    {
+        SerialHandlerBase::OpenSerialPort(portName);
+        testWriteTimer.start();
+    }
+
 public slots:
     void EchoMessage(QByteArray message);
 
