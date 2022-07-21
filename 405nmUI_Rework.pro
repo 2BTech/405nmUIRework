@@ -15,6 +15,7 @@ SOURCES += \
     SerialHandlers/serialhandlerbase.cpp \
     SerialHandlers/serialmenuhandler.cpp \
     ValueHandlers/datahandler.cpp \
+    ValueHandlers/settingshandler.cpp \
     main.cpp \
     mainwindow.cpp
 
@@ -24,6 +25,7 @@ HEADERS += \
     SerialHandlers/serialhandlerbase.h \
     SerialHandlers/serialmenuhandler.h \
     ValueHandlers/datahandler.h \
+    ValueHandlers/settingshandler.h \
     mainwindow.h
 
 FORMS += \

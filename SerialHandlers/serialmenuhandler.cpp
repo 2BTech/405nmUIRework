@@ -6,6 +6,8 @@ SerialMenuHandler::SerialMenuHandler() : SerialHandlerBase()
     testWriteTimer.setInterval(600);
     connect(&testWriteTimer, &QTimer::timeout, this, &SerialMenuHandler::WriteTestString);
 #endif
+
+    serialPort->setBaudRate(19200);
 }
 
 //#define DEBUG_ECHO_MESSAGE
@@ -29,11 +31,6 @@ void SerialMenuHandler::EchoMessage(QByteArray message)
     {
         QueueMessage(message);
     }
-}
-
-void SerialMenuHandler::ParseReceived()
-{
-    qDebug() << "Serial menu handler received: " << received;
 }
 
 #ifdef WRITE_TEST_DATA
@@ -65,19 +62,20 @@ void SerialMenuHandler::OnReadyRead()
         else
         {
             // Check if this signals the end of a line
-            if (in == '\r' || in == '\n')
-            {
-                // Parse data if some exists
-                if (!received.isEmpty())
-                {
-                    ParseReceived();
-                    received.clear();
-                }
-            }
-            else
-            {
-                received.append(in);
-            }
+//            if (in == '\r' || in == '\n')
+//            {
+//                // Parse data if some exists
+//                if (!received.isEmpty())
+//                {
+//                    ParseReceived();
+//                    received.clear();
+//                }
+//            }
+//            else
+//            {
+//                received.append(in);
+//            }
+            ParseReceived();
         }
     }
     // Prevent an overflow condition if data is not being properly received. Max line size is around 100
@@ -93,4 +91,21 @@ void SerialMenuHandler::OutputMenuHeader()
     QueueMessage("Press ? for list of commands\r\n");
     QueueMessage("Enter Upper case to display value and lower to set\r\n");
     QueueMessage("Press X to exit\r\n");
+}
+
+void SerialMenuHandler::ParseReceived()
+{
+    //qDebug() << "Serial menu handler received: " << received;
+
+    char in;
+
+    serialPort->read(&in,  1);
+
+    switch(in)
+    {
+    // Print all settings
+    case '0':
+
+        break;
+    }
 }
