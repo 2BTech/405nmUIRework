@@ -1,6 +1,6 @@
 #include "serialmenuhandler.h"
 
-SerialMenuHandler::SerialMenuHandler()
+SerialMenuHandler::SerialMenuHandler() : SerialHandlerBase()
 {
 
 }
@@ -8,6 +8,8 @@ SerialMenuHandler::SerialMenuHandler()
 #define DEBUG_ECHO_MESSAGE
 void SerialMenuHandler::EchoMessage(QByteArray message)
 {
+    message = message.append('\n');
+
 #ifdef DEBUG_ECHO_MESSAGE
     qDebug() << "Echoing message: " << message;
 #endif
@@ -16,9 +18,18 @@ void SerialMenuHandler::EchoMessage(QByteArray message)
 
     if (!isSendingMessage)
     {
+#ifdef DEBUG_ECHO_MESSAGE
+        qDebug() << "Starting write queue";
+#endif
         isSendingMessage = true;
         WriteNextMessage();
     }
+#ifdef DEBUG_ECHO_MESSAGE
+    else
+    {
+        qDebug() << "In progress of writing queue. Count: " << writeQueue.count();
+    }
+#endif
 }
 
 void SerialMenuHandler::ParseReceived()

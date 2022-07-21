@@ -20,7 +20,7 @@ void SerialHandlerBase::OpenSerialPort(QString portName)
 {
     serialPort->setPortName(portName);
 
-    if (!serialPort->open(QIODevice::ReadWrite))
+    if (serialPort->open(QIODevice::ReadWrite))
     {
         qDebug() << "Opened serial device handler at " << portName;
     }
