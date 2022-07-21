@@ -154,8 +154,8 @@ void SerialDeviceHandler::ParseAsDataline()
     finalDataline = split.join(',');
 
     // Replace date and time in split to be of the proper format
-    split[13] = date.toString("'yyyy/MM/dd'");
-    split[14] = time.toString(time.toString("'hh:mm:ss'"));
+    split[13] = date.toString("yyyy/MM/dd").insert(0, '\'').append('\'');
+    split[14] = time.toString(time.toString("hh:mm:ss")).insert(0, '\'').append('\'');
 
     sqlInsert = split.join(',');
 
