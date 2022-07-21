@@ -3,7 +3,7 @@
 DataHandler * DataHandler::instance = Q_NULLPTR;
 DataHandler * DataHandler::GetInstance()
 {
-    if(instance == nullptr)
+    if(instance == Q_NULLPTR)
     {
         instance = new DataHandler();
     }
