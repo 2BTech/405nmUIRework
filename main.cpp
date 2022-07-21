@@ -20,7 +20,7 @@ void InitialeSerialHandlers(SerialDeviceHandler* deviceHander)
         QStringList line;
         while(!serialSettings.atEnd())
         {
-            line = QString(serialSettings.readLine()).split('|');
+            line = QString(serialSettings.readLine()).split(',');
 #ifdef DEBUG_INIT_SER_HANDLERS
             qDebug () << "Serial settings line: " << line;
 #endif
