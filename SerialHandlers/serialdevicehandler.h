@@ -4,6 +4,8 @@
 #include <QDate>
 #include <QTime>
 
+#include "ValueHandlers/datahandler.h"
+
 #include "serialhandlerbase.h"
 
 // This class is in charge of reading in and parsing data from the 405

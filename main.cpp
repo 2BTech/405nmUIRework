@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     InitialeSerialHandlers(&serialDeviceHandler, &serialMenuHandler);
 
     serialDeviceHandler.MoveToThread(&serialDeviceThread);
-    serialDeviceThread.start();
+    serialDeviceThread.start(QThread::Priority::HighestPriority);
     //serialDeviceHandler.Disconnect();
 
     serialMenuHandler.MoveToThread(&serialMenuThread);

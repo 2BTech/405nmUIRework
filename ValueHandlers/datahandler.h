@@ -61,6 +61,8 @@ public:
     int GetDutyPercent();
     void SetDutyPercent(int val);
 
+    void ReceiveDataline(int serialNumber, long logNumber, float no2, float no, float nox, float cellTemp, float cellPress, float cellFlow, float pdv1, float pdv2, float scrubberTemp, float ozoneFlow, int errorByte, QString date, QString time, char mode, int dutyPercent);
+
 private:
     DataHandler();
     static DataHandler* instance;
@@ -82,6 +84,22 @@ private:
     QString time;
     char mode;
     int dutyPercent;
+
+    QList<int> serNumberHist;
+    QList<long> logNumberHist;
+    QList<float> noHist;
+    QList<float> no2Hist;
+    QList<float> noxHist;
+    QList<float> cellTempHist;
+    QList<float> cellPressHist;
+    QList<float> cellFlowHist;
+    QList<float> pdv1Hist;
+    QList<float> pdv2Hist;
+    QList<float> scrubberTempHist;
+    QList<float> ozoneFlowHist;
+    QList<int> errorByteHist;
+    QList<char> modeHist;
+    QList<int> dutyPercentHist;
 };
 
 #endif // DATAHANDLER_H

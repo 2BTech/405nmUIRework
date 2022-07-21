@@ -146,3 +146,73 @@ void DataHandler::SetDutyPercent(int val)
 {
     dutyPercent = val;
 }
+
+void DataHandler::ReceiveDataline(int serialNumber, long logNumber, float no2, float no, float nox, float cellTemp, float cellPress, float cellFlow, float pdv1, float pdv2, float scrubberTemp, float ozoneFlow, int errorByte, QString date, QString time, char mode, int dutyPercent)
+{
+    if (dutyPercentHist.count() > 100)
+    {
+        serNumberHist.removeFirst();
+        logNumberHist.removeFirst();
+        no2Hist.removeFirst();
+        noHist.removeFirst();
+        noxHist.removeFirst();
+        cellTempHist.removeFirst();
+        cellPressHist.removeFirst();
+        cellFlowHist.removeFirst();
+        pdv1Hist.removeFirst();
+        pdv2Hist.removeFirst();
+        scrubberTempHist.removeFirst();
+        ozoneFlowHist.removeFirst();
+        errorByteHist.removeFirst();
+        modeHist.removeFirst();
+        dutyPercentHist.removeFirst();
+    }
+
+    this->serialNumber = serialNumber;
+    serNumberHist.append(serialNumber);
+
+    this->logNumber = logNumber;
+    logNumberHist.append(logNumberHist);
+
+    this->no2 = no2;
+    no2Hist.append(no2);
+
+    this->no = no;
+    noHist.append(no);
+
+    this->nox = nox;
+    noxHist.append(nox);
+
+    this->cellTemp = cellTemp;
+    cellTempHist.append(cellTemp);
+
+    this->cellPress = cellPress;
+    cellPressHist.append(cellPress);
+
+    this->cellFlow = cellFlow;
+    cellFlowHist.append(cellFlow);
+
+    this->pdv1 = pdv1;
+    pdv1Hist.append(pdv1);
+
+    this->pdv2 = pdv2;
+    pdv2Hist.append(pdv2);
+
+    this->scrubberTemp = scrubberTemp;
+    scrubberTempHist.append(scrubberTemp);
+
+    this->ozoneFlow = ozoneFlow;
+    ozoneFlowHist.append(ozoneFlow);
+
+    this->errorByte = errorByte;
+    errorByteHist.append(errorByte);
+
+    this->date = date;
+    this->time = time;
+
+    this->mode = mode;
+    modeHist.append(mode);
+
+    this->dutyPercent = dutyPercent;
+    dutyPercentHist.append(dutyPercent);
+}
