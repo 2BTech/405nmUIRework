@@ -1,9 +1,9 @@
 #include "settingshandler.h"
 
-SettingsHandler* SettingsHandler::instance = nullptr;
+SettingsHandler* SettingsHandler::instance = Q_NULLPTR;
 SettingsHandler* SettingsHandler::GetInstance()
 {
-    if(instance == nullptr)
+    if(instance == Q_NULLPTR)
     {
         instance = new SettingsHandler();
     }
