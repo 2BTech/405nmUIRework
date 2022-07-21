@@ -1,13 +1,14 @@
 #include "mainwindow.h"
 #include "SerialHandlers/serialdevicehandler.h"
+#include "SerialHandlers/serialmenuhandler.h"
 #include "GlobalDefinitions.h"
 
 #include <QApplication>
 #include <QThread>
 #include <QFile>
 
-#define DEBUG_INIT_SER_HANDLERS
-void InitialeSerialHandlers(SerialDeviceHandler* deviceHander)
+//#define DEBUG_INIT_SER_HANDLERS
+void InitialeSerialHandlers(SerialDeviceHandler* deviceHander, SerialMenuHandler* serialMenuHandler)
 {
     QFile serialSettings(QString(WORKING_DIR).append("SerialSettings.txt"));
 
@@ -29,15 +30,16 @@ void InitialeSerialHandlers(SerialDeviceHandler* deviceHander)
                 if (line[0] == "ADuC")
                 {
 #ifdef DEBUG_INIT_SER_HANDLERS
-                    qDebug() << "Connecting serial device handler to " << line[0].simplified();
+                    qDebug() << "Connecting serial device handler to " << line[1].simplified();
 #endif
                     deviceHander->OpenSerialPort(line[1].simplified());
                 }
                 else if (line[0] == "Menu")
                 {
 #ifdef DEBUG_INIT_SER_HANDLERS
-                    qDebug() << "Connecting serial menu handler to " << line[0].simplified();
+                    qDebug() << "Connecting serial menu handler to " << line[1].simplified();
 #endif
+                    serialMenuHandler->OpenSerialPort(line[1].simplified());
                 }
                 else
                 {
@@ -73,10 +75,18 @@ int main(int argc, char *argv[])
     QThread serialDeviceThread;
     SerialDeviceHandler serialDeviceHandler;
 
-    InitialeSerialHandlers(&serialDeviceHandler);
+    QThread serialMenuThread;
+    SerialMenuHandler serialMenuHandler;
+
+    serialDeviceHandler.connect(&serialDeviceHandler, &SerialDeviceHandler::ReceivedDataline, &serialMenuHandler, &SerialMenuHandler::EchoMessage);
+
+    InitialeSerialHandlers(&serialDeviceHandler, &serialMenuHandler);
 
     serialDeviceHandler.MoveToThread(&serialDeviceThread);
     serialDeviceThread.start();
+
+    serialMenuHandler.MoveToThread(&serialMenuThread);
+    serialMenuThread.start();
 
     return a.exec();
 }

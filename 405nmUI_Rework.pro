@@ -10,6 +10,8 @@ CONFIG += c++17
 
 SOURCES += \
     SerialHandlers/serialdevicehandler.cpp \
+    SerialHandlers/serialhandlerbase.cpp \
+    SerialHandlers/serialmenuhandler.cpp \
     ValueHandlers/datahandler.cpp \
     main.cpp \
     mainwindow.cpp
@@ -17,6 +19,8 @@ SOURCES += \
 HEADERS += \
     GlobalDefinitions.h \
     SerialHandlers/serialdevicehandler.h \
+    SerialHandlers/serialhandlerbase.h \
+    SerialHandlers/serialmenuhandler.h \
     ValueHandlers/datahandler.h \
     mainwindow.h
 

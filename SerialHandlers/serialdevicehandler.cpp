@@ -1,63 +1,8 @@
 #include "serialdevicehandler.h"
 
-SerialDeviceHandler::SerialDeviceHandler() : QObject()
+SerialDeviceHandler::SerialDeviceHandler() : SerialHandlerBase()
 {
-    serialPort = new QSerialPort();
-    serialPort->setBaudRate(2400);
-    connect(serialPort, &QSerialPort::readyRead, this, &SerialDeviceHandler::OnReadyRead);
-}
 
-void SerialDeviceHandler::MoveToThread(QThread* thread)
-{
-    serialPort->moveToThread(thread);
-    moveToThread(thread);
-}
-
-void SerialDeviceHandler::OpenSerialPort(QString portName)
-{
-    serialPort->setPortName(portName);
-
-    if (!serialPort->open(QIODevice::ReadWrite))
-    {
-        qDebug() << "Opened serial device handler at " << portName;
-    }
-    else
-    {
-        qDebug() << "Failed to open serial device handler at " << portName;
-    }
-}
-
-void SerialDeviceHandler::OnReadyRead()
-{
-    // Holds the most recent character
-    char in;
-
-    // Continue reading bytes until all are handled
-    while (serialPort->bytesAvailable())
-    {
-        // Read in each byte indiidually
-        serialPort->read(&in, 1);
-
-        // Check if this signals the end of a line
-        if (in == '\r' || in == '\n')
-        {
-            // Parse data if some exists
-            if (!received.isEmpty())
-            {
-                ParseReceived();
-                received.clear();
-            }
-        }
-        else
-        {
-            received.append(in);
-        }
-    }
-    // Prevent an overflow condition if data is not being properly received. Max line size is around 100
-    if (received.count() > 1000)
-    {
-        received.clear();
-    }
 }
 
 void SerialDeviceHandler::ParseReceived()
@@ -161,4 +106,6 @@ void SerialDeviceHandler::ParseAsDataline()
 
     qDebug() << "Received dataline: " << finalDataline;
     qDebug() << "SQL insert: " << sqlInsert;
+
+    emit ReceivedDataline(finalDataline.toLatin1());
 }
