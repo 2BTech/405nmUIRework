@@ -2,9 +2,11 @@
 #define SERIALHANDLERBASE_H
 
 #include <QDebug>
-#include <QSerialPort>
 #include <QQueue>
 #include <QTimer>
+#include <QtSerialPort/QSerialPort>
+
+//#include "qserialport.h"
 
 // This class serves as a base for both the serial munu and device handlers
 class SerialHandlerBase : public QObject
