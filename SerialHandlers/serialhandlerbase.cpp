@@ -44,6 +44,8 @@ void SerialHandlerBase::WriteNextMessage()
 #ifdef DEBUG_SER_WRITE
         QByteArray message = writeQueue.dequeue();
         serialPort->write(message);
+        serialPort->waitForBytesWritten(-1);
+        serialPort->flush();
 #else
         serialPort.write(writeQueue.dequeue());
 #endif
