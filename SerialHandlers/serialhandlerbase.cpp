@@ -13,6 +13,7 @@ SerialHandlerBase::SerialHandlerBase() : QObject()
 void SerialHandlerBase::MoveToThread(QThread* thread)
 {
     serialPort->moveToThread(thread);
+    writeTimer.moveToThread(thread);
     moveToThread(thread);
 }
 
