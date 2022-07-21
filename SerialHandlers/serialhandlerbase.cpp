@@ -100,6 +100,7 @@ void SerialHandlerBase::QueueMessage(QByteArray arr)
     {
         writeQueue.append(arr);
 
+        qDebug() << arr;
         if (!isSendingMessage)
         {
             isSendingMessage = true;

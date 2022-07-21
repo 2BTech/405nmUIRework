@@ -9,7 +9,7 @@ SerialMenuHandler::SerialMenuHandler() : SerialHandlerBase()
 //#define DEBUG_ECHO_MESSAGE
 void SerialMenuHandler::EchoMessage(QByteArray message)
 {
-    if (message.endsWith('\n'))
+    if (!message.endsWith('\n'))
     {
         message = message.append('\n');
     }
