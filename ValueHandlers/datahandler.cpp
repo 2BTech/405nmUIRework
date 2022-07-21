@@ -1,6 +1,6 @@
 #include "datahandler.h"
 
-DataHandler * DataHandler::instance = nullptr;
+DataHandler * DataHandler::instance = Q_NULLPTR;
 DataHandler * DataHandler::GetInstance()
 {
     if(instance == nullptr)
