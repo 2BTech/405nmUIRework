@@ -107,8 +107,8 @@ void SerialDeviceHandler::ParseAsDataline()
 
     sqlInsert = split.join(',');
 
-    qDebug() << "Received dataline: " << finalDataline;
-    qDebug() << "SQL insert: " << sqlInsert;
+//    qDebug() << "Received dataline: " << finalDataline;
+//    qDebug() << "SQL insert: " << sqlInsert;
 
     emit ReceivedDataline(finalDataline.toLatin1());
 }

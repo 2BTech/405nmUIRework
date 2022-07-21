@@ -147,7 +147,7 @@ void DataHandler::SetDutyPercent(int val)
     dutyPercent = val;
 }
 
-#define DEBUG_RECEIVE_DATA_LINE
+//#define DEBUG_RECEIVE_DATA_LINE
 void DataHandler::ReceiveDataline(int serialNumber, long logNumber, float no2, float no, float nox, float cellTemp, float cellPress, float cellFlow, float pdv1, float pdv2, float scrubberTemp, float ozoneFlow, int errorByte, QString date, QString time, char mode, int dutyPercent)
 {
     if (dutyPercentHist.count() > 100)
@@ -250,7 +250,7 @@ void DataHandler::ReceiveDataline(int serialNumber, long logNumber, float no2, f
     serNumberHist.append(serialNumber);
 
     this->logNumber = logNumber;
-    logNumberHist.append(logNumberHist);
+    logNumberHist.append(logNumber);
 
     this->no2 = no2;
     no2Hist.append(no2);

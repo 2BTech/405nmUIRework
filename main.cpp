@@ -68,6 +68,7 @@ int main(int argc, char *argv[])
     qDebug() << (QString("Working dir: ") + WORKING_DIR);
     qDebug() << ("Started at: " + QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss a"));
     qDebug() << ("PID: " + QString::number(QCoreApplication::applicationPid()));
+    qDebug() << "Main thread: " << QThread::currentThread();
 
     MainWindow w;
     w.show();

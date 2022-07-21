@@ -24,7 +24,7 @@ public:
 protected slots:
     // Reads in each byte individually. If a new line character ('\r' or '\n') is received
     // then ParseReceived is called
-    void OnReadyRead();
+    virtual void OnReadyRead();
 
     // Writes the next message is write queue
     void WriteNextMessage();
