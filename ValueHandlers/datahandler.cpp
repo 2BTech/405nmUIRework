@@ -147,25 +147,103 @@ void DataHandler::SetDutyPercent(int val)
     dutyPercent = val;
 }
 
+#define DEBUG_RECEIVE_DATA_LINE
 void DataHandler::ReceiveDataline(int serialNumber, long logNumber, float no2, float no, float nox, float cellTemp, float cellPress, float cellFlow, float pdv1, float pdv2, float scrubberTemp, float ozoneFlow, int errorByte, QString date, QString time, char mode, int dutyPercent)
 {
     if (dutyPercentHist.count() > 100)
     {
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "History buffers are full";
+#endif
         serNumberHist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from serial number";
+#endif
+
         logNumberHist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from log number";
+#endif
+
         no2Hist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from no2";
+#endif
+
         noHist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from no";
+#endif
+
         noxHist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from nox";
+#endif
+
         cellTempHist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from cell press";
+#endif
+
         cellPressHist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from cell flow";
+#endif
+
         cellFlowHist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from pdv1";
+#endif
+
         pdv1Hist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from pdv2";
+#endif
+
         pdv2Hist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from scrubber temp";
+#endif
+
         scrubberTempHist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from ozone flow";
+#endif
+
         ozoneFlowHist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from error byte";
+#endif
+
         errorByteHist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from error byte";
+#endif
+
         modeHist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from mode";
+#endif
+
         dutyPercentHist.removeFirst();
+
+#ifdef DEBUG_RECEIVE_DATA_LINE
+        qDebug() << "Removed from duty percent";
+#endif
     }
 
     this->serialNumber = serialNumber;
