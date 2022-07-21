@@ -54,6 +54,13 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    qDebug() << (QString("Start Generic 2B Touch Software: Ver") + BUILD_VER);
+    qDebug() << (QString("Built using qt version: ") + qVersion());
+    qDebug() << (QString("Built at: ") + __DATE__ + QString(" ") + __TIME__);
+    qDebug() << (QString("Working dir: ") + WORKING_DIR);
+    qDebug() << ("Started at: " + QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss a"));
+    qDebug() << ("PID: " + QString::number(QCoreApplication::applicationPid()));
+
     MainWindow w;
     w.show();
 
