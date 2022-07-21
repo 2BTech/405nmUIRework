@@ -1,0 +1,164 @@
+#include "serialdevicehandler.h"
+
+SerialDeviceHandler::SerialDeviceHandler() : QObject()
+{
+    serialPort = new QSerialPort();
+    serialPort->setBaudRate(2400);
+    connect(serialPort, &QSerialPort::readyRead, this, &SerialDeviceHandler::OnReadyRead);
+}
+
+void SerialDeviceHandler::MoveToThread(QThread* thread)
+{
+    serialPort->moveToThread(thread);
+    moveToThread(thread);
+}
+
+void SerialDeviceHandler::OpenSerialPort(QString portName)
+{
+    serialPort->setPortName(portName);
+
+    if (!serialPort->open(QIODevice::ReadWrite))
+    {
+        qDebug() << "Opened serial device handler at " << portName;
+    }
+    else
+    {
+        qDebug() << "Failed to open serial device handler at " << portName;
+    }
+}
+
+void SerialDeviceHandler::OnReadyRead()
+{
+    // Holds the most recent character
+    char in;
+
+    // Continue reading bytes until all are handled
+    while (serialPort->bytesAvailable())
+    {
+        // Read in each byte indiidually
+        serialPort->read(&in, 1);
+
+        // Check if this signals the end of a line
+        if (in == '\r' || in == '\n')
+        {
+            // Parse data if some exists
+            if (!received.isEmpty())
+            {
+                ParseReceived();
+                received.clear();
+            }
+        }
+        else
+        {
+            received.append(in);
+        }
+    }
+    // Prevent an overflow condition if data is not being properly received. Max line size is around 100
+    if (received.count() > 1000)
+    {
+        received.clear();
+    }
+}
+
+void SerialDeviceHandler::ParseReceived()
+{
+    // Return if received is empty. This condition should not happen, but it guarantees this
+    if (received.isEmpty())
+    {
+        return;
+    }
+
+    switch(received[0])
+    {
+    // Dataline
+    case '$':
+        ParseAsDataline();
+        break;
+
+    default:
+        break;
+    }
+}
+
+void SerialDeviceHandler::ParseAsDataline()
+{
+    // Split received dataline into each section
+    QStringList split = QString(received).split(',');
+
+    QString finalDataline;
+    QString sqlInsert;
+
+    // Make sure the dataline is complte
+    if (split.count() != 18)
+    {
+        qDebug() << "Received incomplte dataline";
+        return;
+    }
+
+    // Remove the makring character
+    split.removeFirst();
+
+    // Get the serial number
+    int serialNumber = split[0].toInt();
+
+    // Get the log number
+    int logNumber = split[1].toInt();
+
+    // Get NO2
+    float NO2 = split[2].toFloat();
+
+    // Get NO
+    float NO = split[3].toFloat();
+
+    // Get NOx
+    float NOx = split[4].toFloat();
+
+    // Get cell temp
+    float cellTemp = split[5].toFloat();
+
+    // Get cell press
+    float cellPress = split[6].toFloat();
+
+    // Get cell fow
+    float cellFlow = split[7].toFloat();
+
+    // Get ozone flow
+    float ozoneFlow = split[8].toFloat();
+
+    // Get pdva
+    float pdva = split[9].toFloat();
+
+    // Get pdvb
+    float pdvB = split[10].toFloat();
+
+    // Get scrubber temp
+    float scrubberTemp = split[11].toFloat();
+
+    // Get error byte
+    int errorByte = split[12].toInt();
+
+    // Get date
+    QDate date = QDate::fromString(split[13], "dd/MM/yy");
+    date = date.addYears(100);
+
+    // Get time
+    QTime time = QTime::fromString(split[14]);
+
+    // Get mode
+    int mode = split[15].toInt();
+
+    // Get duty percent
+    float dutyPercent = split[16].toFloat();
+
+    // Rejoin the elements to get the dataline.
+    finalDataline = split.join(',');
+
+    // Replace date and time in split to be of the proper format
+    split[13] = date.toString("'yyyy/MM/dd'");
+    split[14] = time.toString(time.toString("'hh:mm:ss'"));
+
+    sqlInsert = split.join(',');
+
+    qDebug() << "Received dataline: " << finalDataline;
+    qDebug() << "SQL insert: " << sqlInsert;
+}
