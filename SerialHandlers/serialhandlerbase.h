@@ -47,6 +47,8 @@ protected:
 
     // First step in the parsing process
     virtual void ParseReceived() = 0;
+
+    virtual void QueueMessage(QByteArray arr);
 };
 
 #endif // SERIALHANDLERBASE_H

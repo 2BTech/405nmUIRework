@@ -87,3 +87,17 @@ void SerialHandlerBase::OnReadyRead()
         received.clear();
     }
 }
+
+void SerialHandlerBase::QueueMessage(QByteArray arr)
+{
+    if (arr.length() > 40)
+    {
+        int length = arr.length() / 2;
+        QueueMessage(arr.left(length));
+        QueueMessage(arr.right(arr.length() - length));
+    }
+    else
+    {
+        writeQueue.append(arr);
+    }
+}
