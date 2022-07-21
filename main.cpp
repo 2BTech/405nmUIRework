@@ -6,7 +6,7 @@
 #include <QThread>
 #include <QFile>
 
-//#define DEBUG_INIT_SER_HANDLERS
+#define DEBUG_INIT_SER_HANDLERS
 void InitialeSerialHandlers(SerialDeviceHandler* deviceHander)
 {
     QFile serialSettings(QString(WORKING_DIR).append("SerialSettings.txt"));
@@ -21,6 +21,9 @@ void InitialeSerialHandlers(SerialDeviceHandler* deviceHander)
         while(!serialSettings.atEnd())
         {
             line = QString(serialSettings.readLine()).split('|');
+#ifdef DEBUG_INIT_SER_HANDLERS
+            qDebug () << "Serial settings line: " << line;
+#endif
             if (line.count() == 2)
             {
                 if (line[0] == "ADuC")
@@ -42,6 +45,9 @@ void InitialeSerialHandlers(SerialDeviceHandler* deviceHander)
                 }
             }
         }
+#ifdef DEBUG_INIT_SER_HANDLERS
+        qDebug() << "Finished reading serial settings";
+#endif
     }
     else
     {
