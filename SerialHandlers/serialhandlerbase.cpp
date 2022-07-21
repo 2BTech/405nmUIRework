@@ -6,7 +6,7 @@ SerialHandlerBase::SerialHandlerBase() : QObject()
     serialPort->setBaudRate(2400);
     connect(serialPort, &QSerialPort::readyRead, this, &SerialHandlerBase::OnReadyRead);
 
-    writeTimer.setInterval(500);
+    writeTimer.setInterval(200);
     connect(&writeTimer, &QTimer::timeout, this, &SerialHandlerBase::WriteNextMessage);
 }
 
@@ -99,5 +99,11 @@ void SerialHandlerBase::QueueMessage(QByteArray arr)
     else
     {
         writeQueue.append(arr);
+
+        if (!isSendingMessage)
+        {
+            isSendingMessage = true;
+            WriteNextMessage();
+        }
     }
 }

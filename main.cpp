@@ -82,9 +82,9 @@ int main(int argc, char *argv[])
 
     InitialeSerialHandlers(&serialDeviceHandler, &serialMenuHandler);
 
-//    serialDeviceHandler.MoveToThread(&serialDeviceThread);
-//    serialDeviceThread.start();
-    serialDeviceHandler.Disconnect();
+    serialDeviceHandler.MoveToThread(&serialDeviceThread);
+    serialDeviceThread.start();
+    //serialDeviceHandler.Disconnect();
 
     serialMenuHandler.MoveToThread(&serialMenuThread);
     serialMenuThread.start();
