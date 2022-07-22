@@ -2,6 +2,7 @@
 #include "SerialHandlers/serialdevicehandler.h"
 #include "SerialHandlers/serialmenuhandler.h"
 #include "GlobalDefinitions.h"
+#include "ValueHandlers/settingshandler.h"
 
 #include <QApplication>
 #include <QThread>
@@ -70,6 +71,9 @@ int main(int argc, char *argv[])
     qDebug() << ("PID: " + QString::number(QCoreApplication::applicationPid()));
     qDebug() << "Main thread: " << QThread::currentThread();
 
+    // Call this function to read in all settings right away
+    SettingsHandler::GetInstance()->ReadSettingsFile();
+
     MainWindow w;
     w.show();
 
@@ -89,6 +93,9 @@ int main(int argc, char *argv[])
 
     serialMenuHandler.MoveToThread(&serialMenuThread);
     serialMenuThread.start(QThread::HighestPriority);
+
+    qDebug() << "Menu thread: " << &serialMenuThread;
+    qDebug() << "Device thread: " << &serialDeviceThread;
 
     return a.exec();
 }

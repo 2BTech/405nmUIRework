@@ -43,6 +43,21 @@ void SerialHandlerBase::WriteNextMessage()
     {
 #ifdef DEBUG_SER_WRITE
         QByteArray message = writeQueue.dequeue();
+        int count = serialPort->write(message);
+        if (count <= 0)
+        {
+            qDebug() << "Serial handler failed to write bytes";
+        }
+        else if (count != message.count())
+        {
+            qDebug() << "ERROR: Failed to write entire message: " << message;
+        }
+        else
+        {
+            bytesWritten += count;
+        }
+
+
         bytesWritten += serialPort->write(message);
         if (!serialPort->waitForBytesWritten(-1))
         {
@@ -113,7 +128,7 @@ void SerialHandlerBase::QueueMessage(QByteArray arr)
         if (!isSendingMessage)
         {
             isSendingMessage = true;
-            WriteNextMessage();
+            writeTimer.start();
         }
     }
 }

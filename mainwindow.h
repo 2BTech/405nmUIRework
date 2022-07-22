@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include <QFrame>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -17,5 +19,21 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+    // Refernce to UI objects
+    QFrame* statusLine;
+    QFrame* navigationLine;
+    QFrame* navSepLine;
+
+    // Handles the process of building UI elements for the page
+    void BuildUIElements();
+
+    // Build the status bar UI
+
+
+    // Build the navigation bar
+
+    // Build the data dislay section
+
 };
 #endif // MAINWINDOW_H
