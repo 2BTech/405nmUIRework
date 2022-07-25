@@ -1,6 +1,6 @@
 #include "serialmenuhandler.h"
 
-SerialMenuHandler::SerialMenuHandler() : SerialHandlerBase()
+SerialMenuHandler::SerialMenuHandler() : SerialHandlerBase("Menu")
 {
 #ifdef WRITE_TEST_DATA
     testWriteTimer.setInterval(600);

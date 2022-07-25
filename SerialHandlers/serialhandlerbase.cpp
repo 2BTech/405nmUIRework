@@ -1,6 +1,6 @@
 #include "serialhandlerbase.h"
 
-SerialHandlerBase::SerialHandlerBase() : QObject()
+SerialHandlerBase::SerialHandlerBase(QString name) : QObject()
 {
     serialPort = new QSerialPort();
     serialPort->setBaudRate(2400);
@@ -8,6 +8,8 @@ SerialHandlerBase::SerialHandlerBase() : QObject()
 
     writeTimer.setInterval(200);
     connect(&writeTimer, &QTimer::timeout, this, &SerialHandlerBase::WriteNextMessage);
+
+    this->name = name;
 }
 
 void SerialHandlerBase::MoveToThread(QThread* thread)
@@ -39,6 +41,7 @@ void SerialHandlerBase::Disconnect()
 #define DEBUG_SER_WRITE
 void SerialHandlerBase::WriteNextMessage()
 {
+    qDebug() << "Writing message for " << name;
     if (!writeQueue.isEmpty())
     {
 #ifdef DEBUG_SER_WRITE
@@ -56,7 +59,6 @@ void SerialHandlerBase::WriteNextMessage()
         {
             bytesWritten += count;
         }
-
 
         bytesWritten += serialPort->write(message);
         if (!serialPort->waitForBytesWritten(-1))
@@ -77,10 +79,13 @@ void SerialHandlerBase::WriteNextMessage()
     {
         isSendingMessage = false;
     }
+    qDebug() << "Finished Writing message for " << name;
 }
 
 void SerialHandlerBase::OnReadyRead()
 {
+    qDebug() << "Reading message for " << name;
+
     // Holds the most recent character
     char in;
 
@@ -110,6 +115,7 @@ void SerialHandlerBase::OnReadyRead()
     {
         received.clear();
     }
+    qDebug() << "Finished reading message for " << name;
 }
 
 void SerialHandlerBase::QueueMessage(QByteArray arr)

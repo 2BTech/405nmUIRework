@@ -12,7 +12,7 @@
 class SerialHandlerBase : public QObject
 {
 public:
-    SerialHandlerBase();
+    SerialHandlerBase(QString name);
 
     // Opens the serial port conection with the provided port name
     virtual void OpenSerialPort(QString portName);
@@ -46,6 +46,8 @@ protected:
     QTimer writeTimer;
 
     int bytesWritten = 0;
+
+    QString name;
 
     // First step in the parsing process
     virtual void ParseReceived() = 0;
