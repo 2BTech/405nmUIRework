@@ -1,6 +1,6 @@
 #include "serialdevicehandler.h"
 
-SerialDeviceHandler::SerialDeviceHandler() : SerialHandlerBase()
+SerialDeviceHandler::SerialDeviceHandler() : SerialHandlerBase("Device")
 {
 
 }

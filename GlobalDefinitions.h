@@ -9,7 +9,7 @@
 //#define WORKING_DIR "D:\\_Work\\405WorkingDir\\"
 #define WORKING_DIR "D:/_Work/405WorkingDir/"
 #else
-#define WORKING_DIR "/home/pi/"
+#define WORKING_DIR "/home/2b/"
 #endif
 
 #define BUILD_VER "0.0.1"

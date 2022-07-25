@@ -1,7 +1,7 @@
 #ifndef SERIALMENUHANDLER_H
 #define SERIALMENUHANDLER_H
 
-#define WRITE_TEST_DATA
+//#define WRITE_TEST_DATA
 
 #include <QThread>
 

@@ -8,6 +8,7 @@ SerialHandlerBase::SerialHandlerBase(QString name) : QObject()
 
     writeTimer.setInterval(200);
     connect(&writeTimer, &QTimer::timeout, this, &SerialHandlerBase::WriteNextMessage);
+    writeTimer.setSingleShot(true);
 
     this->name = name;
 }
@@ -60,7 +61,6 @@ void SerialHandlerBase::WriteNextMessage()
             bytesWritten += count;
         }
 
-        bytesWritten += serialPort->write(message);
         if (!serialPort->waitForBytesWritten(-1))
         {
             qDebug() << "Failed to wait for bytes to write";
