@@ -15,7 +15,7 @@ SerialPort::SerialPort()
     connect(writeThread, &SerialWriteThread::FinishedWriting, this, &SerialPort::OnWriteThreadFinish);
 #endif
 
-    connect(this, &SerialPort::ReadyRead, this, &SerialPort::OnReadyRead);
+    //connect(this, &SerialPort::ReadyRead, this, &SerialPort::OnReadyRead);
 }
 
 SerialPort::SerialPort(const QString &portName, BaudRate baudrate) : SerialPort()
