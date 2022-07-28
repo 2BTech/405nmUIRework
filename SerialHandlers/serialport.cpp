@@ -163,7 +163,7 @@ bool SerialPort::openPort(QIODevice::OpenMode openMode)
 {
 
 #ifdef DEBUG_SERIAL_PORT
-    qInfo(QString("Attempting to connect serial port to " + portname).toLatin1());
+    qDebug() << (QString("Attempting to connect serial port to " + portname).toLatin1());
 #endif
 
     if (is_open)
@@ -547,7 +547,7 @@ void SerialPort::readThreadFunct()
         if (count > 0)
         {
             readBuffer[count] = 0;
-            qInfo("Read in data");
+            qDebug() << ("Read in data");
             readBufferMutex.lock();
             this->readBuffer.append(readBuffer);
 
@@ -557,7 +557,7 @@ void SerialPort::readThreadFunct()
             // ToDo, replace with ring/circular buffer
             if (this->readBuffer.length() > maxReadBufferSize)
             {
-                qInfo("Shrunk read buffer");
+                qDebug() << ("Shrunk read buffer");
                 this->readBuffer.remove(0, this->readBuffer.length() - maxReadBufferSize);
             }
 
@@ -580,7 +580,7 @@ void SerialPort::writeThreadFunct()
 
         if (writeResult < 0)
         {
-            qInfo("ERROR: Failed to write bytes to serial port");
+            qDebug() << ("ERROR: Failed to write bytes to serial port");
         }
 //        else
 //        {

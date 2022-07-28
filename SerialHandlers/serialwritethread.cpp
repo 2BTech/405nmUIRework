@@ -23,7 +23,7 @@ void SerialWriteThread::run()
 
         if (writeResult < 0)
         {
-            qInfo("ERROR: Failed to write bytes to serial port");
+            qDebug() << ("ERROR: Failed to write bytes to serial port");
         }
 //        else
 //        {
