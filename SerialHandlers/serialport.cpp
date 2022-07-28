@@ -6,7 +6,14 @@ SerialPort::SerialPort()
 {
     readBuffer = new char[200];
 
+#ifndef USE_THREAD_OBJECTS
     readThread = QThread::create(std::bind(&SerialPort::readThreadFunct, this));
+#else
+    writeThread = new SerialWriteThread(&fd, &writeMutex, &writeBuffer, &is_open);
+    readThread = new SerialReadThread(&fd, &readBuffer, &readBufferMutex, &maxReadBufferSize, &is_open);
+    connect(readThread, &SerialReadThread::ReadyRead, this, &SerialPort::ReadyRead);
+    connect(writeThread, &SerialWriteThread::FinishedWriting, this, &SerialPort::OnWriteThreadFinish);
+#endif
 
     connect(this, &SerialPort::ReadyRead, this, &SerialPort::OnReadyRead);
 }
@@ -33,7 +40,8 @@ SerialPort::~SerialPort()
     writeThread->deleteLater();
     readThread->deleteLater();
 
-    writeThread = readThread = Q_NULLPTR;
+    readThread = Q_NULLPTR;
+    writeThread = Q_NULLPTR;
 }
 
 void SerialPort::setPortName(const QString &portName)
@@ -141,8 +149,13 @@ void SerialPort::setReadBufferSize(int size)
 //    readBuffer = nBuffer;
 
     readBufferMutex.lock();
+
+    if (readBuffer.length() > size)
+    {
+        readBuffer.resize(size);
+    }
+
     maxReadBufferSize = size;
-    readBuffer.resize(size);
     readBufferMutex.unlock();
 }
 
@@ -248,7 +261,11 @@ void SerialPort::writeData(const char* data, int len)
         {
             writeThreadActive = true;
             //qDebug() << "Starting thread";
+#ifndef USE_THREAD_OBJECTS
             StartWriteThread();
+#else
+            writeThread->start();
+#endif
         }
         //qDebug() << "Releasing write mutex";
         writeMutex.unlock();
@@ -296,21 +313,6 @@ qint64 SerialPort::readData(QByteArray &data)
     }
 }
 
-int SerialPort::available()
-{
-    if (is_open && fd >= 0)
-    {
-        int res = 0;
-        ioctl(fd, FIONREAD, &res);
-        return res;
-    }
-    else
-    {
-        qWarning("ERROR: Trying to get available bytes from closed serial port");
-        return -1;
-    }
-}
-
 qint64 SerialPort::readData(char* buffer, qint64 maxLen)
 {
     readBufferMutex.lock();
@@ -324,6 +326,11 @@ qint64 SerialPort::readData(char* buffer, qint64 maxLen)
 
     readBufferMutex.unlock();
     return maxLen;
+}
+
+int SerialPort::available()
+{
+    return readBuffer.length();
 }
 
 void SerialPort::ConfigureTermios()
@@ -527,6 +534,7 @@ termios2 SerialPort::getTermios2()
     return term2;
 }
 
+#ifndef USE_THREAD_OBJECTS
 void SerialPort::readThreadFunct()
 {
     char readBuffer[256];
@@ -581,6 +589,7 @@ void SerialPort::writeThreadFunct()
     }
     //qDebug() << "Finished write thread";
 }
+#endif
 
 void SerialPort::OnReadyRead()
 {
@@ -589,5 +598,6 @@ void SerialPort::OnReadyRead()
     readData(data);
     qDebug() << "Read in: " << data;
 }
+
 
 #endif // ifndef Q_OS_WIN

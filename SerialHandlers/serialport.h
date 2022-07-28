@@ -27,6 +27,8 @@
 // manipulating serial port settings
 #include <asm/termbits.h>
 
+#include "serialwritethread.h"
+#include "serialreadthread.h"
 
 enum class BaudRate {
     B_0,
@@ -68,6 +70,8 @@ enum class StopBits {
     ONE,
     TWO
 };
+
+#define USE_THREAD_OBJECTS
 
 // https://github.com/gbmhunter/CppLinuxSerial/blob/master/include/CppLinuxSerial/SerialPort.hpp
 #define DEBUG_SERIAL_PORT
@@ -115,9 +119,6 @@ public:
 
     int available();
 
-    void readThreadFunct();
-    void writeThreadFunct();
-
 signals:
     void ReadyRead();
 
@@ -125,13 +126,19 @@ private slots:
     void OnReadyRead();
     void OnWriteThreadFinish()
     {
+#ifndef USE_THREAD_OBJECTS
         writeThread->deleteLater();
         writeThread = Q_NULLPTR;
+#endif
 
         //qDebug() << "Write thread finshed. Buffer size: " << writeBuffer.length();
         if (writeBuffer.length() > 0)
         {
+#ifndef USE_THREAD_OBJECTS
             StartWriteThread();
+#else
+            writeThread->start();
+#endif
         }
         else
         {
@@ -174,8 +181,13 @@ private:
     void SetTermios2(termios2 tty);
     termios2 getTermios2();
 
+
+#ifndef USE_THREAD_OBJECTS
     QThread* writeThread = Q_NULLPTR;
     QThread* readThread = Q_NULLPTR;
+
+    void readThreadFunct();
+    void writeThreadFunct();
 
     void StartWriteThread()
     {
@@ -183,6 +195,10 @@ private:
         connect(writeThread, &QThread::finished, this, &SerialPort::OnWriteThreadFinish);
         writeThread->start();
     }
+#else
+    SerialWriteThread* writeThread = Q_NULLPTR;
+    SerialReadThread* readThread = Q_NULLPTR;
+#endif
 };
 
 #endif // ifndef Q_OS_WIN

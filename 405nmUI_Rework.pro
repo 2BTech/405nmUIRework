@@ -15,6 +15,8 @@ SOURCES += \
     SerialHandlers/serialhandlerbase.cpp \
     SerialHandlers/serialmenuhandler.cpp \
     SerialHandlers/serialport.cpp \
+    SerialHandlers/serialreadthread.cpp \
+    SerialHandlers/serialwritethread.cpp \
     SettingsPages/averagetimeform.cpp \
     SettingsPages/basepage.cpp \
     SettingsPages/basesettingspage.cpp \
@@ -30,6 +32,8 @@ HEADERS += \
     SerialHandlers/serialhandlerbase.h \
     SerialHandlers/serialmenuhandler.h \
     SerialHandlers/serialport.h \
+    SerialHandlers/serialreadthread.h \
+    SerialHandlers/serialwritethread.h \
     SettingsPages/averagetimeform.h \
     SettingsPages/basepage.h \
     SettingsPages/basesettingspage.h \
