@@ -21,7 +21,7 @@ void SerialReadThread::run()
         if (count > 0)
         {
             readBuffer[count] = 0;
-            qInfo("Read in data");
+            qDebug() << ("Read in data");
             pReadMutex->lock();
             pReadBuffer->append(readBuffer);
 
@@ -31,7 +31,7 @@ void SerialReadThread::run()
             // ToDo, replace with ring/circular buffer
             if (pReadBuffer->length() > *pReadBufferLength)
             {
-                qInfo("Shrunk read buffer");
+                qDebug() << ("Shrunk read buffer");
                 pReadBuffer->remove(0, pReadBuffer->length() - *pReadBufferLength);
             }
 
