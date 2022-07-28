@@ -6,8 +6,6 @@ SerialMenuHandler::SerialMenuHandler() : SerialHandlerBase("Menu")
     testWriteTimer.setInterval(600);
     connect(&testWriteTimer, &QTimer::timeout, this, &SerialMenuHandler::WriteTestString);
 #endif
-
-    serialPort->setBaudRate(19200);
 }
 
 //#define DEBUG_ECHO_MESSAGE
@@ -45,11 +43,19 @@ void SerialMenuHandler::OnReadyRead()
     // Holds the most recent character
     char in;
 
+#ifdef Q_OS_WIN
     // Continue reading bytes until all are handled
     while (serialPort->bytesAvailable())
     {
         // Read in each byte indiidually
         serialPort->read(&in, 1);
+#else
+    // Continue reading bytes until all are handled
+    while (serialPort->available())
+    {
+        // Read in each byte indiidually
+        serialPort->readData(&in, 1);
+#endif
 
         if (!isInMenu)
         {
@@ -99,7 +105,11 @@ void SerialMenuHandler::ParseReceived()
 
     char in;
 
+#ifdef Q_OS_WIN
     serialPort->read(&in,  1);
+#else
+    serialPort->readData(&in,  1);
+#endif
 
     switch(in)
     {

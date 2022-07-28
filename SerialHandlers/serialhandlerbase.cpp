@@ -2,9 +2,17 @@
 
 SerialHandlerBase::SerialHandlerBase(QString name) : QObject()
 {
+
+
+#ifdef Q_OS_WIN
     serialPort = new QSerialPort();
     serialPort->setBaudRate(2400);
     connect(serialPort, &QSerialPort::readyRead, this, &SerialHandlerBase::OnReadyRead);
+#else
+    serialPort = new SerialPort();
+    serialPort->setBaudRate(BaudRate::B_2400);
+    connect(serialPort, &SerialPort::ReadyRead, this, &SerialHandlerBase::OnReadyRead);
+#endif
 
     writeTimer.setInterval(200);
     connect(&writeTimer, &QTimer::timeout, this, &SerialHandlerBase::WriteNextMessage);
@@ -24,7 +32,11 @@ void SerialHandlerBase::OpenSerialPort(QString portName)
 {
     serialPort->setPortName(portName);
 
+#ifdef Q_OS_WIN
     if (serialPort->open(QIODevice::ReadWrite))
+#else
+    if (serialPort->openPort(QIODevice::ReadWrite))
+#endif
     {
         qDebug() << "Opened serial device handler at " << portName;
     }
@@ -36,7 +48,11 @@ void SerialHandlerBase::OpenSerialPort(QString portName)
 
 void SerialHandlerBase::Disconnect()
 {
+#ifdef Q_OS_WIN
     serialPort->close();
+#else
+    serialPort->closePort();
+#endif
 }
 
 #define DEBUG_SER_WRITE
@@ -45,6 +61,7 @@ void SerialHandlerBase::WriteNextMessage()
     qDebug() << "Writing message for " << name;
     if (!writeQueue.isEmpty())
     {
+#ifdef Q_OS_WIN
 #ifdef DEBUG_SER_WRITE
         QByteArray message = writeQueue.dequeue();
         int count = serialPort->write(message);
@@ -71,7 +88,10 @@ void SerialHandlerBase::WriteNextMessage()
         }
         qDebug() << "Number of bytes written: " << bytesWritten;
 #else
-        serialPort.write(writeQueue.dequeue());
+        serialPort->write(writeQueue.dequeue());
+#endif
+#else
+        serialPort->writeData(writeQueue.dequeue());
 #endif
         writeTimer.start();
     }
@@ -89,11 +109,19 @@ void SerialHandlerBase::OnReadyRead()
     // Holds the most recent character
     char in;
 
+#ifdef Q_OS_WIN
     // Continue reading bytes until all are handled
     while (serialPort->bytesAvailable())
     {
         // Read in each byte indiidually
         serialPort->read(&in, 1);
+#else
+    // Continue reading bytes until all are handled
+    while (serialPort->available())
+    {
+        // Read in each byte indiidually
+        serialPort->readData(&in, 1);
+#endif
 
         // Check if this signals the end of a line
         if (in == '\r' || in == '\n')

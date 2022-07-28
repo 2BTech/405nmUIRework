@@ -4,6 +4,11 @@
 #include <QMainWindow>
 
 #include <QFrame>
+#include <QLabel>
+#include <QPushButton>
+#include <QDebug>
+
+#include "SettingsPages/settingsmenu.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,23 +22,59 @@ public:
     MainWindow(QWidget *parent = Q_NULLPTR);
     ~MainWindow();
 
+private slots:
+    void OnAvgMaskClicked();
+
+    void OnErrMaskClicked();
+
+    void OnSettingsClicked();
+
+    void OnParametersClicked();
+
+    void OnGraphClicked();
+
 private:
     Ui::MainWindow *ui;
 
     // Refernce to UI objects
-    QFrame* statusLine;
-    QFrame* navigationLine;
-    QFrame* navSepLine;
+    QFrame* statusLine = Q_NULLPTR;
+    QFrame* navigationLine = Q_NULLPTR;
+    QFrame* navSepLine = Q_NULLPTR;
+
+    // Status bar objects
+    QLabel* statusLabel = Q_NULLPTR;
+    QLabel* loggingLabel = Q_NULLPTR;
+    QLabel* logLabel = Q_NULLPTR;
+    QLabel* avgStateLabel = Q_NULLPTR;
+    QPushButton* avgStateMask = Q_NULLPTR;
+    QLabel* errLabel = Q_NULLPTR;
+    QPushButton* errMask = Q_NULLPTR;
+
+    // Nav bar objects
+    QPushButton* settingsButton = Q_NULLPTR;
+    QPushButton* parametersButton = Q_NULLPTR;
+    QPushButton* graphButton = Q_NULLPTR;
+
+    // Data display objects
+    QLabel* noLabel = Q_NULLPTR;
+    QLabel* no2Label = Q_NULLPTR;
+    QLabel* noxLabel = Q_NULLPTR;
+    QLabel* dateTimeLabel = Q_NULLPTR;
+
+    // Settings menu
+    SettingsMenu* settingsMenu = Q_NULLPTR;
 
     // Handles the process of building UI elements for the page
     void BuildUIElements();
 
     // Build the status bar UI
-
+    void BuildStatusBar();
 
     // Build the navigation bar
+    void BuildNavBar();
 
     // Build the data dislay section
+    void BuildDataLabels();
 
 };
 #endif // MAINWINDOW_H

@@ -4,9 +4,14 @@
 #include <QDebug>
 #include <QQueue>
 #include <QTimer>
-#include <QtSerialPort/QSerialPort>
 
 //#include "qserialport.h"
+
+#ifdef Q_OS_WIN
+#include <QSerialPort>
+#else
+#include "serialport.h"
+#endif
 
 // This class serves as a base for both the serial munu and device handlers
 class SerialHandlerBase : public QObject
@@ -31,7 +36,11 @@ protected slots:
 
 protected:
     // Used to read and write with the device
+#ifdef Q_OS_WIN
     QSerialPort* serialPort = Q_NULLPTR;
+#else
+    SerialPort* serialPort = Q_NULLPTR;
+#endif
 
     // Holds the bytes that are read in from the serial port
     QByteArray received;
