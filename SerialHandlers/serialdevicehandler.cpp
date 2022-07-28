@@ -5,6 +5,7 @@ SerialDeviceHandler::SerialDeviceHandler() : SerialHandlerBase("Device")
 
 }
 
+//#define DEBUG_PARSE_RECEIVED
 void SerialDeviceHandler::ParseReceived()
 {
     // Return if received is empty. This condition should not happen, but it guarantees this
@@ -17,6 +18,9 @@ void SerialDeviceHandler::ParseReceived()
     {
     // Dataline
     case '$':
+#ifdef DEBUG_PARSE_RECEIVED
+        qDebug() << "Parsing as dataline";
+#endif
         ParseAsDataline();
         break;
 
@@ -107,7 +111,7 @@ void SerialDeviceHandler::ParseAsDataline()
 
     sqlInsert = split.join(',');
 
-//    qDebug() << "Received dataline: " << finalDataline;
+    qDebug() << "Received dataline: " << finalDataline;
 //    qDebug() << "SQL insert: " << sqlInsert;
 
     emit ReceivedDataline(finalDataline.toLatin1());

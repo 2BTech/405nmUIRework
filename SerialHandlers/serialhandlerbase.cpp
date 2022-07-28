@@ -55,15 +55,16 @@ void SerialHandlerBase::Disconnect()
 #endif
 }
 
-#define DEBUG_SER_WRITE
+//#define DEBUG_SER_WRITE
 void SerialHandlerBase::WriteNextMessage()
 {
-    qDebug() << "Writing message for " << name;
+    //qDebug() << "Writing message for " << name;
     if (!writeQueue.isEmpty())
     {
 #ifdef Q_OS_WIN
 #ifdef DEBUG_SER_WRITE
         QByteArray message = writeQueue.dequeue();
+        qDebug() << "Writing: " << message;
         int count = serialPort->write(message);
         if (count <= 0)
         {
@@ -99,12 +100,12 @@ void SerialHandlerBase::WriteNextMessage()
     {
         isSendingMessage = false;
     }
-    qDebug() << "Finished Writing message for " << name;
+    //qDebug() << "Finished Writing message for " << name;
 }
 
 void SerialHandlerBase::OnReadyRead()
 {
-    qDebug() << "Reading message for " << name;
+    //qDebug() << "Reading message for " << name;
 
     // Holds the most recent character
     char in;
@@ -129,6 +130,7 @@ void SerialHandlerBase::OnReadyRead()
             // Parse data if some exists
             if (!received.isEmpty())
             {
+                qDebug() << "Data: " << received;
                 ParseReceived();
                 received.clear();
             }
@@ -143,7 +145,7 @@ void SerialHandlerBase::OnReadyRead()
     {
         received.clear();
     }
-    qDebug() << "Finished reading message for " << name;
+    //qDebug() << "Finished reading message for " << name;
 }
 
 void SerialHandlerBase::QueueMessage(QByteArray arr)
@@ -161,6 +163,7 @@ void SerialHandlerBase::QueueMessage(QByteArray arr)
         //qDebug() << arr;
         if (!isSendingMessage)
         {
+            //qDebug() << "Starting write";
             isSendingMessage = true;
             writeTimer.start();
         }

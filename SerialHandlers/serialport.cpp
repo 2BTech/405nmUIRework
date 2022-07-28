@@ -551,8 +551,8 @@ void SerialPort::readThreadFunct()
             readBufferMutex.lock();
             this->readBuffer.append(readBuffer);
 
-            qDebug() << "Local read buffer: " << readBuffer;
-            qDebug() << "Global read buffer: " << this->readBuffer;
+            //qDebug() << "Local read buffer: " << readBuffer;
+            //qDebug() << "Global read buffer: " << this->readBuffer;
 
             // ToDo, replace with ring/circular buffer
             if (this->readBuffer.length() > maxReadBufferSize)

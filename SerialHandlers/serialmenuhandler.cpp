@@ -11,7 +11,7 @@ SerialMenuHandler::SerialMenuHandler() : SerialHandlerBase("Menu")
 //#define DEBUG_ECHO_MESSAGE
 void SerialMenuHandler::EchoMessage(QByteArray message)
 {
-    qDebug() << "SerialMenuHandler thread: " << QThread::currentThread();
+    //qDebug() << "SerialMenuHandler thread: " << QThread::currentThread();
     if (!message.endsWith('\n'))
     {
         message = message.append('\n');
@@ -23,10 +23,16 @@ void SerialMenuHandler::EchoMessage(QByteArray message)
 
     if (isInMenu)
     {
+#ifdef DEBUG_ECHO_MESSAGE
+        qDebug() << "In menu";
+#endif
         menuBlockedMessages.append(message);
     }
     else
     {
+#ifdef DEBUG_ECHO_MESSAGE
+        qDebug() << "Queuing message";
+#endif
         QueueMessage(message);
     }
 }

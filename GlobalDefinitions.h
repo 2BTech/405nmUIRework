@@ -9,7 +9,9 @@
 //#define WORKING_DIR "D:\\_Work\\405WorkingDir\\"
 #define WORKING_DIR "D:/_Work/405WorkingDir/"
 #else
-#define WORKING_DIR "/home/2b/"
+#include <QDir>
+//#define WORKING_DIR "/home/2b/"
+#define WORKING_DIR QDir::currentPath().append('/')
 #endif
 
 #define BUILD_VER "0.0.1"

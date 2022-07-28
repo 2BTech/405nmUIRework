@@ -21,12 +21,12 @@ void SerialReadThread::run()
         if (count > 0)
         {
             readBuffer[count] = 0;
-            qDebug() << ("Read in data");
+            //qDebug() << ("Read in data");
             pReadMutex->lock();
             pReadBuffer->append(readBuffer);
 
-            qDebug() << "Local read buffer: " << readBuffer;
-            qDebug() << "Global read buffer: " << *pReadBuffer;
+            //qDebug() << "Local read buffer: " << readBuffer;
+            //qDebug() << "Global read buffer: " << *pReadBuffer;
 
             // ToDo, replace with ring/circular buffer
             if (pReadBuffer->length() > *pReadBufferLength)
