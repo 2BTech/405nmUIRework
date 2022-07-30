@@ -12,382 +12,53 @@ SettingsHandler* SettingsHandler::GetInstance()
 
 SettingsHandler::SettingsHandler()
 {
-
+    BuildObjects();
 }
 
-unsigned char SettingsHandler::GetAvgTime()
+SettingsHandler::~SettingsHandler()
 {
-    return avgTime;
+    avgTime->deleteLater();
+
+    adShort->deleteLater();
+    adLong->deleteLater();
+    adDiff->deleteLater();
+    adPercent->deleteLater();
+
+    analogNO->deleteLater();
+    analogNO2->deleteLater();
+
+    noSlope->deleteLater();
+    noZero->deleteLater();
+
+    no2Slope->deleteLater();
+    no2Zero->deleteLater();
+
+    ozoneFlowSlope->deleteLater();
+    cellFlowSlope->deleteLater();
+
+    mode->deleteLater();
+
+    errorCode->deleteLater();
+
+    dateFormat->deleteLater();
+
+    serialNumber->deleteLater();
+
+    avgTime = adShort = adLong = adDiff = adPercent = mode = dateFormat = Q_NULLPTR;
+
+    analogNO = analogNO2 = errorCode = serialNumber = Q_NULLPTR;
+
+    noSlope = noZero = no2Slope = no2Zero = ozoneFlowSlope = cellFlowSlope = Q_NULLPTR;
 }
-void SettingsHandler::SetAvgTime(unsigned char val, bool writeSerial, bool writeModbus)
+
+void SettingsHandler::OnValueChanged()
 {
-    avgTime = val;
-
-    if(writeSerial)
-    {
-        emit WriteCharSetting(AvgTimeMarker, avgTime);
-    }
-
-    if(writeModbus)
-    {
-        emit SetSingleRegister(AVG_TIME_REGISTER, avgTime);
-        emit SetNewSettingCoil();
-    }
-
     WriteSettingsFile();
-    emit NewAverageTimeSetting();
-}
-
-unsigned char SettingsHandler::GetAdShort()
-{
-    return adShort;
-}
-void SettingsHandler::SetAdShort(unsigned char val, bool writeSerial, bool writeModbus)
-{
-    adShort = val;
-
-    if(writeSerial)
-    {
-        emit WriteCharSetting(AdaptiveShortMarker, adShort);
-    }
-
-    if(writeModbus)
-    {
-        emit SetSingleRegister(AD_SHORT_REGISTER, adShort);
-        emit SetNewSettingCoil();
-    }
-
-    WriteSettingsFile();
-    emit NewAdaptiveFilterSetting();
-}
-
-unsigned char SettingsHandler::GetAdLong()
-{
-    return adLong;
-}
-void SettingsHandler::SetAdLong(unsigned char val, bool writeSerial, bool writeModbus)
-{
-    adLong = val;
-
-    if(writeSerial)
-    {
-         emit WriteCharSetting(AdaptiveLongMarker, adLong);
-    }
-
-    if(writeModbus)
-    {
-        emit SetSingleRegister(AD_LONG_REGISTER, adLong);
-        emit SetNewSettingCoil();
-    }
-
-    WriteSettingsFile();
-    emit NewAdaptiveFilterSetting();
-}
-
-unsigned char SettingsHandler::GetAdDiff()
-{
-    return adDiff;
-}
-void SettingsHandler::SetAdDiff(unsigned char val, bool writeSerial, bool writeModbus){
-    adDiff = val;
-
-    if(writeSerial)
-    {
-        emit WriteCharSetting(AdaptiveDifferenceMarker, adDiff);
-    }
-
-    if(writeModbus)
-    {
-        emit SetSingleRegister(AD_DIFF_REGISTER, adDiff);
-        emit SetNewSettingCoil();
-    }
-
-    WriteSettingsFile();
-    emit NewAdaptiveFilterSetting();
-}
-
-unsigned char SettingsHandler::GetAdPercent()
-{
-    return adPercent;
-}
-void SettingsHandler::SetAdPercent(unsigned char val, bool writeSerial, bool writeModbus){
-    adPercent = val;
-
-    if(writeSerial)
-    {
-        emit WriteCharSetting(AdaptivePercentMarker, adPercent);
-    }
-
-    if(writeModbus)
-    {
-        emit SetSingleRegister(AD_PERCENT_REGISTER, adPercent);
-        emit SetNewSettingCoil();
-    }
-
-    WriteSettingsFile();
-    emit NewAdaptiveFilterSetting();
-}
-
-unsigned char SettingsHandler::GetBitMask()
-{
-    return bitMask;
-}
-void SettingsHandler::SetBitMask(unsigned char val, bool writeSerial, bool writeModbus){
-    bitMask = val;
-
-    if(writeSerial)
-    {
-        emit WriteCharSetting(BitMaskMarker, bitMask);
-    }
-
-    if(writeModbus)
-    {
-        emit SetSingleRegister(BITMASK_REGISTER, bitMask);
-        emit SetNewSettingCoil();
-    }
-
-    WriteSettingsFile();
-}
-
-int SettingsHandler::GetAnalogNO()
-{
-    return analogNO;
-}
-void SettingsHandler::SetAnalogNO(int val, bool writeSerial, bool writeModbus){
-    analogNO = val;
-
-    if(writeSerial)
-    {
-        emit WriteIntSetting(NOAnalogMarker, analogNO);
-    }
-
-    if(writeModbus)
-    {
-        emit SetSingleRegister(NO_ANALOG_REGISTER, static_cast<short>(analogNO));
-        emit SetNewSettingCoil();
-    }
-
-    WriteSettingsFile();
-    emit NewNOCalSetting();
-}
-
-int SettingsHandler::GetAnalogNO2()
-{
-    return analogNO2;
-}
-void SettingsHandler::SetAnalogNO2(int val, bool writeSerial, bool writeModbus)
-{
-    analogNO2 = val;
-
-    if(writeSerial)
-    {
-        emit WriteIntSetting(NO2AnalogMarker, analogNO2);
-    }
-
-    if(writeModbus)
-    {
-        emit SetSingleRegister(NO2_ANALOG_REGISTER, static_cast<short>(analogNO2));
-        emit SetNewSettingCoil();
-    }
-
-    WriteSettingsFile();
-    emit NewNO2CalSetting();
-}
-
-float SettingsHandler::GetNOSlope()
-{
-    return noSlope;
-}
-void SettingsHandler::SetNOSlope(float val, bool writeSerial, bool writeModbus)
-{
-    noSlope = val;
-
-    if(writeSerial)
-    {
-        emit WriteFloatSetting(NOSlopeMarker, noSlope);
-    }
-
-    if(writeModbus)
-    {
-        emit SetFloatRegisters(NO_SLOPE_REGISTER, noSlope);
-        emit SetNewSettingCoil();
-    }
-
-    WriteSettingsFile();
-    emit NewNOCalSetting();
-}
-
-float SettingsHandler::GetNOZero()
-{
-    return noZero;
-}
-void SettingsHandler::SetNOZero(float val, bool writeSerial, bool writeModbus)
-{
-    noZero = val;
-
-    if(writeSerial)
-    {
-        emit WriteFloatSetting(NOZeroMarker, noZero);
-    }
-
-    if(writeModbus)
-    {
-        emit SetFloatRegisters(NO_ZERO_REGISTER, noZero);
-        emit SetNewSettingCoil();
-    }
-
-    WriteSettingsFile();
-    emit NewNOCalSetting();
-}
-
-float SettingsHandler::GetNO2Slope()
-{
-    return no2Slope;
-}
-void SettingsHandler::SetNO2Slope(float val, bool writeSerial, bool writeModbus)
-{
-    no2Slope = val;
-
-    if(writeSerial)
-    {
-        emit WriteFloatSetting(NO2SlopeMarker, no2Slope);
-    }
-
-    if(writeModbus)
-    {
-        emit SetFloatRegisters(NO2_SLOPE_REGISTER, no2Slope);
-        emit SetNewSettingCoil();
-    }
-
-    WriteSettingsFile();
-    emit NewNO2CalSetting();
-}
-
-float SettingsHandler::GetNO2Zero()
-{
-    return no2Zero;
-}
-void SettingsHandler::SetNO2Zero(float val, bool writeSerial, bool writeModbus)
-{
-    no2Zero = val;
-
-    if(writeSerial)
-    {
-        emit WriteFloatSetting(NO2ZeroMarker, no2Zero);
-    }
-
-    if(writeModbus)
-    {
-        emit SetFloatRegisters(NO2_ZERO_REGISTER, no2Zero);
-        emit SetNewSettingCoil();
-    }
-
-    WriteSettingsFile();
-    emit NewNO2CalSetting();
-}
-
-float SettingsHandler::GetOzoneFlowSlope()
-{
-    return ozoneFlowSlope;
-}
-void SettingsHandler::SetOzoneFlowSlope(float val, bool writeSerial, bool writeModbus)
-{
-    ozoneFlowSlope = val;
-
-    if(writeSerial)
-    {
-        emit WriteFloatSetting(OzoneFlowSlopeMarker, ozoneFlowSlope);
-    }
-
-    if(writeModbus)
-    {
-        emit SetFloatRegisters(OZONE_FLOW_SLOPE_REGISTER, ozoneFlowSlope);
-        emit SetNewSettingCoil();
-    }
-
-    WriteSettingsFile();
-    emit NewFlowCalSetting();
-}
-
-float SettingsHandler::GetCellFlowSlope()
-{
-    return cellFlowSlope;
-}
-void SettingsHandler::SetCellFlowSlope(float val, bool writeSerial, bool writeModbus){
-    cellFlowSlope = val;
-
-    if(writeSerial)
-    {
-        emit WriteFloatSetting(CellFlowSlopeMarker, cellFlowSlope);
-    }
-
-    if(writeModbus)
-    {
-        emit SetFloatRegisters(CELL_FLOW_SLOPE_REGISTER, cellFlowSlope);
-        emit SetNewSettingCoil();
-    }
-
-    WriteSettingsFile();
-    emit NewFlowCalSetting();
-}
-
-unsigned char SettingsHandler::GetMode()
-{
-    return mode;
-}
-void SettingsHandler::SetMode(unsigned char val, bool writeSerial, bool writeModbus)
-{
-    mode = val;
-
-    if(writeSerial)
-    {
-        emit WriteCharSetting(ModeMarker, mode);
-    }
-
-    if(writeModbus)
-    {
-        emit SetSingleRegister(MODE_REGISTER, mode);
-        emit SetNewSettingCoil();
-    }
-
-    WriteSettingsFile();
-    emit NewModeSetting();
-}
-
-int SettingsHandler::GetSerialNumber()
-{
-    return serialNumber;
-}
-
-void SettingsHandler::SetSerialNumber(int var, bool writeSerial, bool writeModbus)
-{
-    serialNumber = var;
-
-    if(writeSerial)
-    {
-        emit WriteIntSetting(SERIAL_NUM_MARKER, var);
-    }
-
-    if(writeModbus)
-    {
-        emit SetIntRegister(OZONE_FLOW_SLOPE_REGISTER, ozoneFlowSlope);
-        emit SetNewSettingCoil();
-    }
-
-    emit NewSerialNumber();
-    if(writeModbus && writeSerial)
-    {
-        WriteSettingsFile();
-    }
 }
 
 void SettingsHandler::ReadSettingsFile()
 {
     QFile file;
-
-    int tempInt = 0;
-    float tempFloat = 0;
-    unsigned char tempUChar = 0;
 
     file.setFileName(QString(WORKING_DIR).append("405nmSettings.txt"));
     if(file.exists() == false)
@@ -405,231 +76,17 @@ void SettingsHandler::ReadSettingsFile()
                 line = line.remove('\n').remove('\r');
 
                 if(line.length() < 2)
-                    continue;
-
-                switch (line.at(0).toLatin1())
                 {
-                //Avg Time
-                case 'A':
-                    tempUChar = static_cast<unsigned char>(atoi(line.remove(0, 1).toLatin1()));
-                    if(tempUChar <= 4)
-                    {
-                        SetAvgTime(tempUChar, false, true);
-                        //qDebug() << "Reading avg time in as " << QString::number(avgTime);
-                    }
-                    else
-                    {
-                        qDebug() << "Read in bad Avg Time: " << QString::number(tempUChar);
-                        SetAvgTime(1, false, true);
-                    }
-                    break;
+                    continue;
+                }
 
-                //Bit mask
-                case 'B':
-                    SetBitMask(static_cast<unsigned char>(atoi(line.remove(0, 1).toLatin1())), false, true);
-                    //qDebug() << "Reading bitmask in as " << QString::number(bitMask);
-                    break;
-
-                //Ad Short
-                case 'C':
-                    tempUChar = static_cast<unsigned char>(atoi(line.remove(0, 1).toLatin1()));
-                    if(tempUChar >= 1 && tempUChar <= 5)
-                    {
-                        SetAdShort(tempUChar, false, true);
-                        //qDebug() << "Reading ad short in as " << QString::number(adShort);
-                    }
-                    else
-                    {
-                        qDebug() << "Read in bad Ad Short: " << QString::number(tempUChar);
-                        SetAdShort(1, false, true);
-                    }
-                    break;
-
-                //Ad Long
-                case 'D':
-                    tempUChar = static_cast<unsigned char>(atoi(line.remove(0, 1).toLatin1()));
-                    if(tempUChar >= 6 && tempUChar <= 50)
-                    {
-                        SetAdLong(tempUChar, false, true);
-                        //qDebug() << "Reading ad long in as " << QString::number(adLong);
-                    }
-                    else
-                    {
-                        qDebug() << "Read in bad Ad Long: " << QString::number(tempUChar);
-                        SetAdLong(6, false, true);
-                    }
-                    break;
-
-                //Ad Diff
-                case 'E':
-                    tempUChar = static_cast<unsigned char>(atoi(line.remove(0, 1).toLatin1()));
-                    if(tempUChar <= 50)
-                    {
-                        SetAdDiff(tempUChar, false, true);
-                        //qDebug() << "Reading ad diff in as " << QString::number(adDiff);
-                    }
-                    else
-                    {
-                        qDebug() << "Read in bad Ad Diff: " << QString::number(tempUChar);
-                    }
-                    break;
-
-                //Ad Per
-                case 'F':
-                    tempUChar = static_cast<unsigned char>(atoi(line.remove(0, 1).toLatin1()));
-                    if(tempUChar <= 10)
-                    {
-                        SetAdPercent(tempUChar, false, true);
-                        //qDebug() << "Reading ad percent in as " << QString::number(adPercent);
-                    }
-                    else
-                    {
-                        qDebug() << "Read in bad Ad Per: " << QString::number(tempUChar);
-                    }
-                    break;
-
-                //NO Slope
-                case 'G':
-                    tempFloat = static_cast<float>(atof(line.remove(0, 1).toLatin1()));
-                    if(tempFloat >= 0.5f && tempFloat <= 1.5f)
-                    {
-                        SetNOSlope(tempFloat, false, true);
-                        //qDebug() << "Reading NO slope in as " << QString::number(static_cast<double>(noSlope));
-                    }
-                    else
-                    {
-                        qDebug() << "Read in bad NO Slope: " << tempFloat;
-                        SetNOSlope(1, false, true);
-                    }
-                    break;
-
-                //NO Zero
-                case 'H':
-                    tempFloat = static_cast<float>(atof(line.remove(0, 1).toLatin1()));
-                    if(tempFloat >= -50 && tempFloat <= 51)
-                    {
-                        SetNOZero(tempFloat, false, true);
-                        //qDebug() << "Reading NO zero in as " << QString::number(static_cast<double>(noZero));
-                    }
-                    else
-                    {
-                        qDebug() << "Read in bad NO Zero: " << tempFloat;
-                        SetNOZero(0, false, true);
-                    }
-                    break;
-
-                //NO Analog
-                case 'I':
-                    tempInt = atoi(line.remove(0, 1).toLatin1()) & 0xFFFF;
-                    if(tempInt >= 10 && tempInt <= 1000)
-                    {
-                        SetAnalogNO(tempInt, false, true);
-                        //qDebug() << "Reading analog no in as " << QString::number(analogNO);
-                    }
-                    else
-                    {
-                        qDebug() << "Read in bad NO Analog: " << tempInt;
-                        SetAnalogNO(500, false, true);
-                    }
-                    break;
-
-                //NO2 Slope
-                case 'J':
-                    tempFloat = static_cast<float>(atof(line.remove(0, 1).toLatin1()));
-                    if(tempFloat >= 0.5f && tempFloat <= 1.5f)
-                    {
-                        SetNO2Slope(tempFloat, false, true);
-                        //qDebug() << "Reading NO2 slope in as " << QString::number(static_cast<double>(no2Slope));
-                    }
-                    else
-                    {
-                        qDebug() << "Read in bad NO2 slope: " << tempFloat;
-                        SetNO2Slope(1, false, true);
-                    }
-                    break;
-
-                //NO2 Zero
-                case 'K':
-                    tempFloat = static_cast<float>(atof(line.remove(0, 1).toLatin1()));
-                    if(tempFloat >= -50 && tempFloat <= 51)
-                    {
-                        SetNO2Zero(tempFloat, false, true);
-                        //qDebug() << "Reading NO2 zero in as " << QString::number(static_cast<double>(no2Zero));
-                    }
-                    else
-                    {
-                        qDebug() << "Read in bad NO2 Zero: " << tempFloat;
-                     }
-                    break;
-
-                //NO2 Analog
-                case 'L':
-                    tempInt = atoi(line.remove(0, 1).toLatin1()) & 0xFFFF;
-                    if(tempInt >= 1 && tempInt <= 1000)
-                    {
-                        SetAnalogNO2(tempInt, false, true);
-                        //qDebug() << "Reading analog no2 in as " << QString::number(analogNO2);
-                    }
-                    else
-                    {
-                        qDebug() << "Read in bad NO2 analog: " << tempInt;
-                        SetAnalogNO2(500, false, true);
-                    }
-                    break;
-
-                //Ozone Flow Slope
-                case 'M':
-                    tempFloat = static_cast<float>(atof(line.remove(0, 1).toLatin1()));
-                    if(tempFloat >= 0.2f && tempFloat <= 2.0f)
-                    {
-                        SetOzoneFlowSlope(tempFloat, false, true);
-                        //qDebug() << "Reading flow slope in as " << QString::number(static_cast<double>(ozoneFlowSlope));
-                    }
-                    else
-                    {
-                        qDebug() << "Read in bad Ozone Flow Slope: " << tempFloat;
-                        SetOzoneFlowSlope(1, false, true);
-                    }
-                    break;
-
-                //Cell flow slope
-                case 'N':
-                    tempFloat = static_cast<float>(atof(line.remove(0, 1).toLatin1()));
-                    if(tempFloat >= 0.2f && tempFloat <= 2.0f)
-                    {
-                        SetCellFlowSlope(tempFloat, false, true);
-                        //qDebug() << "Reading flow zero in as " << QString::number(static_cast<double>(cellFlowSlope));
-                    }
-                    else
-                    {
-                        qDebug() << "Read in bad Cell Flow Slope: " << tempFloat;
-                        SetCellFlowSlope(1, false, true);
-                    }
-                    break;
-
-                //Mode
-                case 'O':
-                    tempUChar = static_cast<unsigned char>(atoi(line.remove(0, 1).toLatin1()));
-                    if(tempUChar >= 1 && tempUChar <= 4)
-                    {
-                        SetMode(tempUChar, false, true);
-                        //qDebug() << "Reading " << static_cast<int>(mode) << " for mode";
-                    }
-                    else
-                    {
-                        qDebug() << "Read in bad mode: " << tempUChar;
-                        SetMode(1, false, true);
-                    }
-                    break;
-
-                // Serial Number
-                case 'R':
-                    tempInt = tempFloat = atoi(line.remove(0, 1).toLatin1());
-                    SetSerialNumber(tempInt, false, true);
-                    break;
-
-                default:
-                    qDebug() << "Read settings file hit default case: " << line.at(0).toLatin1();
+                if (markerSettingMap.contains(QString().append(line[0])))
+                {
+                    markerSettingMap[QString().append(line[0])]->setValue_str(line.remove(0, 1));
+                }
+                else
+                {
+                    qDebug() << "Unknown setting marker: " << line[0];
                 }
             }
         }
@@ -695,75 +152,121 @@ void SettingsHandler::WriteSettingsFile()
 
     if(settingsFile.isOpen())
     {
-        char arr[20] = {0, };
-
-        sprintf(arr, "A%i\n", static_cast<int>(GetAvgTime()));
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "B%i\n", static_cast<int>(GetBitMask()));
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "C%i\n", static_cast<int>(GetAdShort()));
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "D%i\n", static_cast<int>(GetAdLong()));
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "E%i\n", static_cast<int>(GetAdDiff()));
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "F%i\n", static_cast<int>(GetAdPercent()));
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "G%1.2f\n", static_cast<double>(GetNOSlope()));
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "H%1.1f\n", static_cast<double>(GetNOZero()));
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "I%i\n", GetAnalogNO());
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "J%1.2f\n", static_cast<double>(GetNO2Slope()));
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "K%1.1f\n", static_cast<double>(GetNO2Zero()));
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "L%i\n", GetAnalogNO2());
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "M%1.2f\n", static_cast<double>(GetOzoneFlowSlope()));
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "N%1.2f\n", static_cast<double>(GetCellFlowSlope()));
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "O%i\n", GetMode());
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "P%i\n", dateFormat);
-        settingsFile.write(arr);
-        memset(arr, 0, 20);
-
-        sprintf(arr, "R%i\n", serialNumber);
-        settingsFile.write(arr);
+        const QStringList keys = markerSettingMap.keys();
+        for (const QString &str : keys)
+        {
+            // Value objects that start with '_' are temporary values
+            if (!str.startsWith('_'))
+            {
+                settingsFile.write(str.toLatin1());
+                settingsFile.write(markerSettingMap[str]->ToString().toLatin1());
+                settingsFile.write("\n");
+            }
+        }
     }
 
     settingsFile.close();
 }
+
+void SettingsHandler::BuildObjects()
+{
+    avgTime = new ValueObject<uchar>("Averaging Time", "A", "");
+    markerSettingMap["A"] = avgTime;
+
+    adShort = new ValueObject<uchar>("Adaptive Short", "C", "");
+    markerSettingMap["C"] = adShort;
+
+    adLong = new ValueObject<uchar>("Adaptive Long", "D", "");
+    markerSettingMap["D"] = adLong;
+
+    adDiff = new ValueObject<uchar>("Adaptive Difference", "E", "");
+    markerSettingMap["E"] = adDiff;
+
+    adPercent = new ValueObject<uchar>("Adaptive Percent", "F", "");
+    markerSettingMap["F"] = adPercent;
+
+    analogNO = new ValueObject<int>("NO V Scale", "I", " = 1 V");
+    markerSettingMap["I"] = analogNO;
+
+    analogNO2 = new ValueObject<int>("NO2 V Scale", "L", " = 1 V");
+    markerSettingMap["L"] = analogNO2;
+
+    noSlope = new ValueObject<float>("NO Slope", "G", "");
+    markerSettingMap["G"] = noSlope;
+
+    noZero = new ValueObject<float>("NO Zero", "G", "");
+    markerSettingMap["H"] = noZero;
+
+    no2Slope = new ValueObject<float>("NO2 Slope", "J", "");
+    markerSettingMap["J"] = no2Slope;
+
+    no2Zero = new ValueObject<float>("NO2 Zero", "K", "");
+    markerSettingMap["K"] = no2Zero;
+
+    ozoneFlowSlope = new ValueObject<float>("Ozone Flow Slope", "M", "");
+    markerSettingMap["M"] = ozoneFlowSlope;
+
+    cellFlowSlope = new ValueObject<float>("Cell Flow Slope", "N", "");
+    markerSettingMap["N"] = cellFlowSlope;
+
+    mode = new ValueObject<uchar>("Mode", "O", "");
+    markerSettingMap["O"] = mode;
+
+    errorCode = new ValueObject<int>("Error Code", "_1", "");
+    markerSettingMap["_1"] = errorCode;
+
+    dateFormat = new ValueObject<uchar>("Date Format", "_2", "");
+    markerSettingMap["*"] = dateFormat;
+
+    serialNumber = new ValueObject<int>("Serial Number", "R", "");
+    markerSettingMap["R"] = serialNumber;
+
+    ReadSettingsFile();
+
+    connect(avgTime, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(adShort, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(adLong, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(adDiff, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(adPercent, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(analogNO, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(analogNO2, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(noSlope, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(noZero, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(no2Slope, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(no2Zero, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(ozoneFlowSlope, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(cellFlowSlope, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(mode, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(errorCode, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(dateFormat, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(serialNumber, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+}
+
+BaseValueObject* SettingsHandler::GetSetting(QString marker)
+{
+    if (markerSettingMap.contains(marker))
+    {
+        return markerSettingMap[marker];
+    }
+    else
+    {
+        qDebug() << "ERROR: Trying to get unknown setting: " << marker;
+        return Q_NULLPTR;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -17,10 +17,25 @@ SOURCES += \
     SerialHandlers/serialport.cpp \
     SerialHandlers/serialreadthread.cpp \
     SerialHandlers/serialwritethread.cpp \
+    SettingsPages/Settings/aboutpage.cpp \
+    SettingsPages/Settings/adaptivefilterform.cpp \
+    SettingsPages/Settings/datafilemenu.cpp \
+    SettingsPages/Settings/datafilemenuform.cpp \
+    SettingsPages/Settings/datetimeform.cpp \
+    SettingsPages/Settings/flowcalform.cpp \
+    SettingsPages/Settings/modbusserverform.cpp \
+    SettingsPages/Settings/modeform.cpp \
+    SettingsPages/Settings/no2calform.cpp \
+    SettingsPages/Settings/nocalform.cpp \
+    SettingsPages/Settings/staticipform.cpp \
+    SettingsPages/Settings/systemsettingsform.cpp \
+    SettingsPages/Utility/numberpadform.cpp \
     SettingsPages/averagetimeform.cpp \
     SettingsPages/basepage.cpp \
     SettingsPages/basesettingspage.cpp \
     SettingsPages/settingsmenu.cpp \
+    ValueHandlers/ValueObjects/basevalueobject.cpp \
+    ValueHandlers/ValueObjects/valueobjects.cpp \
     ValueHandlers/datahandler.cpp \
     ValueHandlers/settingshandler.cpp \
     main.cpp \
@@ -34,10 +49,25 @@ HEADERS += \
     SerialHandlers/serialport.h \
     SerialHandlers/serialreadthread.h \
     SerialHandlers/serialwritethread.h \
+    SettingsPages/Settings/aboutpage.h \
+    SettingsPages/Settings/adaptivefilterform.h \
+    SettingsPages/Settings/datafilemenu.h \
+    SettingsPages/Settings/datafilemenuform.h \
+    SettingsPages/Settings/datetimeform.h \
+    SettingsPages/Settings/flowcalform.h \
+    SettingsPages/Settings/modbusserverform.h \
+    SettingsPages/Settings/modeform.h \
+    SettingsPages/Settings/no2calform.h \
+    SettingsPages/Settings/nocalform.h \
+    SettingsPages/Settings/staticipform.h \
+    SettingsPages/Settings/systemsettingsform.h \
+    SettingsPages/Utility/numberpadform.h \
     SettingsPages/averagetimeform.h \
     SettingsPages/basepage.h \
     SettingsPages/basesettingspage.h \
     SettingsPages/settingsmenu.h \
+    ValueHandlers/ValueObjects/basevalueobject.h \
+    ValueHandlers/ValueObjects/valueobjects.h \
     ValueHandlers/datahandler.h \
     ValueHandlers/settingshandler.h \
     mainwindow.h

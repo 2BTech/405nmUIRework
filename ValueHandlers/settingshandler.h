@@ -5,8 +5,10 @@
 #include <QObject>
 #include <QFile>
 #include <QDebug>
+#include <QMap>
 
 #include "GlobalDefinitions.h"
+#include "ValueHandlers/ValueObjects/valueobjects.h"
 
 #define ENABLE_MODBUS
 
@@ -65,105 +67,55 @@ class SettingsHandler : public QObject
 public:
     static SettingsHandler* GetInstance();
 
-    unsigned char GetAvgTime();
-    void SetAvgTime(unsigned char val, bool writeSerial , bool writeModbus);
-
-    unsigned char GetAdShort();
-    void SetAdShort(unsigned char val, bool writeSerial , bool writeModbus);
-
-    unsigned char GetAdLong();
-    void SetAdLong(unsigned char val, bool writeSerial , bool writeModbus);
-
-    unsigned char GetAdDiff();
-    void SetAdDiff(unsigned char val, bool writeSerial , bool writeModbus);
-
-    unsigned char GetAdPercent();
-    void SetAdPercent(unsigned char val, bool writeSerial, bool writeModbus);
-
-    unsigned char GetBitMask();
-    void SetBitMask(unsigned char val, bool writeSerial, bool writeModbus);
-
-    int GetAnalogNO();
-    void SetAnalogNO(int val, bool writeSerial, bool writeModbus);
-
-    int GetAnalogNO2();
-    void SetAnalogNO2(int val, bool writeSerial, bool writeModbus);
-
-    float GetNOSlope();
-    void SetNOSlope(float val, bool writeSerial, bool writeModbus);
-
-    float GetNOZero();
-    void SetNOZero(float val, bool writeSerial, bool writeModbus);
-
-    float GetNO2Slope();
-    void SetNO2Slope(float val, bool writeSerial, bool writeModbus);
-
-    float GetNO2Zero();
-    void SetNO2Zero(float val, bool writeSerial, bool writeModbus);
-
-    float GetOzoneFlowSlope();
-    void SetOzoneFlowSlope(float val, bool writeSerial, bool writeModbus);
-
-    float GetCellFlowSlope();
-    void SetCellFlowSlope(float val, bool writeSerial, bool writeModbus);
-
-    unsigned char GetMode();
-    void SetMode(unsigned char val, bool writeSerial , bool writeModbus);
-
-    int GetSerialNumber();
-    void SetSerialNumber(int var, bool writeSerial, bool writeModbus);
+    BaseValueObject* GetSetting(QString marker);
 
     void ReadSettingsFile();
     void WriteSettingsFile();
 
-signals:
-    void NewModeSetting();
-    void NewNOCalSetting();
-    void NewNO2CalSetting();
-    void NewFlowCalSetting();
-    void NewDateTimeSetting();
-    void NewAverageTimeSetting();
-    void NewAdaptiveFilterSetting();
-    void NewSerialNumber();
-
-    void SetFloatRegisters(int address, float val);
-    void SetSingleRegister(int address, short val);
-    void SetIntRegister(int address, int value);
-    void SetCharArrayRegisters(int address, char * arr, int length);
-    void SetNewSettingCoil();
-
-    void WriteFloatSetting(char marker, float val);
-    void WriteCharSetting(char marker, unsigned char val);
-    //void WriteCharArray(char marker, char * arr, int length);
-    void WriteDate(QByteArray date);
-    void WriteTime(QByteArray time);
-    void WriteIntSetting(char marker, int val);
+private slots:
+    void OnValueChanged();
 
 private:
     static SettingsHandler* instance;
     SettingsHandler();
+    ~SettingsHandler();
 
-    unsigned char avgTime = 0;
+    ValueObject<uchar>* avgTime = Q_NULLPTR;
+
+    ValueObject<uchar>* adShort = Q_NULLPTR;
+    ValueObject<uchar>* adLong = Q_NULLPTR;
+    ValueObject<uchar>* adDiff = Q_NULLPTR;
+    ValueObject<uchar>* adPercent = Q_NULLPTR;
+
+    ValueObject<int>* analogNO = Q_NULLPTR;
+    ValueObject<int>* analogNO2 = Q_NULLPTR;
+
+    ValueObject<float>* noSlope = Q_NULLPTR;
+    ValueObject<float>* noZero = Q_NULLPTR;
+
+    ValueObject<float>* no2Slope = Q_NULLPTR;
+    ValueObject<float>* no2Zero = Q_NULLPTR;
+
+    ValueObject<float>* ozoneFlowSlope = Q_NULLPTR;
+    ValueObject<float>* cellFlowSlope = Q_NULLPTR;
+
+    ValueObject<uchar>* mode = Q_NULLPTR;
+
+    ValueObject<int>* errorCode = Q_NULLPTR;
+
+    ValueObject<uchar>* dateFormat = Q_NULLPTR;
+
+    ValueObject<int>* serialNumber = Q_NULLPTR;
+
+    //unsigned char avgTime = 0;
     QDateTime dateTime;
-    unsigned char adShort = 0;
-    unsigned char adLong = 0;
-    unsigned char adDiff = 0;
-    unsigned char adPercent = 0;
-    unsigned char bitMask = 0;
-    int analogNO = 0;
-    int analogNO2 = 0;
-    float noSlope = 0;
-    float noZero = 0;
-    float no2Slope = 0;
-    float no2Zero = 0;
-    float ozoneFlowSlope = 0;
-    float cellFlowSlope = 0;
-    unsigned char mode = 0;
-    int errorCode = 0;
-    unsigned char dateFormat = 0;
-    int serialNumber;
+
+    QHash<QString, BaseValueObject*> markerSettingMap;
 
     void CreateDefaultSettingsFile();
+
+    // Build all of the setting value objects
+    void BuildObjects();
 };
 
 #endif // SETTINGSHANDLER_H

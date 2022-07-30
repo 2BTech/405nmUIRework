@@ -211,6 +211,13 @@ void MainWindow::OnErrMaskClicked()
 void MainWindow::OnSettingsClicked()
 {
     settingsMenu->show();
+    hide();
+}
+
+void MainWindow::OnCloseMenu()
+{
+    settingsMenu->hide();
+    show();
 }
 
 void MainWindow::OnParametersClicked()

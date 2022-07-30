@@ -7,11 +7,22 @@
 
 class BasePage : public QWidget
 {
+    Q_OBJECT
 public:
     BasePage(QString pageName);
     ~BasePage();
 
     virtual void BuildUIElements();
+
+signals:
+    void ClosePage();
+    void MoveLeft();
+    void MoveRight();
+
+protected slots:
+    virtual void OnMoveLeftClicked();
+    virtual void OnMoveRightClikced();
+    virtual void OnCloseClicked();
 
 protected:
     QLabel* title = Q_NULLPTR;

@@ -41,25 +41,43 @@ void BasePage::BuildUIElements()
     title->setText(pageName);
     title->setAlignment(Qt::AlignCenter);
     title->setFont(titleFont);
-    title->setStyleSheet(QString("background-color: ").append("qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a);"));
+    title->setStyleSheet("QLabel { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a); }");
 
     closeButton = new QPushButton(this);
     closeButton->setGeometry(420, 5, 50, 50);
     closeButton->setText("Close");
-    closeButton->setStyleSheet(QString("background-color: ").append("qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a);"));
+    closeButton->setStyleSheet("QPushButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a); }");
     QFont closeFont;
     closeFont.setPointSize(10);
     closeButton->setFont(closeFont);
+    connect(closeButton, &QPushButton::clicked, this, &BasePage::OnCloseClicked);
 
     leftMoveButton = new QPushButton(this);
     leftMoveButton->setGeometry(10, 70, 50, 200);
     leftMoveButton->setText("<");
-    leftMoveButton->setStyleSheet(QString("background-color: ").append("qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a);"));
+    leftMoveButton->setStyleSheet("QPushButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a); }");
     leftMoveButton->setFont(titleFont);
+    connect(leftMoveButton, &QPushButton::clicked, this, &BasePage::OnMoveLeftClicked);
 
     rightMoveButton = new QPushButton(this);
     rightMoveButton->setGeometry(420, 70, 50, 200);
     rightMoveButton->setText(">");
-    rightMoveButton->setStyleSheet(QString("background-color: ").append("qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a);"));
+    rightMoveButton->setStyleSheet("QPushButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a); }");
     rightMoveButton->setFont(titleFont);
+    connect(rightMoveButton, &QPushButton::clicked, this, &BasePage::OnMoveRightClikced);
+}
+
+void BasePage::OnMoveLeftClicked()
+{
+    emit MoveLeft();
+}
+
+void BasePage::OnMoveRightClikced()
+{
+    emit MoveRight();
+}
+
+void BasePage::OnCloseClicked()
+{
+    emit ClosePage();
 }

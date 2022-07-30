@@ -61,6 +61,7 @@ void SerialHandlerBase::WriteNextMessage()
     //qDebug() << "Writing message for " << name;
     if (!writeQueue.isEmpty())
     {
+        qDebug() << "Writing data for " << name;
 #ifdef Q_OS_WIN
 #ifdef DEBUG_SER_WRITE
         QByteArray message = writeQueue.dequeue();

@@ -7,18 +7,23 @@ AverageTimeForm::AverageTimeForm() : BaseSettingsPage("Averaging Time")
 
 AverageTimeForm::~AverageTimeForm()
 {
-    if (avgTimeSelector)
-    {
-        avgTimeSelector->deleteLater();
-        avgTimeSelector = Q_NULLPTR;
-    }
+
 }
 
 void AverageTimeForm::BuildUIElements()
 {
     BaseSettingsPage::BuildUIElements();
 
-    avgTimeSelector = new QComboBox(this);
-    avgTimeSelector->setGeometry(150, 130, 180, 40);
-    avgTimeSelector->addItems(QStringList() << "Averaging Time" << "5 Seconds" << "1 Minute" << "5 Minutes" << "1 Hour");
+    avgTimeSelector = AddComboBoxSetting(SettingsHandler::GetInstance()->GetSetting("A"), QRect(150, 100, 180, 40), QStringList() << "Averaging Time" << "5 Seconds" << "1 Minute" << "5 Minutes" << "1 Hour");
+    connect(avgTimeSelector, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AverageTimeForm::OnSelectNewAvg);
+}
+
+void AverageTimeForm::OnSelectNewAvg(int index)
+{
+    dynamic_cast<ValueObject<uchar>*>(pageSettings[0].second)->setValue(index);
+}
+
+void AverageTimeForm::UpdateUI()
+{
+    avgTimeSelector->setCurrentIndex(dynamic_cast<ValueObject<uchar>*>(pageSettings[0].second)->getValue());
 }

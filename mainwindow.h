@@ -28,6 +28,7 @@ private slots:
     void OnErrMaskClicked();
 
     void OnSettingsClicked();
+    void OnCloseMenu();
 
     void OnParametersClicked();
 
