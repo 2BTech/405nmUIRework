@@ -110,11 +110,17 @@ void SerialDeviceHandler::WriteSetting(BaseValueObject* setting)
 {
     if (setting)
     {
-        QueueMessage(setting->getMarker().toLatin1());
-        QueueMessage(setting->ToString().append('\n').toLatin1());
+        writeQueue.append(setting->getMarker().toLatin1());
+        writeQueue.append(setting->ToString().append('\n').toLatin1());
 
         acksList.append(setting->getMarker().append(setting->ToString()).toLatin1());
         acksToCheck.append(setting->getMarker().append(setting->ToString()).toLatin1());
+
+        if (!isSendingMessage)
+        {
+            isSendingMessage = true;
+            WriteNextMessage();
+        }
     }
 }
 
@@ -311,7 +317,7 @@ void SerialDeviceHandler::WriteNextMessage()
         {
             serialPort->write(message.data(), message.count());
             serialPort->waitForBytesWritten(3000);
-            qDebug() << "Writing: " << message;
+            qDebug() << "Writing in device: " << message;
         }
         else
         {
