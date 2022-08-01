@@ -123,8 +123,9 @@ void DataFileMenuForm::OnSaveClicked()
     blockingForm->show();
     if (selectedFile == "Current")
     {
-        qDebug() << "Saving current: " << QString("405nm_").append(QDate::currentDate().toString("yyyy_MM_dd")).append(".csv");
-        emit SaveSingleFile(QString(WORKING_DIR).append("datafiles/"), QString("405nm_").append(QDate::currentDate().toString("dd_MM_yy")).append(".csv"), "/media/usb/");
+        QString fileName = QString("405nm_").append(QDate::currentDate().toString("yyyy_MM_dd")).append(".csv");
+        qDebug () << "Saving current: " << fileName;
+        emit SaveSingleFile(QString(WORKING_DIR).append("datafiles/"), fileName, "/media/usb/");
     }
     else if (selectedFile == "All")
     {
@@ -132,6 +133,7 @@ void DataFileMenuForm::OnSaveClicked()
     }
     else
     {
+        qDebug () << "Saving single: " << selectedFile;
         emit SaveSingleFile(QString(WORKING_DIR).append("datafiles/"), selectedFile, "/media/usb/");
     }
 }
