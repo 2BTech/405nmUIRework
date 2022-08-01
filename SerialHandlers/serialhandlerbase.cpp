@@ -94,7 +94,7 @@ void SerialHandlerBase::WriteNextMessage()
 #endif
 #else
         QByteArray message = writeQueue.dequeue();
-        qDbug() << name << " is writing: " << message;
+        qDebug() << name << " is writing: " << message;
         serialPort->writeData(message);
 #endif
         writeTimer.start();
