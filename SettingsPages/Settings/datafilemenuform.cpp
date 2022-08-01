@@ -212,12 +212,20 @@ void DataFileMenuForm::OnSaveFileThreadFinish(bool success)
 {
     blockingForm->hide();
     qDebug() << "Finished saving. Was success: " << success;
+    if (!success)
+    {
+        qDebug() << "Save error: " << saveFile->ErrorString();
+    }
 }
 
 void DataFileMenuForm::OnDeleteFileThreadFinish(bool success)
 {
     blockingForm->hide();
     qDebug() << "Finished deleting. Was success: " << success;
+    if (!success)
+    {
+        qDebug() << "Delete error: " << deleteFile->GetErrorString();
+    }
 }
 
 void DataFileMenuForm::showEvent(QShowEvent* event)
