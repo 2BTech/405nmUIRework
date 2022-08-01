@@ -155,13 +155,13 @@ void SerialHandlerBase::QueueMessage(QByteArray arr)
 {
     writeQueue.append(arr);
 
-        //qDebug() << arr;
-        if (!isSendingMessage)
-        {
-            //qDebug() << "Starting write";
-            isSendingMessage = true;
-            WriteNextMessage();
-        }
+    //qDebug() << arr;
+    if (!isSendingMessage)
+    {
+        //qDebug() << "Starting write";
+        isSendingMessage = true;
+        WriteNextMessage();
+    }
 
 //    if (arr.length() > 40)
 //    {

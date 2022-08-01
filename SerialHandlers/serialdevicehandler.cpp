@@ -111,7 +111,10 @@ void SerialDeviceHandler::WriteSetting(BaseValueObject* setting)
     if (setting)
     {
         QueueMessage(setting->getMarker().toLatin1());
-        QueueMessage(setting->ToString().toLatin1());
+        QueueMessage(setting->ToString().append('\n').toLatin1());
+
+        acksList.append(setting->getMarker().append(setting->ToString()).toLatin1());
+        acksToCheck.append(setting->getMarker().append(setting->ToString()).toLatin1());
     }
 }
 
@@ -232,6 +235,43 @@ void SerialDeviceHandler::HandleAck()
     WriteNextMessage();
 }
 
+void SerialDeviceHandler::CheckForAck()
+{
+    QByteArray message = acksToCheck.dequeue();
+
+    int index = acksList.indexOf(message);
+    if(index >= 0)
+    {
+        qDebug() << "Failed to receive ack for: " << message;
+        if(missedAcksCounter.contains(message))
+        {
+            missedAcksCounter[message]++;
+            if(missedAcksCounter[message] > 5)
+            {
+                return;
+            }
+        }
+        else
+        {
+            missedAcksCounter[message] = 1;
+        }
+        char marker = message[0];
+        message.remove(0, 1);
+        writeQueue.append(QByteArray().append(marker));
+
+        acksList.append(QByteArray().append(marker).append(message));
+        acksToCheck.append(QByteArray().append(marker).append(message));
+
+        writeQueue.append(message.append('\n'));
+
+        if (!isSendingMessage)
+        {
+            isSendingMessage = true;
+            WriteNextMessage();
+        }
+    }
+}
+
 void SerialDeviceHandler::ConnectToSettingsObjects()
 {
     SettingsHandler* settinghandler = SettingsHandler::GetInstance();
@@ -262,4 +302,35 @@ void SerialDeviceHandler::OnSettingValueChange()
     }
 }
 
+void SerialDeviceHandler::WriteNextMessage()
+{
+    if(writeQueue.count() > 0)
+    {
+        QByteArray message = writeQueue.dequeue();
+        if(serialPort != Q_NULLPTR)
+        {
+            serialPort->write(message.data(), message.count());
+            serialPort->waitForBytesWritten(3000);
+            qDebug() << "Writing: " << message;
+        }
+        else
+        {
+            qDebug() << "Skipping: " << message;
+        }
 
+        // Check if the ack has been received for the message after 30 secs
+        if(message.count() > 2)
+        {
+            QTimer::singleShot(90000, this, SLOT(CheckAck()));
+        }
+
+        if(writeQueue.count() == 0)
+        {
+            isSendingMessage = false;
+        }
+    }
+    else
+    {
+        qDebug() << "Recieved prompt to send message with empty queue";
+    }
+}

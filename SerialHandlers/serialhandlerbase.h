@@ -32,7 +32,7 @@ protected slots:
     virtual void OnReadyRead();
 
     // Writes the next message is write queue
-    void WriteNextMessage();
+    virtual void WriteNextMessage();
 
 protected:
     // Used to read and write with the device

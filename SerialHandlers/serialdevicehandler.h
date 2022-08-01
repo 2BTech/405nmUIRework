@@ -23,10 +23,17 @@ signals:
 
 private slots:
     void OnSettingValueChange();
+    void CheckForAck();
+
+    void WriteNextMessage() override;
 
 private:
-    QList<QByteArray> acksToCheck;
-    QList<QByteArray> acksList;
+    QQueue<QByteArray> acksToCheck;
+    QQueue<QByteArray> acksList;
+
+    QMap<QByteArray, int> missedAcksCounter;
+
+    QTimer ackTimer;
 
     void ConnectToSettingsObjects();
 
