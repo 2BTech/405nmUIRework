@@ -15,7 +15,8 @@ void ModeForm::BuildUIElements()
     BaseSettingsPage::BuildUIElements();
 
     modeSelector = AddComboBoxSetting(SettingsHandler::GetInstance()->GetSetting("O"), QRect(150, 100, 180, 40), QStringList() << "Mode" << "NO" << "NO2" << "NO and NO2");
-    connect(modeSelector, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ModeForm::OnSelectNewMode);
+    //connect(modeSelector, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &ModeForm::OnSelectNewMode);
+    connect(modeSelector, SIGNAL(currentIndexChanged(int)), this, SLOT(OnSelectNewMode(int)));
 }
 
 void ModeForm::OnSelectNewMode(int index)
