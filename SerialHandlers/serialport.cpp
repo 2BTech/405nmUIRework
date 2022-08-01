@@ -513,6 +513,7 @@ void SerialPort::ConfigureTermios()
 
     tty.c_lflag &= ~ICANON;
 
+    tty.c_lflag &= ~(ECHO);
     tty.c_lflag &= ~ECHOE;								// Turn off echo erase (echo erase only relevant if canonical input is active)
     tty.c_lflag &= ~ECHONL;								//
     tty.c_lflag &= ~ISIG;
