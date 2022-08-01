@@ -7,6 +7,7 @@
 
 class ModeForm : public BaseSettingsPage
 {
+    Q_OBJECT
 public:
     ModeForm();
     ~ModeForm();

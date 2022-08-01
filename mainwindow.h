@@ -7,8 +7,11 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QDebug>
+#include <QTimer>
 
 #include "SettingsPages/settingsmenu.h"
+
+#include "ValueHandlers/datahandler.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -33,6 +36,8 @@ private slots:
     void OnParametersClicked();
 
     void OnGraphClicked();
+
+    void UpdateUI();
 
 private:
     Ui::MainWindow *ui;
@@ -65,6 +70,8 @@ private:
     // Settings menu
     SettingsMenu* settingsMenu = Q_NULLPTR;
 
+    QTimer updateTimer;
+
     // Handles the process of building UI elements for the page
     void BuildUIElements();
 
@@ -76,6 +83,9 @@ private:
 
     // Build the data dislay section
     void BuildDataLabels();
+
+    void showEvent(QShowEvent* event) override;
+    void closeEvent(QCloseEvent* event) override;
 
 };
 #endif // MAINWINDOW_H

@@ -97,6 +97,10 @@ void MainWindow::BuildUIElements()
     BuildStatusBar();
     BuildNavBar();
     BuildDataLabels();
+
+    updateTimer.setSingleShot(false);
+    updateTimer.setInterval(500);
+    connect(&updateTimer, &QTimer::timeout, this, &MainWindow::UpdateUI);
 }
 
 void MainWindow::BuildStatusBar()
@@ -230,4 +234,83 @@ void MainWindow::OnParametersClicked()
 void MainWindow::OnGraphClicked()
 {
     qDebug() << "Clicked on graph";
+}
+
+void MainWindow::UpdateUI()
+{
+    DataHandler* dataHander = DataHandler::GetInstance();
+    switch (dataHander->GetMode())
+    {
+    case 0:
+        loggingLabel->setText("Warming Up");
+        break;
+
+    case 1:
+        loggingLabel->setText("NO");
+        break;
+
+    case 2:
+        loggingLabel->setText("NO2");
+        break;
+
+    case 3:
+        loggingLabel->setText("NO and NO2");
+        break;
+
+    default:
+        loggingLabel->setText("ERROR: " + QString::number(dataHander->GetMode()));
+        break;
+    }
+
+    logLabel->setText("Log #: " + QString::number(dataHander->GetLogNumber()));
+
+    switch (dynamic_cast<ValueObject<uchar>*>(SettingsHandler::GetInstance()->GetSetting("A"))->getValue())
+    {
+    case 1:
+        avgStateLabel->setText("Avg: 5 secs");
+        break;
+
+    case 2:
+        avgStateLabel->setText("Avg: 1 min");
+        break;
+
+    case 3:
+        avgStateLabel->setText("Avg: 5 mins");
+        break;
+
+    case 4:
+        avgStateLabel->setText("Avg: 1 hour");
+        break;
+
+    default:
+        avgStateLabel->setText("ERROR");
+        break;
+    }
+
+    if (dataHander->GetErrorByte())
+    {
+        errLabel->setText("<font color='red'>ERROR</font>");
+    }
+    else
+    {
+        errLabel->setText("<font color='green'>No erros</font>");
+    }
+
+    noLabel->setText("NO: " + QString::number(dataHander->GetNO()) + " ppb");
+    no2Label->setText("NO2: " + QString::number(dataHander->GetNO2()) + " ppb");
+    noxLabel->setText("NOx: " + QString::number(dataHander->GetNOX()) + " ppb");
+
+    dateTimeLabel->setText(QDateTime::currentDateTime().toString("dd/MM/yy hh:mm:ss"));
+}
+
+void MainWindow::showEvent(QShowEvent* event)
+{
+    QWidget::showEvent(event);
+    updateTimer.start();
+}
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    QWidget::closeEvent(event);
+    updateTimer.stop();
 }
