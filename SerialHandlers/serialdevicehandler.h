@@ -5,6 +5,7 @@
 #include <QTime>
 
 #include "ValueHandlers/datahandler.h"
+#include "ValueHandlers/settingshandler.h"
 
 #include "serialhandlerbase.h"
 
@@ -18,13 +19,30 @@ public:
 signals:
     // Emits the dataline string
     void ReceivedDataline(QByteArray dataline);
+    void EchoMessage(QString message);
+
+private slots:
+    void OnSettingValueChange();
 
 private:
+    QList<QByteArray> acksToCheck;
+    QList<QByteArray> acksList;
+
+    void ConnectToSettingsObjects();
+
     // First step in the parsing process
     void ParseReceived() override;
 
     // Attempts to parse received as a dataline
     void ParseAsDataline();
+
+    // Parses the received message into a settings object
+    void ParseSetting(QString marker, QString value);
+    // Writes a setting to the device
+    void WriteSetting(QString marker);
+    void WriteSetting(BaseValueObject* setting);
+
+    void HandleAck();
 };
 
 #endif // SERIALDEVICEHANDLER_H

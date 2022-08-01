@@ -2,7 +2,9 @@
 
 SerialDeviceHandler::SerialDeviceHandler() : SerialHandlerBase("Device")
 {
+    writeTimer.disconnect();
 
+    ConnectToSettingsObjects();
 }
 
 //#define DEBUG_PARSE_RECEIVED
@@ -14,6 +16,8 @@ void SerialDeviceHandler::ParseReceived()
         return;
     }
 
+    QStringList split = QString(received).split(',');
+
     switch(received[0])
     {
     // Dataline
@@ -24,9 +28,90 @@ void SerialDeviceHandler::ParseReceived()
         ParseAsDataline();
         break;
 
+    case 'A':
+    case 'C':
+    case 'D':
+    case 'E':
+    case 'F':
+    case 'G':
+    case 'H':
+    case 'I':
+    case 'J':
+    case 'K':
+    case 'L':
+    case 'M':
+    case 'N':
+    case 'O':
+    case 'P':
+    case 'Q':
+    case 'R':
+        if (split.count() == 2)
+        {
+            ParseSetting(split[0], split[1]);
+        }
+        break;
+
+    case 'a':
+    case 'c':
+    case 'd':
+    case 'e':
+    case 'f':
+    case 'g':
+    case 'h':
+    case 'i':
+    case 'j':
+    case 'k':
+    case 'l':
+    case 'm':
+    case 'n':
+    case 'o':
+    case 'p':
+    case 'q':
+    case 'r':
+        WriteSetting(QString(received.at(0) - 0x20));
+        break;
+
+    case '>':
+        WriteNextMessage();
+        break;
+
+    case '_':
+        HandleAck();
+        break;
+
+    case '*':
+        EchoMessage(received.remove(0, 1));
+        break;
+
+
     default:
         qDebug() << "Unhanded message: " << received[0];
         break;
+    }
+}
+
+void SerialDeviceHandler::ParseSetting(QString marker, QString value)
+{
+    BaseValueObject* val = SettingsHandler::GetInstance()->GetSetting(marker);
+    if (val != Q_NULLPTR)
+    {
+        disconnect(val, &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+        val->setValue_str(value);
+        disconnect(val, &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    }
+}
+
+void SerialDeviceHandler::WriteSetting(QString marker)
+{
+    WriteSetting(SettingsHandler::GetInstance()->GetSetting(marker));
+}
+
+void SerialDeviceHandler::WriteSetting(BaseValueObject* setting)
+{
+    if (setting)
+    {
+        QueueMessage(setting->getMarker().toLatin1());
+        QueueMessage(setting->ToString().toLatin1());
     }
 }
 
@@ -117,3 +202,64 @@ void SerialDeviceHandler::ParseAsDataline()
 
     emit ReceivedDataline(finalDataline.toLatin1());
 }
+
+void SerialDeviceHandler::HandleAck()
+{
+    // Remove marking character
+    if(received.count() > 0)
+    {
+        received = received.remove(0, 1);
+
+        qDebug() << "Checking ack: " << received;
+
+        int index = acksList.indexOf(received);
+        if(index >= 0)
+        {
+            qDebug() << "Received ack. Remaining: " << acksList.count();
+            acksList.removeAt(index);
+            //acksToCheck.removeAt(acksList.indexOf(received));
+        }
+        else
+        {
+            qDebug() << "Received ack for unknown message: " << received;
+            for(int i = 0; i < acksList.count(); i++)
+            {
+                qDebug() << i << " : " << acksList[i];
+            }
+        }
+    }
+
+    WriteNextMessage();
+}
+
+void SerialDeviceHandler::ConnectToSettingsObjects()
+{
+    SettingsHandler* settinghandler = SettingsHandler::GetInstance();
+
+    connect(settinghandler->GetSetting("A"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("C"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("D"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("E"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("F"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("I"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("L"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("G"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("H"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("J"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("K"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("M"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("N"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("O"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("R"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+}
+
+void SerialDeviceHandler::OnSettingValueChange()
+{
+    BaseValueObject* setting = dynamic_cast<BaseValueObject*>(sender());
+    if (setting)
+    {
+        WriteSetting(setting);
+    }
+}
+
+

@@ -47,7 +47,7 @@ void ParametersForm::BuildUIElements()
     font.setPointSize(20);
 
     headerLabel = new QLabel(this);
-    headerLabel->setGeometry(0, 0, 480, 50);
+    headerLabel->setGeometry(0, 10, 480, 50);
     headerLabel->setAlignment(Qt::AlignCenter);
     headerLabel->setText("Data 1");
     headerLabel->setFont(font);
