@@ -12,6 +12,7 @@
 #include "SettingsPages/settingsmenu.h"
 
 #include "ValueHandlers/datahandler.h"
+#include "parametersform.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -71,6 +72,8 @@ private:
     SettingsMenu* settingsMenu = Q_NULLPTR;
 
     QTimer updateTimer;
+
+    ParametersForm* parameters = Q_NULLPTR;
 
     // Handles the process of building UI elements for the page
     void BuildUIElements();

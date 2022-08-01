@@ -61,7 +61,7 @@ void SerialHandlerBase::WriteNextMessage()
     //qDebug() << "Writing message for " << name;
     if (!writeQueue.isEmpty())
     {
-        qDebug() << "Writing data for " << name;
+        //qDebug() << "Writing data for " << name;
 #ifdef Q_OS_WIN
 #ifdef DEBUG_SER_WRITE
         QByteArray message = writeQueue.dequeue();
@@ -131,7 +131,7 @@ void SerialHandlerBase::OnReadyRead()
             // Parse data if some exists
             if (!received.isEmpty())
             {
-                qDebug() << "Data: " << received;
+                //qDebug() << "Data: " << received;
                 ParseReceived();
                 received.clear();
             }

@@ -11,6 +11,7 @@
 // This is a singleton class that tracks all of the data for the device.
 class DataHandler : public QObject
 {
+    Q_OBJECT
 public:
     static DataHandler* GetInstance();
 
@@ -68,6 +69,9 @@ public:
     void ReceiveDataline(int serialNumber, long logNumber, float no2, float no, float nox, float cellTemp, float cellPress, float cellFlow, float pdv1, float pdv2, float scrubberTemp, float ozoneFlow, int errorByte, QString date, QString time, char mode, int dutyPercent);
 
     void LogDataline(QByteArray dataline);
+
+signals:
+    void ParsedDataLine();
 
 private:
     DataHandler();

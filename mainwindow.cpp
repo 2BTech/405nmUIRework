@@ -21,6 +21,11 @@ MainWindow::MainWindow(QWidget *parent)
     pal.setColor(QPalette::Background, Qt::white);
     setAutoFillBackground(true);
     setPalette(pal);
+
+    parameters = new ParametersForm();
+    parameters->BuildUIElements();
+    connect(parameters, &ParametersForm::CloseForm, this, &MainWindow::show);
+    connect(parameters, &ParametersForm::CloseForm, parameters, &ParametersForm::close);
 }
 
 MainWindow::~MainWindow()
@@ -228,7 +233,8 @@ void MainWindow::OnCloseMenu()
 
 void MainWindow::OnParametersClicked()
 {
-    qDebug() << "Clicked on parameters";
+    parameters->show();
+    close();
 }
 
 void MainWindow::OnGraphClicked()

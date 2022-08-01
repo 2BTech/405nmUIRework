@@ -44,6 +44,7 @@ SOURCES += \
     ValueHandlers/settingshandler.cpp \
     main.cpp \
     mainwindow.cpp \
+    parametersform.cpp \
     utilities.cpp
 
 HEADERS += \
@@ -80,6 +81,7 @@ HEADERS += \
     ValueHandlers/datahandler.h \
     ValueHandlers/settingshandler.h \
     mainwindow.h \
+    parametersform.h \
     utilities.h
 
 FORMS += \

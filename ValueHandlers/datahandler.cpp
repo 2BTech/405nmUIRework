@@ -293,6 +293,8 @@ void DataHandler::ReceiveDataline(int serialNumber, long logNumber, float no2, f
 
     this->dutyPercent = dutyPercent;
     dutyPercentHist.append(dutyPercent);
+
+    emit ParsedDataLine();
 }
 
 void DataHandler::LogDataline(QByteArray dataline)

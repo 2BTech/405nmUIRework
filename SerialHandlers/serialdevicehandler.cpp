@@ -25,6 +25,7 @@ void SerialDeviceHandler::ParseReceived()
         break;
 
     default:
+        qDebug() << "Unhanded message: " << received[0];
         break;
     }
 }

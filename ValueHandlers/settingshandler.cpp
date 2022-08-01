@@ -88,7 +88,7 @@ void SettingsHandler::ReadSettingsFile()
                         }
                         else
                         {
-                            qDebug() << "Unknown setting marker: " << split[0];
+                            //qDebug() << "Unknown setting marker: " << split[0];
                             unknownSettinsMap[split[0]] = split[1];
                         }
                     }
@@ -101,7 +101,7 @@ void SettingsHandler::ReadSettingsFile()
                     }
                     else
                     {
-                        qDebug() << "Unknown setting marker: " << line[0];
+                        //qDebug() << "Unknown setting marker: " << line[0];
                         unknownSettinsMap[QString(line[0])] = line.remove(0, 1);
                     }
                 }
