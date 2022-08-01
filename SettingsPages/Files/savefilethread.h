@@ -11,12 +11,17 @@ class SaveFileThread : public QObject
 public:
     SaveFileThread();
 
+    QString ErrorString();
+
 public slots:
     void SaveSingleFile(QString source, QString file, QString dest);
     void SaveCollection(QString sourceDir, QStringList files, QString destDir);
 
 signals:
     void Finished(bool success);
+
+private:
+    QString errorString = "No error";
 };
 
 #endif // SAVEFILETHREAD_H

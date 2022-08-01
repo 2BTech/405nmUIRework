@@ -11,6 +11,7 @@
 
 #include "SettingsPages/Files/savefilethread.h"
 #include "SettingsPages/Files/deletefilethread.h"
+#include "SettingsPages/blockingform.h"
 
 class DataFileMenuForm : public BasePage
 {
@@ -56,6 +57,8 @@ private:
     SaveFileThread* saveFile = Q_NULLPTR;
     DeleteFileThread* deleteFile = Q_NULLPTR;
     QThread* fileThread = Q_NULLPTR;
+
+    BlockingForm* blockingForm = Q_NULLPTR;
 
     void UpdateUI();
 

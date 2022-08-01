@@ -17,6 +17,10 @@ DataFileMenuForm::DataFileMenuForm() : BasePage("Data Files")
     connect(this, &DataFileMenuForm::DeleteCollection, deleteFile, &DeleteFileThread::DeleteCollection);
     connect(deleteFile, &DeleteFileThread::Finished, this, &DataFileMenuForm::OnDeleteFileThreadFinish);
 
+    blockingForm = new BlockingForm();
+    blockingForm->BuildUIElements();
+    blockingForm->show();
+
     fileThread = new QThread(this);
     saveFile->moveToThread(fileThread);
     fileThread->start();
@@ -94,6 +98,7 @@ void DataFileMenuForm::BuildUIElements()
 
 void DataFileMenuForm::OnDeleteClicked()
 {
+    blockingForm->show();
     if (selectedFile == "Current")
     {
         emit DeleteSingleFile(QString(WORKING_DIR).append("datafiles/"), QString("405nm_").append(QDate::currentDate().toString("dd_MM_yy")).append(".csv"));
@@ -115,6 +120,7 @@ void DataFileMenuForm::OnSelectClicked()
 
 void DataFileMenuForm::OnSaveClicked()
 {
+    blockingForm->show();
     if (selectedFile == "Current")
     {
         emit SaveSingleFile(QString(WORKING_DIR).append("datafiles/"), QString("405nm_").append(QDate::currentDate().toString("dd_MM_yy")).append(".csv"), "/media/usb/");
@@ -147,15 +153,18 @@ void DataFileMenuForm::OnSelectFile(QString file)
 
 void DataFileMenuForm::UpdateUI()
 {
-    if (CheckIfUSBConnected())
+    if (isVisible())
     {
-        usbLabel->setText("<font color='green'>USB is connected</font>");
+        if (CheckIfUSBConnected())
+        {
+            usbLabel->setText("<font color='green'>USB is connected</font>");
+        }
+        else
+        {
+            usbLabel->setText("<font color='red'>No USB is connected</font>");
+        }
+        selectFileLabel->setText("Selected File: " + selectedFile);
     }
-    else
-    {
-        usbLabel->setText("<font color='red'>No USB is connected</font>");
-    }
-    selectFileLabel->setText("Selected File: " + selectedFile);
 }
 
 bool DataFileMenuForm::CheckIfUSBConnected()
@@ -201,11 +210,13 @@ bool DataFileMenuForm::CheckIfUSBConnected()
 
 void DataFileMenuForm::OnSaveFileThreadFinish(bool success)
 {
+    blockingForm->hide();
     qDebug() << "Finished saving. Was success: " << success;
 }
 
 void DataFileMenuForm::OnDeleteFileThreadFinish(bool success)
 {
+    blockingForm->hide();
     qDebug() << "Finished deleting. Was success: " << success;
 }
 

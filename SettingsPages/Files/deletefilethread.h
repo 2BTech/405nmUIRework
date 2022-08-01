@@ -11,12 +11,17 @@ class DeleteFileThread : public QObject
 public:
     DeleteFileThread();
 
+    QString GetErrorString();
+
 public slots:
     void DeleteSingleFile(QString source, QString file);
     void DeleteCollection(QString sourceDir, QStringList files);
 
 signals:
     void Finished(bool success);
+
+private:
+    QString errorString = "No Error";
 };
 
 #endif // DELETEFILETHREAD_H

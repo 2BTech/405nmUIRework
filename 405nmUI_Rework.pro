@@ -36,6 +36,7 @@ SOURCES += \
     SettingsPages/averagetimeform.cpp \
     SettingsPages/basepage.cpp \
     SettingsPages/basesettingspage.cpp \
+    SettingsPages/blockingform.cpp \
     SettingsPages/settingsmenu.cpp \
     ValueHandlers/ValueObjects/basevalueobject.cpp \
     ValueHandlers/ValueObjects/valueobjects.cpp \
@@ -71,6 +72,7 @@ HEADERS += \
     SettingsPages/averagetimeform.h \
     SettingsPages/basepage.h \
     SettingsPages/basesettingspage.h \
+    SettingsPages/blockingform.h \
     SettingsPages/settingsmenu.h \
     ValueHandlers/ValueObjects/basevalueobject.h \
     ValueHandlers/ValueObjects/valueobjects.h \
@@ -85,3 +87,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    resources.qrc
