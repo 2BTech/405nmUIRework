@@ -15,6 +15,7 @@ void SystemSettingsForm::BuildUIElements()
     BaseSettingsPage::BuildUIElements();
 
     dateFormatSelector = AddComboBoxSetting(SettingsHandler::GetInstance()->GetSetting("*"), QRect(130, 100, 200, 40), QStringList() << "Date Format" << "DD/MM/YY" << "DD/MM/YYYY" << "YY/MM/DD" << "YYYY/MM/DD");
+    connect(dateFormatSelector, SIGNAL(currentIndexChanged(int)), this, SLOT(OnSelectDateFormat(int)));
 
     QFont font;
     font.setPointSize(12);
@@ -22,6 +23,7 @@ void SystemSettingsForm::BuildUIElements()
     serialNmPair = AddLabelSetting(SettingsHandler::GetInstance()->GetSetting("R"), QRect(130, 150, 200, 40));
     serialNmPair.second->setText("Serial Number: 0000");
     serialNmPair.second->setFont(font);
+    connect(serialNmPair.first, &QPushButton::clicked, this, &SystemSettingsForm::OnSerialNumberClicked);
 }
 
 void SystemSettingsForm::OnSelectDateFormat(int index)

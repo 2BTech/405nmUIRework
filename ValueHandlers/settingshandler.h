@@ -72,6 +72,8 @@ public:
     void ReadSettingsFile();
     void WriteSettingsFile();
 
+    bool AddSettingObject(BaseValueObject* val, bool updateSettingsFileOnValChange);
+
 private slots:
     void OnValueChanged();
 
@@ -111,6 +113,8 @@ private:
     QDateTime dateTime;
 
     QHash<QString, BaseValueObject*> markerSettingMap;
+
+    QHash<QString,QString> unknownSettinsMap;
 
     void CreateDefaultSettingsFile();
 

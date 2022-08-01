@@ -1,28 +1,28 @@
 #include "modbusserverform.h"
 
-ModbusServerForm::ModbusServerForm() : BasePage("Modbus Server")
+ModbusServerForm::ModbusServerForm() : BaseSettingsPage("Modbus Server")
 {
 
 }
 
 ModbusServerForm::~ModbusServerForm()
 {
-    if (updateButton)
+    if (statusLabel)
     {
-        ipPair.first->deleteLater();
-        ipPair.second->deleteLater();
+//        ipPair.first->deleteLater();
+//        ipPair.second->deleteLater();
 
-        portPair.first->deleteLater();
-        portPair.second->deleteLater();
+//        portPair.first->deleteLater();
+//        portPair.second->deleteLater();
 
-        idPair.first->deleteLater();
-        idPair.second->deleteLater();
+//        idPair.first->deleteLater();
+//        idPair.second->deleteLater();
 
-        updateButton->deleteLater();
+//        updateButton->deleteLater();
 
-        statusLabel->deleteLater();
+//        statusLabel->deleteLater();
 
-        updateButton = Q_NULLPTR;
+//        updateButton = Q_NULLPTR;
 
         statusLabel = Q_NULLPTR;
     }
@@ -30,22 +30,24 @@ ModbusServerForm::~ModbusServerForm()
 
 void ModbusServerForm::BuildUIElements()
 {
-    BasePage::BuildUIElements();
+    BaseSettingsPage::BuildUIElements();
 
     QFont font;
     font.setPointSize(10);
 
     statusLabel = new QLabel(this);
     statusLabel->setGeometry(70, 70, 340, 40);
-    statusLabel->setText("Connection from 127.0.0.1");
+    statusLabel->setText("Not Connected");
     statusLabel->setAlignment(Qt::AlignCenter);
     statusLabel->setFont(font);
 
     font.setPointSize(12);
 
-    ipPair = QPair<QPushButton*,QLabel*>(new QPushButton(this), new QLabel(this));
+    ValueObject<QString>* tempSetting = new ValueObject<QString>("IP Address", "_M1");
+    SettingsHandler::GetInstance()->AddSettingObject(tempSetting, true);
 
-    ipPair.second->setGeometry(100, 100, 280, 40);
+    ipPair = AddLabelSetting(tempSetting, QRect(100, 100, 280, 40));
+
     ipPair.second->setText("IP Address: 000.000.000.000");
     ipPair.second->setFont(font);
 
@@ -53,9 +55,11 @@ void ModbusServerForm::BuildUIElements()
     ipPair.first->setStyleSheet("QPushButton { background-color: rgba(0, 0, 0, 0); }");
     connect(ipPair.first, &QPushButton::clicked, this, &ModbusServerForm::OnIPAddressClicked);
 
-    portPair = QPair<QPushButton*,QLabel*>(new QPushButton(this), new QLabel(this));
+    ValueObject<int>* tempIntSetting = new ValueObject<int>("Port", "_M2");
+    SettingsHandler::GetInstance()->AddSettingObject(tempIntSetting, true);
 
-    portPair.second->setGeometry(100, 140, 280, 40);
+    portPair = AddLabelSetting(tempIntSetting, QRect(100, 140, 280, 40));
+
     portPair.second->setText("Port: 50200");
     portPair.second->setFont(font);
 
@@ -63,9 +67,10 @@ void ModbusServerForm::BuildUIElements()
     portPair.first->setStyleSheet("QPushButton { background-color: rgba(0, 0, 0, 0); }");
     connect(portPair.first, &QPushButton::clicked, this, &ModbusServerForm::OnPortClicked);
 
-    idPair = QPair<QPushButton*,QLabel*>(new QPushButton(this), new QLabel(this));
+    ValueObject<uchar>* tempUCharSetting = new ValueObject<uchar>("Device ID", "_M3");
+    SettingsHandler::GetInstance()->AddSettingObject(tempUCharSetting, true);
+    idPair = AddLabelSetting(tempUCharSetting, QRect(100, 180, 280, 40));
 
-    idPair.second->setGeometry(100, 180, 280, 40);
     idPair.second->setText("Device ID: 50200");
     idPair.second->setFont(font);
 
@@ -73,30 +78,106 @@ void ModbusServerForm::BuildUIElements()
     idPair.first->setStyleSheet("QPushButton { background-color: rgba(0, 0, 0, 0); }");
     connect(idPair.first, &QPushButton::clicked, this, &ModbusServerForm::OnDeviceIDClicked);
 
-    updateButton = new QPushButton(this);
-    updateButton->setGeometry(180, 230, 120, 40);
-    updateButton->setText("Update");
-    updateButton->setFont(font);
-    updateButton->setStyleSheet("QPushButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a); }");
-    connect(updateButton, &QPushButton::clicked, this, &ModbusServerForm::OnUpdateClicked);
+//    updateButton = new QPushButton(this);
+//    updateButton->setGeometry(180, 230, 120, 40);
+//    updateButton->setText("Update");
+//    updateButton->setFont(font);
+//    updateButton->setStyleSheet("QPushButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a); }");
+//    connect(updateButton, &QPushButton::clicked, this, &ModbusServerForm::OnUpdateClicked);
+    saveButton->setText("Update");
+
+    SettingsHandler::GetInstance()->ReadSettingsFile();
+
+    CheckForOldSettings();
 }
 
 void ModbusServerForm::OnIPAddressClicked()
 {
-
+    QString address = Utilities::GetIPAddress();
+    pageSettings[0].first->setValue_str(address);
+    pageSettings[0].second->setValue_str(address);
+    UpdateUI();
 }
 
 void ModbusServerForm::OnPortClicked()
 {
+    isGettingSettings = true;
+    connect(NumberPadForm::GetInstance(), &NumberPadForm::Finished, this, &ModbusServerForm::ReceiveNewPort);
+    NumberPadForm::GetInstance()->Start(this, NumberPadMode::GET_INT, 0, 65535);
+}
 
+void ModbusServerForm::ReceiveNewPort(QString val)
+{
+    pageSettings[1].second->setValue_str(val);
+    UpdateUI();
 }
 
 void ModbusServerForm::OnDeviceIDClicked()
 {
-
+    isGettingSettings = true;
+    connect(NumberPadForm::GetInstance(), &NumberPadForm::Finished, this, &ModbusServerForm::ReceiveNewID);
+    NumberPadForm::GetInstance()->Start(this, NumberPadMode::GET_INT, 0, 255);
 }
 
-void ModbusServerForm::OnUpdateClicked()
+void ModbusServerForm::ReceiveNewID(QString val)
 {
+    pageSettings[2].second->setValue_str(val);
+    UpdateUI();
+}
 
+void ModbusServerForm::OnSaveClicked()
+{
+    BaseSettingsPage::OnSaveClicked();
+
+    emit UpdateModbus(dynamic_cast<ValueObject<QString>*>(pageSettings[0].first)->getValue(), dynamic_cast<ValueObject<int>*>(pageSettings[1].first)->getValue(), dynamic_cast<ValueObject<uchar>*>(pageSettings[2].first)->getValue());
+}
+
+void ModbusServerForm::OnModbusConnection(QString peerIP)
+{
+    statusLabel->setText("Connection from: " + peerIP);
+}
+
+void ModbusServerForm::OnModbusDisconnect()
+{
+    statusLabel->setText("Not connected");
+}
+
+void ModbusServerForm::UpdateUI()
+{
+    ipPair.second->setText("IP Addr: " + pageSettings[0].second->ToString());
+    portPair.second->setText("Port: " + pageSettings[1].second->ToString());
+    idPair.second->setText("Device ID: " + pageSettings[2].second->ToString());
+}
+
+void ModbusServerForm::showEvent(QShowEvent* event)
+{
+    BaseSettingsPage::showEvent(event);
+
+    OnIPAddressClicked();
+}
+
+void ModbusServerForm::CheckForOldSettings()
+{
+    QFile oldSettings(QString(WORKING_DIR).append("ModbusSettings.txt"));
+    if (oldSettings.exists())
+    {
+        if (oldSettings.open(QIODevice::ReadOnly))
+        {
+            while (!oldSettings.atEnd())
+            {
+                QString line = oldSettings.readLine();
+
+                if (line.startsWith('A'))
+                {
+                    SettingsHandler::GetInstance()->GetSetting("_M2")->setValue_str(line.remove(0, 1));
+                }
+                else if (line.startsWith('B'))
+                {
+                    SettingsHandler::GetInstance()->GetSetting("_M3")->setValue_str(line.remove(0, 1));
+                }
+            }
+            oldSettings.close();
+            oldSettings.remove();
+        }
+    }
 }

@@ -29,7 +29,7 @@ protected slots:
     virtual void OnMoveRightClikced() override;
     virtual void OnCloseClicked() override;
 
-    void OnSaveClicked();
+    virtual void OnSaveClicked();
 
 protected:
     // Button used to start the save process

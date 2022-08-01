@@ -19,7 +19,7 @@ DataFileMenuForm::DataFileMenuForm() : BasePage("Data Files")
 
     blockingForm = new BlockingForm();
     blockingForm->BuildUIElements();
-    blockingForm->show();
+    blockingForm->hide();
 
     fileThread = new QThread(this);
     saveFile->moveToThread(fileThread);
@@ -62,6 +62,7 @@ void DataFileMenuForm::BuildUIElements()
     refreshButton->setStyleSheet("QPushButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a); }");
     refreshButton->setText("Refresh");
     refreshButton->setFont(font);
+    connect(refreshButton, &QPushButton::clicked, this, &DataFileMenuForm::OnRefreshClicked);
 
     currentFileLabel = new QLabel(this);
     currentFileLabel->setGeometry(70, 120, 240, 40);
@@ -101,7 +102,7 @@ void DataFileMenuForm::OnDeleteClicked()
     blockingForm->show();
     if (selectedFile == "Current")
     {
-        emit DeleteSingleFile(QString(WORKING_DIR).append("datafiles/"), QString("405nm_").append(QDate::currentDate().toString("dd_MM_yy")).append(".csv"));
+        emit DeleteSingleFile(QString(WORKING_DIR).append("datafiles/"), QString("405nm_").append(QDate::currentDate().toString("yyyy_MM_dd")).append(".csv"));
     }
     else if (selectedFile == "All")
     {
@@ -123,9 +124,8 @@ void DataFileMenuForm::OnSaveClicked()
     blockingForm->show();
     if (selectedFile == "Current")
     {
-        QString fileName = QString("405nm_").append(QDate::currentDate().toString("yyyy_MM_dd")).append(".csv");
-        qDebug () << "Saving current: " << fileName;
-        emit SaveSingleFile(QString(WORKING_DIR).append("datafiles/"), fileName, "/media/usb/");
+        //qDebug () << "Saving current: " << QString("405nm_").append(QDate::currentDate().toString("yyyy_MM_dd")).append(".csv");
+        emit SaveSingleFile(QString(WORKING_DIR).append("datafiles/"), QString("405nm_").append(QDate::currentDate().toString("yyyy_MM_dd")).append(".csv"), "/media/usb/");
     }
     else if (selectedFile == "All")
     {

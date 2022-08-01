@@ -75,18 +75,35 @@ void SettingsHandler::ReadSettingsFile()
                 QString line = file.readLine();
                 line = line.remove('\n').remove('\r');
 
-                if(line.length() < 2)
+                // Check if new or old style save
+                if (line.contains(','))
                 {
-                    continue;
-                }
-
-                if (markerSettingMap.contains(QString().append(line[0])))
-                {
-                    markerSettingMap[QString().append(line[0])]->setValue_str(line.remove(0, 1));
+                    // New Style
+                    QStringList split = line.split(',');
+                    if (split.count() == 2)
+                    {
+                        if (markerSettingMap.contains(split[0]))
+                        {
+                            markerSettingMap[split[0]]->setValue_str(split[1]);
+                        }
+                        else
+                        {
+                            qDebug() << "Unknown setting marker: " << split[0];
+                            unknownSettinsMap[split[0]] = split[1];
+                        }
+                    }
                 }
                 else
                 {
-                    qDebug() << "Unknown setting marker: " << line[0];
+                    if (markerSettingMap.contains(QString().append(line[0])))
+                    {
+                        markerSettingMap[QString().append(line[0])]->setValue_str(line.remove(0, 1));
+                    }
+                    else
+                    {
+                        qDebug() << "Unknown setting marker: " << line[0];
+                        unknownSettinsMap[QString(line[0])] = line.remove(0, 1);
+                    }
                 }
             }
         }
@@ -110,23 +127,23 @@ void SettingsHandler::CreateDefaultSettingsFile()
         qDebug() << "Creating default settings file";
         file.setFileName("405nmSettings.txt");
         file.open(QIODevice::WriteOnly);
-        file.write("A1\n");     //Avg state
-        file.write("B0\n");     //Bitmask
-        file.write("C1\n");     //Adaptive short length
-        file.write("D10\n");    //Adaptive long length
-        file.write("E10\n");    //Adaptive difference
-        file.write("F10\n");    //Adaptive percent
-        file.write("G1\n");     //NO slope
-        file.write("H0\n");     //NO zero
-        file.write("I500\n");   //NO analog
-        file.write("J1\n");     //NO2 slope
-        file.write("K0\n");     //NO2 zero
-        file.write("L500\n");   //NO2 analog
-        file.write("M1\n");     //Ozone Flow slope
-        file.write("N1\n");     //Cell Flow Slope
-        file.write("O1\n");     //Mode
-        file.write("P0\n");     //Date format
-        file.write("R-1\n");    //Serial number
+        file.write("A,1\n");     //Avg state
+        file.write("B,0\n");     //Bitmask
+        file.write("C,1\n");     //Adaptive short length
+        file.write("D,10\n");    //Adaptive long length
+        file.write("E,10\n");    //Adaptive difference
+        file.write("F,10\n");    //Adaptive percent
+        file.write("G,1\n");     //NO slope
+        file.write("H,0\n");     //NO zero
+        file.write("I,500\n");   //NO analog
+        file.write("J,1\n");     //NO2 slope
+        file.write("K,0\n");     //NO2 zero
+        file.write("L,500\n");   //NO2 analog
+        file.write("M,1\n");     //Ozone Flow slope
+        file.write("N,1\n");     //Cell Flow Slope
+        file.write("O,1\n");     //Mode
+        file.write("P,0\n");     //Date format
+        file.write("R,-1\n");    //Serial number
         file.close();
     }
     else
@@ -155,13 +172,18 @@ void SettingsHandler::WriteSettingsFile()
         const QStringList keys = markerSettingMap.keys();
         for (const QString &str : keys)
         {
-            // Value objects that start with '_' are temporary values
-            if (!str.startsWith('_'))
-            {
-                settingsFile.write(str.toLatin1());
-                settingsFile.write(markerSettingMap[str]->ToString().toLatin1());
-                settingsFile.write("\n");
-            }
+            settingsFile.write(str.toLatin1());
+            settingsFile.write(",");
+            settingsFile.write(markerSettingMap[str]->ToString().toLatin1());
+            settingsFile.write("\n");
+        }
+        const QStringList unknownKeys = unknownSettinsMap.keys();
+        for (const QString &str : unknownKeys)
+        {
+            settingsFile.write(str.toLatin1());
+            settingsFile.write(",");
+            settingsFile.write(unknownSettinsMap[str].toLatin1());
+            settingsFile.write("\n");
         }
     }
 
@@ -240,6 +262,32 @@ void SettingsHandler::BuildObjects()
     connect(errorCode, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
     connect(dateFormat, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
     connect(serialNumber, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+}
+
+bool SettingsHandler::AddSettingObject(BaseValueObject* set, bool updateSettingsFileOnValChange)
+{
+    if (set == Q_NULLPTR)
+    {
+        qDebug() << "ERROR: Trying to add null setting object";
+        return false;
+    }
+    else if (set->getMarker().isEmpty() || markerSettingMap.contains(set->getMarker()))
+    {
+        qDebug() << "ERROR: Invalid marker. " << set->getMarker();
+        return false;
+    }
+    else
+    {
+        markerSettingMap[set->getMarker()] = set;
+        connect(set, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+
+        if (unknownSettinsMap.contains(set->getMarker()))
+        {
+            set->setValue_str(unknownSettinsMap.take(set->getMarker()));
+        }
+
+        return true;
+    }
 }
 
 BaseValueObject* SettingsHandler::GetSetting(QString marker)

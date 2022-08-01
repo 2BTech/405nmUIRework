@@ -1,4 +1,4 @@
-QT       += core gui serialport
+QT       += core gui serialport network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -43,7 +43,8 @@ SOURCES += \
     ValueHandlers/datahandler.cpp \
     ValueHandlers/settingshandler.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    utilities.cpp
 
 HEADERS += \
     GlobalDefinitions.h \
@@ -78,7 +79,8 @@ HEADERS += \
     ValueHandlers/ValueObjects/valueobjects.h \
     ValueHandlers/datahandler.h \
     ValueHandlers/settingshandler.h \
-    mainwindow.h
+    mainwindow.h \
+    utilities.h
 
 FORMS += \
     mainwindow.ui
