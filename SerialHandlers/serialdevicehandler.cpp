@@ -309,8 +309,8 @@ void SerialDeviceHandler::WriteNextMessage()
         QByteArray message = writeQueue.dequeue();
         if(serialPort != Q_NULLPTR)
         {
-            serialPort->write(message.data(), message.count());
-            serialPort->waitForBytesWritten(3000);
+            serialPort->writeData(message.data(), message.count());
+            //serialPort->waitForBytesWritten(3000);
             qDebug() << "Writing: " << message;
         }
         else
