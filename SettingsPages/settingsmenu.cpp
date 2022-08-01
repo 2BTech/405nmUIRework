@@ -212,7 +212,7 @@ void SettingsMenu::OnPageButtonClicked()
 {
     int index = pageButtons.indexOf(dynamic_cast<QPushButton*>(sender()));
 
-    qDebug() << "Page index: " << index;
+    //qDebug() << "Page index: " << index;
     if (index > -1 && index < pages.count())
     {
         JumpToPage(index + 1);

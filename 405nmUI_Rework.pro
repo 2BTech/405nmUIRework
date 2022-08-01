@@ -17,6 +17,9 @@ SOURCES += \
     SerialHandlers/serialport.cpp \
     SerialHandlers/serialreadthread.cpp \
     SerialHandlers/serialwritethread.cpp \
+    SettingsPages/Files/deletefilethread.cpp \
+    SettingsPages/Files/filebrowserform.cpp \
+    SettingsPages/Files/savefilethread.cpp \
     SettingsPages/Settings/aboutpage.cpp \
     SettingsPages/Settings/adaptivefilterform.cpp \
     SettingsPages/Settings/datafilemenu.cpp \
@@ -49,6 +52,9 @@ HEADERS += \
     SerialHandlers/serialport.h \
     SerialHandlers/serialreadthread.h \
     SerialHandlers/serialwritethread.h \
+    SettingsPages/Files/deletefilethread.h \
+    SettingsPages/Files/filebrowserform.h \
+    SettingsPages/Files/savefilethread.h \
     SettingsPages/Settings/aboutpage.h \
     SettingsPages/Settings/adaptivefilterform.h \
     SettingsPages/Settings/datafilemenu.h \

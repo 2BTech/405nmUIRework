@@ -4,7 +4,22 @@ DataFileMenuForm::DataFileMenuForm() : BasePage("Data Files")
 {
     menuForm = new DataFileMenu();
     menuForm->BuildUIElements();
-    menuForm->show();
+    menuForm->hide();
+    connect(menuForm, &DataFileMenu::Finished, this, &DataFileMenuForm::OnSelectFile);
+
+    saveFile = new SaveFileThread();
+    connect(this, &DataFileMenuForm::SaveSingleFile, saveFile, &SaveFileThread::SaveSingleFile);
+    connect(this, &DataFileMenuForm::SaveCollection, saveFile, &SaveFileThread::SaveCollection);
+    connect(saveFile, &SaveFileThread::Finished, this, &DataFileMenuForm::OnSaveFileThreadFinish);
+
+    deleteFile = new DeleteFileThread();
+    connect(this, &DataFileMenuForm::DeleteSingleFile, deleteFile, &DeleteFileThread::DeleteSingleFile);
+    connect(this, &DataFileMenuForm::DeleteCollection, deleteFile, &DeleteFileThread::DeleteCollection);
+    connect(deleteFile, &DeleteFileThread::Finished, this, &DataFileMenuForm::OnDeleteFileThreadFinish);
+
+    fileThread = new QThread(this);
+    saveFile->moveToThread(fileThread);
+    fileThread->start();
 }
 
 DataFileMenuForm::~DataFileMenuForm()
@@ -48,9 +63,10 @@ void DataFileMenuForm::BuildUIElements()
     currentFileLabel->setGeometry(70, 120, 240, 40);
     currentFileLabel->setText("Current File: Not Set");
     currentFileLabel->setFont(font);
+    currentFileLabel->hide();
 
     selectFileLabel = new QLabel(this);
-    selectFileLabel->setGeometry(70, 170, 240, 40);
+    selectFileLabel->setGeometry(70, 135, 240, 40);
     selectFileLabel->setText("Selected File: Not Set");
     selectFileLabel->setFont(font);
 
@@ -78,20 +94,123 @@ void DataFileMenuForm::BuildUIElements()
 
 void DataFileMenuForm::OnDeleteClicked()
 {
-
+    if (selectedFile == "Current")
+    {
+        emit DeleteSingleFile(QString(WORKING_DIR).append("dataFiles/"), QString("405nm_").append(QDate::currentDate().toString("dd_MM_yy")).append(".csv"));
+    }
+    else if (selectedFile == "All")
+    {
+        emit DeleteCollection(QString(WORKING_DIR).append("dataFiles/"), QDir(QString(WORKING_DIR).append("dataFiles/")).entryList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot));
+    }
+    else
+    {
+        emit DeleteSingleFile(QString(WORKING_DIR).append("dataFiles/"), selectedFile);
+    }
 }
 
 void DataFileMenuForm::OnSelectClicked()
 {
-
+    menuForm->show();
 }
 
 void DataFileMenuForm::OnSaveClicked()
 {
-
+    if (selectedFile == "Current")
+    {
+        emit SaveSingleFile(QString(WORKING_DIR).append("dataFiles/"), QString("405nm_").append(QDate::currentDate().toString("dd_MM_yy")).append(".csv"), "/media/usb/");
+    }
+    else if (selectedFile == "All")
+    {
+        emit SaveCollection(QString(WORKING_DIR).append("dataFiles/"), QDir(QString(WORKING_DIR).append("dataFiles/")).entryList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot), "/media/usb/");
+    }
+    else
+    {
+        emit SaveSingleFile(QString(WORKING_DIR).append("dataFiles/"), selectedFile, "/media/usb/");
+    }
 }
 
 void DataFileMenuForm::OnRefreshClicked()
 {
+    UpdateUI();
+}
 
+void DataFileMenuForm::OnSelectFile(QString file)
+{
+    if (!file.isEmpty())
+    {
+        selectedFile = file;
+    }
+    menuForm->close();
+    show();
+    UpdateUI();
+}
+
+void DataFileMenuForm::UpdateUI()
+{
+    if (CheckIfUSBConnected())
+    {
+        usbLabel->setText("<font color='green'>USB is connected</font>");
+    }
+    else
+    {
+        usbLabel->setText("<font color='red'>No USB is connected</font>");
+    }
+    selectFileLabel->setText("Selected File: " + selectedFile);
+}
+
+bool DataFileMenuForm::CheckIfUSBConnected()
+{
+//    QDir mediaDir;
+//    mediaDir.setPath("/media/");
+//    const QStringList entryList = mediaDir.entryList(QDir::Filter::AllDirs | QDir::Filter::NoDotAndDotDot);
+//    QStringList dirs;
+//    for(const QString &entry : entryList)
+//    {
+//        dirs.append("/media/" + entry + '/');
+//        //BaseLogger::Log(entry);
+//    }
+//    return dirs.count() > 0;
+
+    QString prog = "/bin/bash";
+    QStringList arguments = {"-c", "mount | grep media"};
+    QProcess process;
+
+    process.start(prog, arguments);
+    process.waitForFinished();
+
+    QString mountStatus = process.readAll();
+    if(mountStatus.contains("usb") || mountStatus.contains("/dev/sd"))
+    {
+        QStringList stringList = mountStatus.split(" ");
+        for(int i = 0; i < stringList.size(); i++)
+        {
+            //If the usb stick is on a linux pc
+            if(stringList[i].contains("usb0"))
+            {
+                return true;
+            }
+            //If the usb stick is in the armadillo board
+            else if(stringList[i].contains("/media"))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void DataFileMenuForm::OnSaveFileThreadFinish(bool success)
+{
+    qDebug() << "Finished saving. Was success: " << success;
+}
+
+void DataFileMenuForm::OnDeleteFileThreadFinish(bool success)
+{
+    qDebug() << "Finished deleting. Was success: " << success;
+}
+
+void DataFileMenuForm::showEvent(QShowEvent* event)
+{
+    QWidget::showEvent(event);
+    UpdateUI();
 }

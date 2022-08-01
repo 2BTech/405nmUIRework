@@ -13,6 +13,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     settingsMenu = new SettingsMenu();
     settingsMenu->BuildUIElements();
+    connect(settingsMenu, &SettingsMenu::CloseMenu, this, &MainWindow::show);
+    connect(settingsMenu, &SettingsMenu::CloseMenu, settingsMenu, &SettingsMenu::hide);
 
     //Set the background to white
     QPalette pal = palette();
