@@ -245,7 +245,7 @@ void MainWindow::OnGraphClicked()
 void MainWindow::UpdateUI()
 {
     DataHandler* dataHander = DataHandler::GetInstance();
-    switch (dataHander->GetMode())
+    switch (dataHander->GetMode()->getValue())
     {
     case 0:
         loggingLabel->setText("Warming Up");
@@ -264,11 +264,11 @@ void MainWindow::UpdateUI()
         break;
 
     default:
-        loggingLabel->setText("ERROR: " + QString::number(dataHander->GetMode()));
+        loggingLabel->setText("ERROR: " + QString::number(dataHander->GetMode()->getValue()));
         break;
     }
 
-    logLabel->setText("Log #: " + QString::number(dataHander->GetLogNumber()));
+    logLabel->setText("Log #: " + QString::number(dataHander->GetLogNumber()->getValue()));
 
     switch (dynamic_cast<ValueObject<uchar>*>(SettingsHandler::GetInstance()->GetSetting("A"))->getValue())
     {
@@ -302,9 +302,9 @@ void MainWindow::UpdateUI()
         errLabel->setText("<font color='green'>No erros</font>");
     }
 
-    noLabel->setText("NO: " + QString::number(dataHander->GetNO()) + " ppb");
-    no2Label->setText("NO2: " + QString::number(dataHander->GetNO2()) + " ppb");
-    noxLabel->setText("NOx: " + QString::number(dataHander->GetNOX()) + " ppb");
+    noLabel->setText("NO: " + QString::number(dataHander->GetNO()->getValue()) + " ppb");
+    no2Label->setText("NO2: " + QString::number(dataHander->GetNO2()->getValue()) + " ppb");
+    noxLabel->setText("NOx: " + QString::number(dataHander->GetNOx()->getValue()) + " ppb");
 
     dateTimeLabel->setText(QDateTime::currentDateTime().toString("dd/MM/yy hh:mm:ss"));
 }

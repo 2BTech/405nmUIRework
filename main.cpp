@@ -58,6 +58,48 @@ void InitialeSerialHandlers(SerialDeviceHandler* deviceHander, SerialMenuHandler
     }
 }
 
+void InitializeModbus()
+{
+    //ModbusHandler::GetInstance()->DataTable()->ResizeOutputRegisters(TOTAL_MODBUS_REGISTERS);
+    //ModbusHandler::GetInstance()->DataTable()->ResizeOutputCoils(2);
+
+    int registerIndex = 0;
+    int coilIndex = 0;
+
+    ModbusHandler* modbus = ModbusHandler::GetInstance();
+
+    const QList<BaseValueObject*> settings = SettingsHandler::GetInstance()->GetAllValues();
+    SettingsHandler::GetInstance()->SetRegisterIndex(0);
+    SettingsHandler::GetInstance()->SetCoilIndex(coilIndex++);
+    for (BaseValueObject* set : settings)
+    {
+        set->SetRegisterIndex(registerIndex);
+
+        registerIndex += set->GetNumRegisters();
+    }
+    SettingsHandler::GetInstance()->SetNumRegisters(registerIndex);
+
+
+    const QList<BaseValueObject*> data = DataHandler::GetInstance()->GetAllValues();
+    DataHandler::GetInstance()->SetRegisterIndex(registerIndex);
+    DataHandler::GetInstance()->SetCoilIndex(coilIndex++);
+    for (BaseValueObject* dat : data)
+    {
+        dat->SetRegisterIndex(registerIndex);
+
+        registerIndex += dat->GetNumRegisters();
+    }
+    DataHandler::GetInstance()->SetNumRegisters(registerIndex);
+
+    modbus->DataTable()->ResizeOutputRegisters(registerIndex);
+    modbus->DataTable()->ResizeOutputCoils(coilIndex);
+
+    modbus->RegisterValueObjects(settings);
+    modbus->RegisterValueObjects(data);
+
+    SettingsHandler::GetInstance()->connect(SettingsHandler::GetInstance(), &ValueHandlerBase::SetModbusCoil, modbus, &ModbusHandler::SetModbusCoil);
+    DataHandler::GetInstance()->connect(DataHandler::GetInstance(), &ValueHandlerBase::SetModbusCoil, modbus, &ModbusHandler::SetModbusCoil);
+}
 
 int main(int argc, char *argv[])
 {
@@ -97,6 +139,8 @@ int main(int argc, char *argv[])
 
     qDebug() << "Menu thread: " << &serialMenuThread;
     qDebug() << "Device thread: " << &serialDeviceThread;
+
+    InitializeModbus();
 
     return a.exec();
 }

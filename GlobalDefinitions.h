@@ -3,6 +3,8 @@
 
 #include <QtGlobal>
 
+#include "ValueHandlers/modbusvaluedefs.h"
+
 // This class holds global definitons such as working dir
 
 #ifdef Q_OS_WIN

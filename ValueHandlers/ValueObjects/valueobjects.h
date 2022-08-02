@@ -1,6 +1,8 @@
 #ifndef VALUEOBJECTS_H
 #define VALUEOBJECTS_H
 
+#include <QQueue>
+
 #include "basevalueobject.h"
 
 template <typename T>
@@ -29,11 +31,21 @@ public:
 
      ValueType GetValueType() override;
 
+     int GetNumRegisters() override;
+
+     short* GetRegisterValues() override;
+
+     uchar* GetBytes() override;
+
 protected:
     // Current value for the object
     T value = T();
     // Bytes that make up value
     uchar* bytes = Q_NULLPTR;
+    // Register bytes
+    short* registerBytes = Q_NULLPTR;
+    // Tracks the history of the values
+    QQueue<T> history;
 };
 
 #endif // VALUEOBJECTS_H

@@ -11,6 +11,25 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Modbus/ASCII/modbusasciibase.cpp \
+    Modbus/ASCII/modbusasciimaster.cpp \
+    Modbus/ASCII/modbusasciimessage.cpp \
+    Modbus/ASCII/modbusasciislave.cpp \
+    Modbus/RTU/modbusrtubase.cpp \
+    Modbus/RTU/modbusrtumaster.cpp \
+    Modbus/RTU/modbusrtumessage.cpp \
+    Modbus/RTU/modbusrtuslave.cpp \
+    Modbus/TCP/modbustcpbase.cpp \
+    Modbus/TCP/modbustcpmaster.cpp \
+    Modbus/TCP/modbustcpmessage.cpp \
+    Modbus/TCP/modbustcpslave.cpp \
+    Modbus/modbusbase.cpp \
+    Modbus/modbusdatatable.cpp \
+    Modbus/modbushandler.cpp \
+    Modbus/modbushelpers.cpp \
+    Modbus/modbusmaster.cpp \
+    Modbus/modbusmessage.cpp \
+    Modbus/modbusslave.cpp \
     SerialHandlers/serialdevicehandler.cpp \
     SerialHandlers/serialhandlerbase.cpp \
     SerialHandlers/serialmenuhandler.cpp \
@@ -42,6 +61,7 @@ SOURCES += \
     ValueHandlers/ValueObjects/valueobjects.cpp \
     ValueHandlers/datahandler.cpp \
     ValueHandlers/settingshandler.cpp \
+    ValueHandlers/valuehandlerbase.cpp \
     main.cpp \
     mainwindow.cpp \
     parametersform.cpp \
@@ -49,6 +69,26 @@ SOURCES += \
 
 HEADERS += \
     GlobalDefinitions.h \
+    Modbus/ASCII/modbusasciibase.h \
+    Modbus/ASCII/modbusasciimaster.h \
+    Modbus/ASCII/modbusasciimessage.h \
+    Modbus/ASCII/modbusasciislave.h \
+    Modbus/RTU/modbusrtubase.h \
+    Modbus/RTU/modbusrtumaster.h \
+    Modbus/RTU/modbusrtumessage.h \
+    Modbus/RTU/modbusrtuslave.h \
+    Modbus/TCP/modbustcpbase.h \
+    Modbus/TCP/modbustcpmaster.h \
+    Modbus/TCP/modbustcpmessage.h \
+    Modbus/TCP/modbustcpslave.h \
+    Modbus/modbusbase.h \
+    Modbus/modbusdatatable.h \
+    Modbus/modbusdefs.h \
+    Modbus/modbushandler.h \
+    Modbus/modbushelpers.h \
+    Modbus/modbusmaster.h \
+    Modbus/modbusmessage.h \
+    Modbus/modbusslave.h \
     SerialHandlers/serialdevicehandler.h \
     SerialHandlers/serialhandlerbase.h \
     SerialHandlers/serialmenuhandler.h \
@@ -79,7 +119,9 @@ HEADERS += \
     ValueHandlers/ValueObjects/basevalueobject.h \
     ValueHandlers/ValueObjects/valueobjects.h \
     ValueHandlers/datahandler.h \
+    ValueHandlers/modbusvaluedefs.h \
     ValueHandlers/settingshandler.h \
+    ValueHandlers/valuehandlerbase.h \
     mainwindow.h \
     parametersform.h \
     utilities.h

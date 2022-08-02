@@ -4,6 +4,8 @@
 #include "../basesettingspage.h"
 #include "utilities.h"
 
+#include "Modbus/modbushandler.h"
+
 class ModbusServerForm : public BaseSettingsPage
 {
     Q_OBJECT
@@ -19,7 +21,7 @@ public slots:
     void OnModbusDisconnect();
 
 signals:
-    void UpdateModbus(QString ipAddress, int port, uchar deviceID);
+    void UpdateModbus(int protocol, QString ipAddress, int port, uchar deviceID);
 
 private slots:
     void OnIPAddressClicked();

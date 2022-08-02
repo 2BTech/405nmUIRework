@@ -14,7 +14,7 @@ void SystemSettingsForm::BuildUIElements()
 {
     BaseSettingsPage::BuildUIElements();
 
-    dateFormatSelector = AddComboBoxSetting(SettingsHandler::GetInstance()->GetSetting("*"), QRect(130, 100, 200, 40), QStringList() << "Date Format" << "DD/MM/YY" << "DD/MM/YYYY" << "YY/MM/DD" << "YYYY/MM/DD");
+    dateFormatSelector = AddComboBoxSetting(SettingsHandler::GetInstance()->GetSetting("_2"), QRect(130, 100, 200, 40), QStringList() << "Date Format" << "DD/MM/YY" << "DD/MM/YYYY" << "YY/MM/DD" << "YYYY/MM/DD");
     connect(dateFormatSelector, SIGNAL(currentIndexChanged(int)), this, SLOT(OnSelectDateFormat(int)));
 
     QFont font;

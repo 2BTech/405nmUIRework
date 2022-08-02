@@ -36,3 +36,13 @@ QString BaseValueObject::getUnits()
 {
     return units;
 }
+
+int BaseValueObject::GetRegisterIndex()
+{
+    return registerIndex;
+}
+
+void BaseValueObject::SetRegisterIndex(int index)
+{
+    registerIndex = index;
+}

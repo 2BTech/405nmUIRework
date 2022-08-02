@@ -10,7 +10,7 @@ SettingsHandler* SettingsHandler::GetInstance()
     return instance;
 }
 
-SettingsHandler::SettingsHandler()
+SettingsHandler::SettingsHandler() : ValueHandlerBase()
 {
     BuildObjects();
 }
@@ -82,9 +82,9 @@ void SettingsHandler::ReadSettingsFile()
                     QStringList split = line.split(',');
                     if (split.count() == 2)
                     {
-                        if (markerSettingMap.contains(split[0]))
+                        if (markerValueMap.contains(split[0]))
                         {
-                            markerSettingMap[split[0]]->setValue_str(split[1]);
+                            markerValueMap[split[0]]->setValue_str(split[1]);
                         }
                         else
                         {
@@ -95,9 +95,9 @@ void SettingsHandler::ReadSettingsFile()
                 }
                 else
                 {
-                    if (markerSettingMap.contains(QString().append(line[0])))
+                    if (markerValueMap.contains(QString().append(line[0])))
                     {
-                        markerSettingMap[QString().append(line[0])]->setValue_str(line.remove(0, 1));
+                        markerValueMap[QString().append(line[0])]->setValue_str(line.remove(0, 1));
                     }
                     else
                     {
@@ -169,12 +169,12 @@ void SettingsHandler::WriteSettingsFile()
 
     if(settingsFile.isOpen())
     {
-        const QStringList keys = markerSettingMap.keys();
+        const QStringList keys = markerValueMap.keys();
         for (const QString &str : keys)
         {
             settingsFile.write(str.toLatin1());
             settingsFile.write(",");
-            settingsFile.write(markerSettingMap[str]->ToString().toLatin1());
+            settingsFile.write(markerValueMap[str]->ToString().toLatin1());
             settingsFile.write("\n");
         }
         const QStringList unknownKeys = unknownSettinsMap.keys();
@@ -193,61 +193,61 @@ void SettingsHandler::WriteSettingsFile()
 void SettingsHandler::BuildObjects()
 {
     avgTime = new ValueObject<uchar>("Averaging Time", "A", "");
-    markerSettingMap["A"] = avgTime;
+    AddSettingObject(avgTime, true);
 
     adShort = new ValueObject<uchar>("Adaptive Short", "C", "");
-    markerSettingMap["C"] = adShort;
+    AddSettingObject(adShort, true);
 
     adLong = new ValueObject<uchar>("Adaptive Long", "D", "");
-    markerSettingMap["D"] = adLong;
+    AddSettingObject(adLong, true);
 
     adDiff = new ValueObject<uchar>("Adaptive Difference", "E", "");
-    markerSettingMap["E"] = adDiff;
+    AddSettingObject(adDiff, true);
 
     adPercent = new ValueObject<uchar>("Adaptive Percent", "F", "");
-    markerSettingMap["F"] = adPercent;
+    AddSettingObject(adPercent, true);
 
     analogNO = new ValueObject<int>("NO V Scale", "I", " = 1 V");
-    markerSettingMap["I"] = analogNO;
+    AddSettingObject(analogNO, true);
 
     analogNO2 = new ValueObject<int>("NO2 V Scale", "L", " = 1 V");
-    markerSettingMap["L"] = analogNO2;
+    AddSettingObject(analogNO2, true);
 
     noSlope = new ValueObject<float>("NO Slope", "G", "");
-    markerSettingMap["G"] = noSlope;
+    AddSettingObject(noSlope, true);
 
-    noZero = new ValueObject<float>("NO Zero", "G", "");
-    markerSettingMap["H"] = noZero;
+    noZero = new ValueObject<float>("NO Zero", "H", "");
+    AddSettingObject(noZero, true);
 
     no2Slope = new ValueObject<float>("NO2 Slope", "J", "");
-    markerSettingMap["J"] = no2Slope;
+    AddSettingObject(no2Slope, true);
 
     no2Zero = new ValueObject<float>("NO2 Zero", "K", "");
-    markerSettingMap["K"] = no2Zero;
+    AddSettingObject(no2Zero, true);
 
     ozoneFlowSlope = new ValueObject<float>("Ozone Flow Slope", "M", "");
-    markerSettingMap["M"] = ozoneFlowSlope;
+    AddSettingObject(ozoneFlowSlope, true);
 
     cellFlowSlope = new ValueObject<float>("Cell Flow Slope", "N", "");
-    markerSettingMap["N"] = cellFlowSlope;
+    AddSettingObject(cellFlowSlope, true);
 
     mode = new ValueObject<uchar>("Mode", "O", "");
-    markerSettingMap["O"] = mode;
+    AddSettingObject(mode, true);
 
     errorCode = new ValueObject<int>("Error Code", "_1", "");
-    markerSettingMap["_1"] = errorCode;
+    AddSettingObject(errorCode, true);
 
     dateFormat = new ValueObject<uchar>("Date Format", "_2", "");
-    markerSettingMap["*"] = dateFormat;
+    AddSettingObject(dateFormat, true);
 
     serialNumber = new ValueObject<int>("Serial Number", "R", "");
-    markerSettingMap["R"] = serialNumber;
+    AddSettingObject(serialNumber, true);
 
     date = new ValueObject<QString>("Date", "P");
-    markerSettingMap["P"] = date;
+    AddSettingObject(date, true);
 
     time = new ValueObject<QString>("Time", "Q");
-    markerSettingMap["Q"] = time;
+    AddSettingObject(time, true);
 
     ReadSettingsFile();
 
@@ -279,40 +279,24 @@ bool SettingsHandler::AddSettingObject(BaseValueObject* set, bool updateSettings
         qDebug() << "ERROR: Trying to add null setting object";
         return false;
     }
-    else if (set->getMarker().isEmpty() || markerSettingMap.contains(set->getMarker()))
-    {
-        qDebug() << "ERROR: Invalid marker. " << set->getMarker();
-        return false;
-    }
     else
     {
-        markerSettingMap[set->getMarker()] = set;
-        if (updateSettingsFileOnValChange)
+        if (AddValue(set))
         {
-            connect(set, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
-        }
+            if (updateSettingsFileOnValChange)
+            {
+                connect(set, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+            }
 
-        if (unknownSettinsMap.contains(set->getMarker()))
-        {
-            set->setValue_str(unknownSettinsMap.take(set->getMarker()));
+            if (unknownSettinsMap.contains(set->getMarker()))
+            {
+                set->setValue_str(unknownSettinsMap.take(set->getMarker()));
+            }
         }
-
         return true;
     }
 }
 
-BaseValueObject* SettingsHandler::GetSetting(QString marker)
-{
-    if (markerSettingMap.contains(marker))
-    {
-        return markerSettingMap[marker];
-    }
-    else
-    {
-        qDebug() << "ERROR: Trying to get unknown setting: " << marker;
-        return Q_NULLPTR;
-    }
-}
 
 
 

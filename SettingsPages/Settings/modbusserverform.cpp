@@ -2,7 +2,9 @@
 
 ModbusServerForm::ModbusServerForm() : BaseSettingsPage("Modbus Server")
 {
-
+    connect(this, &ModbusServerForm::UpdateModbus, ModbusHandler::GetInstance(), &ModbusHandler::UpdateModbusSettings);
+    connect(ModbusHandler::GetInstance(), &ModbusHandler::TCPSlaveConnection, this, &ModbusServerForm::OnModbusConnection);
+    connect(ModbusHandler::GetInstance(), &ModbusHandler::Disconnected, this, &ModbusServerForm::OnModbusDisconnect);
 }
 
 ModbusServerForm::~ModbusServerForm()
@@ -89,6 +91,8 @@ void ModbusServerForm::BuildUIElements()
     SettingsHandler::GetInstance()->ReadSettingsFile();
 
     CheckForOldSettings();
+
+    emit UpdateModbus(0, dynamic_cast<ValueObject<QString>*>(pageSettings[0].first)->getValue(), dynamic_cast<ValueObject<int>*>(pageSettings[1].first)->getValue(), dynamic_cast<ValueObject<uchar>*>(pageSettings[2].first)->getValue());
 }
 
 void ModbusServerForm::OnIPAddressClicked()
@@ -129,7 +133,7 @@ void ModbusServerForm::OnSaveClicked()
 {
     BaseSettingsPage::OnSaveClicked();
 
-    emit UpdateModbus(dynamic_cast<ValueObject<QString>*>(pageSettings[0].first)->getValue(), dynamic_cast<ValueObject<int>*>(pageSettings[1].first)->getValue(), dynamic_cast<ValueObject<uchar>*>(pageSettings[2].first)->getValue());
+    emit UpdateModbus(0, dynamic_cast<ValueObject<QString>*>(pageSettings[0].first)->getValue(), dynamic_cast<ValueObject<int>*>(pageSettings[1].first)->getValue(), dynamic_cast<ValueObject<uchar>*>(pageSettings[2].first)->getValue());
 }
 
 void ModbusServerForm::OnModbusConnection(QString peerIP)

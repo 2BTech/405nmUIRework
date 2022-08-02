@@ -4,48 +4,56 @@ template <>
 ValueObject<uchar>::ValueObject(QString name, QString marker, QString units) : BaseValueObject(name, marker, units)
 {
     bytes = new uchar[1];
+    registerBytes = new short[1];
 }
 
 template <>
 ValueObject<int>::ValueObject(QString name, QString marker, QString units) : BaseValueObject(name, marker, units)
 {
     bytes = new uchar[4];
+    registerBytes = new short[2];
 }
 
 template <>
 ValueObject<float>::ValueObject(QString name, QString marker, QString units) : BaseValueObject(name, marker, units)
 {
     bytes = new uchar[4];
+    registerBytes = new short[2];
 }
 
 template <>
 ValueObject<QString>::ValueObject(QString name, QString marker, QString units) : BaseValueObject(name, marker, units)
 {
     bytes = new uchar[25];
+    registerBytes = new short[2];
 }
 
 template <>
 ValueObject<uchar>::~ValueObject()
 {
     delete [] bytes;
+    delete [] registerBytes;
 }
 
 template <>
 ValueObject<int>::~ValueObject()
 {
     delete [] bytes;
+    delete [] registerBytes;
 }
 
 template <>
 ValueObject<float>::~ValueObject()
 {
     delete [] bytes;
+    delete [] registerBytes;
 }
 
 template <>
 ValueObject<QString>::~ValueObject()
 {
     delete [] bytes;
+    delete [] registerBytes;
 }
 
 template <>
@@ -54,9 +62,11 @@ void ValueObject<uchar>::setValue(uchar val)
     if (val != value)
     {
         bytes[0] = val;
+        registerBytes[0] = value;
         value = val;
         emit ValueChanged();
     }
+    history.append(val);
 }
 
 template <>
@@ -67,13 +77,16 @@ void ValueObject<int>::setValue(int val)
         union {
             int v;
             uchar bytes[4];
+            short rBytes[2];
         };
         v = val;
         memcpy(this->bytes, bytes, 4);
+        memcpy(registerBytes, rBytes, 2);
 
         value = val;
         emit ValueChanged();
     }
+    history.append(val);
 }
 
 template <>
@@ -84,13 +97,16 @@ void ValueObject<float>::setValue(float val)
         union {
             float v;
             uchar bytes[4];
+            short rBytes[2];
         };
         v = val;
         memcpy(this->bytes, bytes, 4);
+        memcpy(registerBytes, rBytes, 2);
 
         value = val;
         emit ValueChanged();
     }
+    history.append(val);
 }
 
 template <>
@@ -107,9 +123,15 @@ void ValueObject<QString>::setValue(QString val)
         // Zero the remaining section
         memset(bytes + toCpy, 0, 25 - toCpy);
 
+        for (int i = 0; i < 25; i++)
+        {
+            registerBytes[i] = bytes[i];
+        }
+
         value = val;
         emit ValueChanged();
     }
+    history.append(val);
 }
 
 template <>
@@ -359,3 +381,74 @@ ValueType ValueObject<QString>::GetValueType()
     return ValueType::STRING_VALUE;
 }
 
+template <>
+int ValueObject<uchar>::GetNumRegisters()
+{
+    return 1;
+}
+
+template <>
+int ValueObject<int>::GetNumRegisters()
+{
+    return 2;
+}
+
+template <>
+int ValueObject<float>::GetNumRegisters()
+{
+    return 2;
+}
+
+template <>
+int ValueObject<QString>::GetNumRegisters()
+{
+    return 25;
+}
+
+template <>
+short* ValueObject<uchar>::GetRegisterValues()
+{
+    return registerBytes;
+}
+
+template <>
+short* ValueObject<int>::GetRegisterValues()
+{
+    return registerBytes;
+}
+
+template <>
+short* ValueObject<float>::GetRegisterValues()
+{
+    return registerBytes;
+}
+
+template <>
+short* ValueObject<QString>::GetRegisterValues()
+{
+    return registerBytes;
+}
+
+template <>
+uchar* ValueObject<uchar>::GetBytes()
+{
+    return bytes;
+}
+
+template <>
+uchar* ValueObject<int>::GetBytes()
+{
+    return bytes;
+}
+
+template <>
+uchar* ValueObject<float>::GetBytes()
+{
+    return bytes;
+}
+
+template <>
+uchar* ValueObject<QString>::GetBytes()
+{
+    return bytes;
+}

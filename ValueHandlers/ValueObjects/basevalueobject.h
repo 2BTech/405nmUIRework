@@ -42,6 +42,12 @@ public:
 
     virtual ValueType GetValueType() = 0;
 
+    int GetRegisterIndex();
+    void SetRegisterIndex(int index);
+    virtual int GetNumRegisters() = 0;
+    virtual uchar* GetBytes() = 0;
+    virtual short* GetRegisterValues() = 0;
+
 signals:
     // Emitted when value is changed
     void ValueChanged();
@@ -53,6 +59,8 @@ protected:
     QString marker;
     // Units for the value
     QString units;
+    // First modbus register for the value
+    int registerIndex = -1;
 };
 
 #endif // BASEVALUEOBJECT_H
