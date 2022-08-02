@@ -107,7 +107,8 @@ void ModbusRTUSlave::ReadOutputCoils(unsigned short address, unsigned short leng
     }
     else if(address + length >= dataTable->NumberOfOutputCoils())
     {
-        throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputCoils()");
+        //throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputCoils()");
+        throw new std::exception();
     }
 
     response.Reset();
@@ -147,7 +148,8 @@ void ModbusRTUSlave::ReadInputCoils(unsigned short address, unsigned short lengt
     }
     else if(address + length >= dataTable->NumberOfInputCoils())
     {
-        throw new std::out_of_range("Address + length >= dataTable->NumberOfInputCoils()");
+        //throw new std::out_of_range("Address + length >= dataTable->NumberOfInputCoils()");
+        throw new std::exception();
     }
 
     response.Reset();
@@ -177,7 +179,8 @@ void ModbusRTUSlave::ReadOutputRegisters(unsigned short address, unsigned short 
     }
     else if(address + length > dataTable->NumberOfOutputRegisters())
     {
-        throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputRegisters()");
+        //throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputRegisters()");
+        throw new std::exception();
     }
 
     response.Reset();
@@ -207,7 +210,8 @@ void ModbusRTUSlave::ReadInputRegisters(unsigned short address, unsigned short l
     }
     else if(address + length >= dataTable->NumberOfInputRegisters())
     {
-        throw new std::out_of_range("Address + length >= dataTable->NumberOfInputRegisters()");
+        //throw new std::out_of_range("Address + length >= dataTable->NumberOfInputRegisters()");
+        throw new std::exception();
     }
 
     response.Reset();
@@ -237,7 +241,8 @@ void ModbusRTUSlave::WriteOutputCoil(unsigned short address)
     }
     else if(address >= dataTable->NumberOfOutputCoils())
     {
-        throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputCoils()");
+        //throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputCoils()");
+        throw new std::exception();
     }
 
     dataTable->SetOutputCoil(address, currentMessage.GetValue(4) == 0xFF00);
@@ -267,7 +272,8 @@ void ModbusRTUSlave::WriteOutputRegister(unsigned short address)
     }
     else if(address >= dataTable->NumberOfOutputRegisters())
     {
-        throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputRegisters()");
+        //throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputRegisters()");
+        throw new std::exception();
     }
 
     response.Reset();
@@ -297,7 +303,8 @@ void ModbusRTUSlave::WriteMultipleOutputCoils(unsigned short address, unsigned s
     }
     else if(address + length >= dataTable->NumberOfOutputCoils())
     {
-        throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputCoils()");
+        //throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputCoils()");
+        throw new std::exception();
     }
 
     response.Reset();
@@ -327,7 +334,8 @@ void ModbusRTUSlave::WriteMultipleOutputRegisters(unsigned short address, unsign
     }
     else if(address + length >= dataTable->NumberOfOutputRegisters())
     {
-        throw new std::out_of_range(__PRETTY_FUNCTION__);
+        //throw new std::out_of_range(__PRETTY_FUNCTION__);
+        throw new std::exception();
     }
 
     response.Reset();

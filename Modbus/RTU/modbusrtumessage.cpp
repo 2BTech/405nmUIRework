@@ -192,7 +192,8 @@ unsigned short ModbusRTUMessage::GetValue(int offset)
     {
         //BaseLogger::LogCritical("ModbusRTUMessage::GetValue offset out of bounds");
         qDebug() << ("ModbusRTUMessage::GetValue offset out of bounds");
-        throw new std::out_of_range("offset");
+        //throw new std::out_of_range("offset");
+        throw new std::exception();
     }
 }
 
@@ -217,7 +218,8 @@ unsigned char ModbusRTUMessage::GetByte(int index)
     {
         //BaseLogger::LogCritical("ModbusRTUMessage::GetByte index out of bounds");
         qDebug() << ("ModbusRTUMessage::GetByte index out of bounds");
-        throw new std::out_of_range("index");
+        //throw new std::out_of_range("index");
+        throw new std::exception();
     }
 }
 

@@ -61,7 +61,8 @@ void ModbusASCIIMaster::ReadOutputCoils(unsigned short address, unsigned short l
     {
         //BaseLogger::LogCritical("Address + length >= dataTable->NumberOfOutputCoils()");
         qDebug() << ("Address + length >= dataTable->NumberOfOutputCoils()");
-        throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputCoils()");
+        //throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputCoils()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -112,7 +113,8 @@ void ModbusASCIIMaster::ReadInputCoils(unsigned short address, unsigned short le
     {
         //BaseLogger::LogCritical("ModbusASCIIMaster::ReadInputCoils Address + length >= dataTable->NumberOfInputCoils()");
         qDebug() << ("ModbusASCIIMaster::ReadInputCoils Address + length >= dataTable->NumberOfInputCoils()");
-        throw new std::out_of_range("Address + length >= dataTable->NumberOfInputCoils()");
+        //throw new std::out_of_range("Address + length >= dataTable->NumberOfInputCoils()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -144,7 +146,8 @@ void ModbusASCIIMaster::ReadOutputRegisters(unsigned short address, unsigned sho
     {
         //BaseLogger::LogCritical("ModbusASCIIMaster::ReadOutputRegisters Address + length >= dataTable->NumberOfOutputRegisters()");
         qDebug() << ("ModbusASCIIMaster::ReadOutputRegisters Address + length >= dataTable->NumberOfOutputRegisters()");
-        throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputRegisters()");
+        //throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputRegisters()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -176,7 +179,8 @@ void ModbusASCIIMaster::ReadInputRegisters(unsigned short address, unsigned shor
     {
         //BaseLogger::LogCritical("ModbusASCIIMaster::ReadInputRegisters address + length >= dataTable->NumberOfInputRegisters()");
         qDebug() << ("ModbusASCIIMaster::ReadInputRegisters address + length >= dataTable->NumberOfInputRegisters()");
-        throw new std::out_of_range("address + length >= dataTable->NumberOfInputRegisters()");
+        //throw new std::out_of_range("address + length >= dataTable->NumberOfInputRegisters()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -208,7 +212,8 @@ void ModbusASCIIMaster::WriteOutputCoil(unsigned short address)
     {
         //BaseLogger::LogCritical("ModbusASCIIMaster::WriteOutputCoil address >= dataTable->NumberOfInputRegisters()");
         qDebug() << ("ModbusASCIIMaster::WriteOutputCoil address >= dataTable->NumberOfInputRegisters()");
-        throw new std::out_of_range("address >= dataTable->NumberOfInputRegisters()");
+        //throw new std::out_of_range("address >= dataTable->NumberOfInputRegisters()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -240,7 +245,8 @@ void ModbusASCIIMaster::WriteOutputRegister(unsigned short address)
     {
         //BaseLogger::LogCritical("ModbusASCIIMaster::WriteOutputRegister address >= dataTable->NumberOfInputRegisters()");
         qDebug() << ("ModbusASCIIMaster::WriteOutputRegister address >= dataTable->NumberOfInputRegisters()");
-        throw new std::out_of_range("address >= dataTable->NumberOfInputRegisters()");
+        //throw new std::out_of_range("address >= dataTable->NumberOfInputRegisters()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -272,7 +278,8 @@ void ModbusASCIIMaster::WriteMultipleOutputCoils(unsigned short address, unsigne
     {
         //BaseLogger::LogCritical("address + length >= dataTable->NumberOfOutputCoils()");
         qDebug() << ("address + length >= dataTable->NumberOfOutputCoils()");
-        throw new std::out_of_range("address + length >= dataTable->NumberOfOutputCoils()");
+        //throw new std::out_of_range("address + length >= dataTable->NumberOfOutputCoils()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -316,7 +323,8 @@ void ModbusASCIIMaster::WriteMultipleOutputRegisters(unsigned short address, uns
     {
         //BaseLogger::LogCritical("address + length >= dataTable->NumberOfInputRegisters()");
         qDebug() << ("address + length >= dataTable->NumberOfInputRegisters()");
-        throw new std::out_of_range("address + length >= dataTable->NumberOfInputRegisters()");
+        //throw new std::out_of_range("address + length >= dataTable->NumberOfInputRegisters()");
+        throw new std::exception();
     }
 
     request.Reset();

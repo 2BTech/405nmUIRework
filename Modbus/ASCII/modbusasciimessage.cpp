@@ -275,7 +275,8 @@ unsigned short ModbusASCIIMessage::GetValue(int offset)
         qDebug() << (QString().append(reinterpret_cast<char*>(buffer)));
         qDebug() << "ModbusASCIIMessage::GetValue out of range";
         qDebug() << ("Offset: " + QString::number(offset) + " Length: " + QString::number(length));
-        throw new std::out_of_range("offset");
+        //throw new std::out_of_range("offset");
+        throw new std::exception();
     }
 }
 
@@ -300,7 +301,8 @@ unsigned char ModbusASCIIMessage::GetByte(int index)
     {
         //BaseLogger::LogCritical("ModbusASCIIMessage::GetByte index out of bounds. Length: " + QString::number(length) + " Index: " + QString::number(index));
         qDebug() << ("ModbusASCIIMessage::GetByte index out of bounds. Length: " + QString::number(length) + " Index: " + QString::number(index));
-        throw new std::out_of_range("index");
+        //throw new std::out_of_range("index");
+        throw new std::exception();
     }
 }
 

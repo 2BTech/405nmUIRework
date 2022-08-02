@@ -106,7 +106,8 @@ unsigned short ModbusTCPMessage::GetValue(int offset)
     }
     else
     {
-        throw new std::out_of_range("offset");
+        //throw new std::out_of_range("offset");
+        throw new std::exception();
     }
 }
 
@@ -129,7 +130,8 @@ unsigned char ModbusTCPMessage::GetByte(int index)
     }
     else
     {
-        throw new std::out_of_range("index");
+        //throw new std::out_of_range("index");
+        throw new std::exception();
     }
 }
 

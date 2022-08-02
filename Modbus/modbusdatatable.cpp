@@ -126,7 +126,8 @@ void ModbusDatatable::SetOutputCoil(int address, bool value)
     {
         //BaseLogger::LogCritical("address < 0 || address >= numberOfOutputCoils");
         qDebug() << ("address < 0 || address >= numberOfOutputCoils");
-        throw new std::out_of_range("address < 0 || address >= numberOfOutputCoils");
+        //throw new std::out_of_range("address < 0 || address >= numberOfOutputCoils");
+        throw new std::exception();
     }
 }
 
@@ -136,7 +137,8 @@ void ModbusDatatable::SetOutputCoils(int address, int numCoils, unsigned char *b
     {
         //BaseLogger::LogCritical("address < 0 || (address + numCoils > numberOfOutputCoils)");
         qDebug() << ("address < 0 || (address + numCoils > numberOfOutputCoils)");
-        throw std::out_of_range("address < 0 || (address + numCoils > numberOfOutputCoils)");
+        //throw std::out_of_range("address < 0 || (address + numCoils > numberOfOutputCoils)");
+        throw new std::exception();
     }
 
 //    BaseLogger::Log("Data byte: " + BaseLogger::CollectionToString(bytes, (numCoils + 7)/8));
@@ -173,7 +175,8 @@ bool ModbusDatatable::GetOutputCoil(int address)
     {
         qDebug() << ("address < 0 || address >= numberOfOutputCoils");
         //BaseLogger::LogCritical("address < 0 || address >= numberOfOutputCoils");
-        throw new std::out_of_range("address < 0 || address >= numberOfOutputCoils");
+        //throw new std::out_of_range("address < 0 || address >= numberOfOutputCoils");
+        throw new std::exception();
     }
 }
 
@@ -183,7 +186,8 @@ void ModbusDatatable::GetOutputCoils_charArr(int address, int quantity, unsigned
     {
         qDebug() << ("address < 0 || address + quantity >= numberOfOutputCoils");
         //BaseLogger::LogCritical("address < 0 || address + quantity >= numberOfOutputCoils");
-        throw std::out_of_range("address < 0 || address + quantity >= numberOfOutputCoils");
+        //throw std::out_of_range("address < 0 || address + quantity >= numberOfOutputCoils");
+        throw new std::exception();
     }
     else
     {
@@ -271,7 +275,8 @@ void ModbusDatatable::SetInputCoil(int address, bool value)
     }
     else
     {
-        throw std::out_of_range("address < 0 || address >= numberOfInputCoils");
+        //throw std::out_of_range("address < 0 || address >= numberOfInputCoils");
+        throw new std::exception();
     }
 }
 
@@ -281,7 +286,8 @@ void ModbusDatatable::SetInputCoils(int address, int numCoils, unsigned char *by
     {
         //BaseLogger::LogCritical("address < 0 || (address + numCoils > numberOfInputCoils)");
         qDebug() << ("address < 0 || (address + numCoils > numberOfInputCoils)");
-        throw std::out_of_range("address < 0 || (address + numCoils > numberOfInputCoils)");
+        //throw std::out_of_range("address < 0 || (address + numCoils > numberOfInputCoils)");
+        throw new std::exception();
     }
 
     numCoils += address;
@@ -344,7 +350,8 @@ void ModbusDatatable::GetInputCoils_charArr(int address, int quantity, unsigned 
     {
         //BaseLogger::LogCritical("address < 0 || address + quantity > numberOfInputCoils");
         qDebug() << ("address < 0 || address + quantity > numberOfInputCoils");
-        throw new std::out_of_range("address < 0 || address + quantity >= numberOfInputCoils");
+        //throw new std::out_of_range("address < 0 || address + quantity >= numberOfInputCoils");
+        throw new std::exception();
     }
     else
     {
@@ -452,7 +459,8 @@ unsigned short ModbusDatatable::GetInputRegister(int address)
     {
         qDebug() << ("address < 0 || address >= numberOfInputRegisters");
         //BaseLogger::LogCritical("address < 0 || address >= numberOfInputRegisters");
-        throw new std::out_of_range("address < 0 || address >= numberOfInputRegisters");
+        //throw new std::out_of_range("address < 0 || address >= numberOfInputRegisters");
+        throw new std::exception();
     }
 }
 
@@ -492,7 +500,8 @@ void ModbusDatatable::GetInputRegisters_charArr(int address, int quantity, unsig
     {
         qDebug() << ("Error: Unable to get input registers");
         //BaseLogger::LogCritical("Error: Unable to get input registers");
-        throw new std::out_of_range("address < 0 || address + quantity > numberOfInputRegisters");
+        //throw new std::out_of_range("address < 0 || address + quantity > numberOfInputRegisters");
+        throw new std::exception();
     }
 }
 
@@ -574,7 +583,8 @@ unsigned short ModbusDatatable::GetOutputRegister(int address)
     {
         qDebug() << ("address < 0 || address >= numberOfOutputRegisters");
         //BaseLogger::LogCritical("address < 0 || address >= numberOfOutputRegisters");
-        throw new std::out_of_range("address < 0 || address >= numberOfOutputRegisters");
+        //throw new std::out_of_range("address < 0 || address >= numberOfOutputRegisters");
+        throw new std::exception();
         //BaseLogger::LogCritical("Error: Unable to get holding register. Index out of bounds");
         //BaseLogger::LogCritical("Address: " + QString::number(address) + " Num Registers: " + QString::number(NumberOfOutputRegisters()));
         return 0;
@@ -616,7 +626,8 @@ void ModbusDatatable::GetOutputRegisters_charArr(int address, int quantity, unsi
     {
         qDebug() << ("Error: Unable to get output registers: " + QString::number(address) + " + " + QString::number(quantity) + " > " + QString::number(numberOfOutputRegisters));
         //BaseLogger::LogCritical("Error: Unable to get output registers: " + QString::number(address) + " + " + QString::number(quantity) + " > " + QString::number(numberOfOutputRegisters));
-        throw new std::out_of_range(__PRETTY_FUNCTION__);
+        //throw new std::out_of_range(__PRETTY_FUNCTION__);
+        throw new std::exception();
     }
 }
 

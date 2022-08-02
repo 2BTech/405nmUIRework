@@ -158,7 +158,8 @@ void ModbusTCPMaster::ReadOutputCoils(unsigned short address, unsigned short len
     }
     else if(address + length >= dataTable->NumberOfOutputCoils())
     {
-        throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputCoils()");
+        //throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputCoils()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -201,7 +202,8 @@ void ModbusTCPMaster::ReadInputCoils(unsigned short address, unsigned short leng
     }
     else if(address + length >= dataTable->NumberOfInputCoils())
     {
-        throw new std::out_of_range("Address + length >= dataTable->NumberOfInputCoils()");
+        //throw new std::out_of_range("Address + length >= dataTable->NumberOfInputCoils()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -244,7 +246,8 @@ void ModbusTCPMaster::ReadOutputRegisters(unsigned short address, unsigned short
     }
     else if(address + length >= dataTable->NumberOfOutputRegisters())
     {
-        throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputRegisters()");
+        //throw new std::out_of_range("Address + length >= dataTable->NumberOfOutputRegisters()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -287,7 +290,8 @@ void ModbusTCPMaster::ReadInputRegisters(unsigned short address, unsigned short 
     }
     else if(address + length >= dataTable->NumberOfInputRegisters())
     {
-        throw new std::out_of_range("Address + length >= dataTable->NumberOfInputRegisters()");
+        //throw new std::out_of_range("Address + length >= dataTable->NumberOfInputRegisters()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -330,7 +334,8 @@ void ModbusTCPMaster::WriteOutputCoil(unsigned short address)
     }
     else if(address >= dataTable->NumberOfOutputCoils())
     {
-        throw new std::out_of_range("length >= dataTable->NumberOfOutputCoils()");
+        //throw new std::out_of_range("length >= dataTable->NumberOfOutputCoils()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -380,7 +385,8 @@ void ModbusTCPMaster::WriteOutputRegister(unsigned short address)
     }
     else if(address >= dataTable->NumberOfOutputRegisters())
     {
-        throw new std::out_of_range("length >= dataTable->NumberOfOutputCoils()");
+        //throw new std::out_of_range("length >= dataTable->NumberOfOutputCoils()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -423,7 +429,8 @@ void ModbusTCPMaster::WriteMultipleOutputCoils(unsigned short address, unsigned 
     }
     else if(address >= dataTable->NumberOfOutputCoils())
     {
-        throw new std::out_of_range("length >= dataTable->NumberOfOutputCoils()");
+        //throw new std::out_of_range("length >= dataTable->NumberOfOutputCoils()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -479,7 +486,8 @@ void ModbusTCPMaster::WriteMultipleOutputRegisters(unsigned short address, unsig
     }
     else if(address >= dataTable->NumberOfOutputRegisters())
     {
-        throw new std::out_of_range("length >= dataTable->NumberOfOutputCoils()");
+        //throw new std::out_of_range("length >= dataTable->NumberOfOutputCoils()");
+        throw new std::exception();
     }
 
     request.Reset();
@@ -536,7 +544,8 @@ void ModbusTCPMaster::ParseReadOutputCoils(ModbusMessage * response)
     }
     else if(request.Address() + request.ValueCount() > dataTable->NumberOfOutputCoils())
     {
-        throw new std::out_of_range("message->Address() >= dataTable->NumberOfOutputCoils()");
+        //throw new std::out_of_range("message->Address() >= dataTable->NumberOfOutputCoils()");
+        throw new std::exception();
     }
 
     dataTable->SetOutputCoils(request.Address(), request.ValueCount(), message->PDU() + 2);
@@ -556,7 +565,8 @@ void ModbusTCPMaster::ParseReadInputCoils(ModbusMessage * response)
     }
     else if(request.Address() + request.ValueCount() > dataTable->NumberOfInputCoils())
     {
-        throw new std::out_of_range("message->Address() >= dataTable->NumberOfInputCoils()");
+        //throw new std::out_of_range("message->Address() >= dataTable->NumberOfInputCoils()");
+        throw new std::exception();
     }
 
 //    BaseLogger::Log("Data byte: " + QString::number(*(message->PDU() + 1)));
@@ -580,7 +590,8 @@ void ModbusTCPMaster::ParseReadOutputRegisters(ModbusMessage * response)
     }
     else if(request.Address() + request.ValueCount() >= dataTable->NumberOfOutputRegisters())
     {
-        throw new std::out_of_range("message->Address() >= dataTable->NumberOfOutputCoils()");
+        //throw new std::out_of_range("message->Address() >= dataTable->NumberOfOutputCoils()");
+        throw new std::exception();
     }
 
     dataTable->SetOutputRegisters(request.Address(), message->PDU() + 2, request.ValueCount());
@@ -600,7 +611,8 @@ void ModbusTCPMaster::ParseReadInputRegisters(ModbusMessage * response)
     }
     else if(request.Address() + request.ValueCount() >= dataTable->NumberOfInputRegisters())
     {
-        throw new std::out_of_range("message->Address() >= dataTable->NumberOfOutputCoils()");
+        //throw new std::out_of_range("message->Address() >= dataTable->NumberOfOutputCoils()");
+        throw new std::exception();
     }
 
     dataTable->SetInputRegisters(request.Address(), request.ValueCount(), message->PDU() + 2);
