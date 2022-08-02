@@ -52,7 +52,7 @@ void AdaptiveFilterForm::OnLongClicked()
 {
     isGettingSettings = true;
     connect(NumberPadForm::GetInstance(), &NumberPadForm::Finished, this, &AdaptiveFilterForm::ReceiveNewLong);
-    NumberPadForm::GetInstance()->Start(this, NumberPadMode::GET_INT, 1, 5);
+    NumberPadForm::GetInstance()->Start(this, NumberPadMode::GET_INT, 6, 50);
 }
 
 void AdaptiveFilterForm::ReceiveNewLong(QString val)
@@ -65,7 +65,7 @@ void AdaptiveFilterForm::OnDiffClicked()
 {
     isGettingSettings = true;
     connect(NumberPadForm::GetInstance(), &NumberPadForm::Finished, this, &AdaptiveFilterForm::ReceiveNewDiff);
-    NumberPadForm::GetInstance()->Start(this, NumberPadMode::GET_INT, 1, 5);
+    NumberPadForm::GetInstance()->Start(this, NumberPadMode::GET_INT, 0, 50);
 }
 
 void AdaptiveFilterForm::ReceiveNewDiff(QString val)
@@ -78,7 +78,7 @@ void AdaptiveFilterForm::OnPerClicked()
 {
     isGettingSettings = true;
     connect(NumberPadForm::GetInstance(), &NumberPadForm::Finished, this, &AdaptiveFilterForm::ReceiveNewPer);
-    NumberPadForm::GetInstance()->Start(this, NumberPadMode::GET_INT, 1, 5);
+    NumberPadForm::GetInstance()->Start(this, NumberPadMode::GET_INT,0, 10);
 }
 
 void AdaptiveFilterForm::ReceiveNewPer(QString val)

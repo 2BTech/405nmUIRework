@@ -51,7 +51,7 @@ void NOCalForm::OnZeroClicked()
 {
     isGettingSettings = true;
     connect(NumberPadForm::GetInstance(), &NumberPadForm::Finished, this, &NOCalForm::ReceiveZero);
-    NumberPadForm::GetInstance()->Start(this, NumberPadMode::GET_FLOAT, 0.5, 3.0);
+    NumberPadForm::GetInstance()->Start(this, NumberPadMode::GET_FLOAT, -50, 50);
 }
 
 void NOCalForm::ReceiveZero(QString val)

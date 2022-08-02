@@ -50,7 +50,7 @@ void NO2CalForm::OnZeroClicked()
 {
     isGettingSettings = true;
     connect(NumberPadForm::GetInstance(), &NumberPadForm::Finished, this, &NO2CalForm::ReceiveZero);
-    NumberPadForm::GetInstance()->Start(this, NumberPadMode::GET_FLOAT, 0.5, 3.0);
+    NumberPadForm::GetInstance()->Start(this, NumberPadMode::GET_FLOAT, -50, 50);
 }
 
 void NO2CalForm::ReceiveZero(QString val)
