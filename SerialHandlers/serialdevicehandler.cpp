@@ -333,7 +333,7 @@ void SerialDeviceHandler::WriteNextMessage()
         // Check if the ack has been received for the message after 30 secs
         if(message.count() > 2)
         {
-            QTimer::singleShot(90000, this, SLOT(CheckAck()));
+            QTimer::singleShot(90000, this, SLOT(CheckForAck()));
         }
 
         if(writeQueue.count() == 0)
