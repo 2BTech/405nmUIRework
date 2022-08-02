@@ -243,6 +243,12 @@ void SettingsHandler::BuildObjects()
     serialNumber = new ValueObject<int>("Serial Number", "R", "");
     markerSettingMap["R"] = serialNumber;
 
+    date = new ValueObject<QString>("Date", "P");
+    markerSettingMap["P"] = date;
+
+    time = new ValueObject<QString>("Time", "Q");
+    markerSettingMap["Q"] = time;
+
     ReadSettingsFile();
 
     connect(avgTime, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
@@ -262,6 +268,8 @@ void SettingsHandler::BuildObjects()
     connect(errorCode, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
     connect(dateFormat, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
     connect(serialNumber, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(date, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+    connect(time, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
 }
 
 bool SettingsHandler::AddSettingObject(BaseValueObject* set, bool updateSettingsFileOnValChange)
@@ -279,7 +287,10 @@ bool SettingsHandler::AddSettingObject(BaseValueObject* set, bool updateSettings
     else
     {
         markerSettingMap[set->getMarker()] = set;
-        connect(set, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+        if (updateSettingsFileOnValChange)
+        {
+            connect(set, &BaseValueObject::ValueChanged, this, &SettingsHandler::OnValueChanged);
+        }
 
         if (unknownSettinsMap.contains(set->getMarker()))
         {

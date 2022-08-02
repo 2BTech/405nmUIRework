@@ -308,6 +308,8 @@ void SerialDeviceHandler::ConnectToSettingsObjects()
     connect(settinghandler->GetSetting("N"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
     connect(settinghandler->GetSetting("O"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
     connect(settinghandler->GetSetting("R"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("P"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
+    connect(settinghandler->GetSetting("Q"), &BaseValueObject::ValueChanged, this, &SerialDeviceHandler::OnSettingValueChange);
 }
 
 void SerialDeviceHandler::OnSettingValueChange()

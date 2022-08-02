@@ -7,7 +7,29 @@ DateTimeForm::DateTimeForm() : BaseSettingsPage("Date Time")
 
 DateTimeForm::~DateTimeForm()
 {
-
+    if (dateFormatLabel)
+    {
+        dateFormatLabel->deleteLater();
+        dayPair.first->deleteLater();
+        dayPair.second->deleteLater();
+        dayMonthDivider->deleteLater();
+        monthPair.first->deleteLater();
+        monthPair.second->deleteLater();
+        monthYearDivider->deleteLater();
+        yearPair.first->deleteLater();
+        yearPair.second->deleteLater();
+        timeFormatLabel->deleteLater();
+        hourPair.first->deleteLater();
+        hourPair.second->deleteLater();
+        hourMinDivider->deleteLater();
+        minPair.first->deleteLater();
+        minPair.second->deleteLater();
+        minSecDivider->deleteLater();
+        secPair.first->deleteLater();
+        secPair.second->deleteLater();
+        increaseButton->deleteLater();
+        decreaseButton->deleteLater();
+    }
 }
 
 void DateTimeForm::BuildUIElements()
@@ -267,6 +289,21 @@ void DateTimeForm::UpdateUI()
 
     default:
         break;
+    }
+}
+
+void DateTimeForm::OnSaveClicked()
+{
+    if (dateTime.isValid())
+    {
+        SettingsHandler::GetInstance()->GetSetting("P")->setValue_str(dateTime.toString("ddMMyy"));
+        SettingsHandler::GetInstance()->GetSetting("Q")->setValue_str(dateTime.toString("hhmmss"));
+
+        QMessageBox::information(this, "Saved Setting", "Changes have been applied", QMessageBox::StandardButton::Ok);
+    }
+    else
+    {
+        QMessageBox::information(this, "Invalid Date Time", "Not applying date and time.", QMessageBox::StandardButton::Ok);
     }
 }
 

@@ -109,6 +109,9 @@ private:
 
     ValueObject<int>* serialNumber = Q_NULLPTR;
 
+    ValueObject<QString>* date = Q_NULLPTR;
+    ValueObject<QString>* time = Q_NULLPTR;
+
     //unsigned char avgTime = 0;
     QDateTime dateTime;
 

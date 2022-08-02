@@ -27,6 +27,8 @@ private slots:
     void OnDecreaseClicked();
     void OnIncreaseClicked();
 
+    void OnSaveClicked() override;
+
 private:
     QLabel* dateFormatLabel = Q_NULLPTR;
     QLabel* timeFormatLabel = Q_NULLPTR;
