@@ -61,7 +61,7 @@ void DateTimeForm::BuildUIElements()
 
     timeFormatLabel = new QLabel(this);
     timeFormatLabel->setGeometry(70, 140, 340, 40);
-    timeFormatLabel->setText("(HH/MM/SS)");
+    timeFormatLabel->setText("(HH:MM:SS)");
     timeFormatLabel->setAlignment(Qt::AlignCenter);
 
     hourPair = QPair<QPushButton*,QLabel*>(new QPushButton(this), new QLabel(this));
@@ -114,6 +114,15 @@ void DateTimeForm::BuildUIElements()
     decreaseButton->setFont(font);
     decreaseButton->setStyleSheet("QPushButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a); }");
     connect(decreaseButton, &QPushButton::clicked, this, &DateTimeForm::OnDecreaseClicked);
+
+    // Make sure the navigation button are on top
+    hourPair.first->raise();
+    minPair.first->raise();
+    secPair.first->raise();
+
+    yearPair.first->raise();
+    monthPair.first->raise();
+    dayPair.first->raise();
 }
 
 void DateTimeForm::OnDayClicked()
