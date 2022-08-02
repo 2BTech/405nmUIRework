@@ -215,7 +215,7 @@ void SerialDeviceHandler::ParseAsDataline()
 
     if (receivedDateTime != currentDateTime)
     {
-        QString command = "sudo date --set\"" + receivedDateTime.toString("yyyyMMdd hh:mm:ss") + "\"";
+        QString command = "sudo date --set=\"" + receivedDateTime.toString("yyyyMMdd hh:mm:ss") + "\"";
         qDebug() << "System clock is wrong. Setting based off of data line. Command: " << command;
 #ifndef Q_OS_WIN
         system(command.toLatin1());
