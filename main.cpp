@@ -84,6 +84,7 @@ int main(int argc, char *argv[])
     SerialMenuHandler serialMenuHandler;
 
     serialDeviceHandler.connect(&serialDeviceHandler, &SerialDeviceHandler::ReceivedDataline, &serialMenuHandler, &SerialMenuHandler::EchoMessage);
+    serialDeviceHandler.connect(&serialDeviceHandler, &SerialDeviceHandler::EchoMessage, &serialMenuHandler, &SerialMenuHandler::EchoMessage);
 
     InitialeSerialHandlers(&serialDeviceHandler, &serialMenuHandler);
 

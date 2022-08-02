@@ -80,9 +80,8 @@ void SerialDeviceHandler::ParseReceived()
         break;
 
     case '*':
-        EchoMessage(received.remove(0, 1));
+        emit EchoMessage(received.remove(0, 1));
         break;
-
 
     default:
         qDebug() << "Unhanded message: " << received[0];
@@ -210,6 +209,18 @@ void SerialDeviceHandler::ParseAsDataline()
 //    qDebug() << "SQL insert: " << sqlInsert;
 
     emit ReceivedDataline(finalDataline.toLatin1());
+
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    QDateTime receivedDateTime = QDateTime(date, time);
+
+    if (receivedDateTime != currentDateTime)
+    {
+        QString command = "sudo date --set\"" + receivedDateTime.toString("yyyyMMdd hh:mm:ss") + "\"";
+        qDebug() << "System clock is wrong. Setting based off of data line. Command: " << command;
+#ifndef Q_OS_WIN
+        system(command.toLatin1());
+#endif
+    }
 }
 
 void SerialDeviceHandler::HandleAck()

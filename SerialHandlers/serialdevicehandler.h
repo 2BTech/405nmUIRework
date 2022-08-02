@@ -19,7 +19,7 @@ public:
 signals:
     // Emits the dataline string
     void ReceivedDataline(QByteArray dataline);
-    void EchoMessage(QString message);
+    void EchoMessage(QByteArray message);
 
 private slots:
     void OnSettingValueChange();
