@@ -19,7 +19,7 @@ public:
     RangeForm();
     ~RangeForm();
 
-    void SetInformation(QDateTime* pMinX, QDateTime* pMaxX, double *pMinY, double* pMaxY, bool* pAutoMinX, bool* pAutoMaxX, bool* pAutoMinY, bool* pAutoMaxY);
+    void SetInformation(int* pMinX, int* pMaxX, double *pMinY, double* pMaxY, bool* pAutoMinX, bool* pAutoMaxX, bool* pAutoMinY, bool* pAutoMaxY);
 
 signals:
     void UpdateGraph();
@@ -72,13 +72,13 @@ private:
 
     bool isGettingSetting = false;
 
-    QDateTime* pMinX = Q_NULLPTR;
-    QDateTime* pMaxX = Q_NULLPTR;
+    int* pMinX = Q_NULLPTR;
+    int* pMaxX = Q_NULLPTR;
     double* pMinY = Q_NULLPTR;
     double* pMaxY = Q_NULLPTR;
 
-    QDateTime tempMinX;
-    QDateTime tempMaxX;
+    int tempMinX;
+    int tempMaxX;
     double tempMinY = 0;
     double tempMaxY = 0;
 

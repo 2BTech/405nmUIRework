@@ -29,7 +29,7 @@ public:
 public slots:
     // This function is triggered when a device reads a new data line. This handles
     // updating the values the graph is displaying. If the page is closed, the graph does not perform the update.
-    void UpdateGraph(long logNum);
+    void UpdateGraph();
 
 signals:
     void CloseForm();
@@ -113,9 +113,11 @@ private:
     // Max y displayed by the graph
     double maxY = 10;
     // Min x displayed by the graph
-    QDateTime minX;
+    //QDateTime minX;
+    int minX;
     // Max x displayed by the graph
-    QDateTime maxX;
+    //QDateTime maxX;
+    int maxX;
 
     // Is the min x being auto scaled
     bool autoMinX = true;

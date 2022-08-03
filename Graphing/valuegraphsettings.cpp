@@ -152,9 +152,12 @@ void ValueGraphSettings::OnValueChange()
         keys.removeFirst();
     }
 
-    graph->addData(xVal, yVal);
+    graph->addData(yVal, xVal);
     graph->setData(keys, values);
     minX = keys[0];
+
+    //qDebug() << "X Range: " << minX << " -> " << maxX;
+
     //maxX = keys.last();
 
     //BaseLogger::Log("Min: " + QDateTime(QDate(1970, 1, 1), QTime(0,0,0)).addSecs(minX).toString());

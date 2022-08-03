@@ -46,7 +46,6 @@ GraphForm::~GraphForm()
         homeButton = selectButton = rangeButton = zoomInButton = zoomOutButton = resetButton = showBottomButton = hideBottomButton = showSideButton = hideSideButton = Q_NULLPTR;
 
         customPlot = Q_NULLPTR;
-
     }
 }
 
@@ -204,8 +203,9 @@ void GraphForm::AddValueObjects(QList<BaseValueObject*> values)
     RedrawGraph();
 }
 
-void GraphForm::UpdateGraph(long)
+void GraphForm::UpdateGraph()
 {
+    qDebug() << "Updating graph: " << isVisible();
     if (!isVisible())
     {
         return;
@@ -215,11 +215,13 @@ void GraphForm::UpdateGraph(long)
 
     if(autoMinX)
     {
-        minX = QDateTime::fromSecsSinceEpoch(objs.at(0)->GetMinX());
+        //minX = QDateTime::fromSecsSinceEpoch(objs.at(0)->GetMinX());
+        minX = objs.at(0)->GetMinX();
     }
     if(autoMaxX)
     {
-        maxX = QDateTime::fromSecsSinceEpoch(objs.at(0)->GetMaxX());
+        //maxX = QDateTime::fromSecsSinceEpoch(objs.at(0)->GetMaxX());
+        maxX = objs.at(0)->GetMaxX();
     }
     if(autoMinY)
     {
@@ -242,11 +244,13 @@ void GraphForm::UpdateGraph(long)
                 grabbedInitial = true;
                 if(autoMinX)
                 {
-                    minX = QDateTime::fromSecsSinceEpoch(objs.at(i)->GetMinX());
+                    //minX = QDateTime::fromSecsSinceEpoch(objs.at(i)->GetMinX());
+                    minX = objs.at(i)->GetMinX();
                 }
                 if(autoMaxX)
                 {
-                    maxX = QDateTime::fromSecsSinceEpoch(objs.at(i)->GetMaxX());
+                    //maxX = QDateTime::fromSecsSinceEpoch(objs.at(i)->GetMaxX());
+                    maxX = objs.at(i)->GetMaxX();
                 }
                 if(autoMinY)
                 {
@@ -259,15 +263,17 @@ void GraphForm::UpdateGraph(long)
                 continue;
             }
 
-            if(autoMinX)
+            if(autoMinX && minX > objs.at(i)->GetMinX())
             {
-                minX = minX.toSecsSinceEpoch() < objs.at(i)->GetMinX()
-                        ? minX : QDateTime::fromSecsSinceEpoch(objs.at(i)->GetMinX());
+                /*minX = minX.toSecsSinceEpoch() < objs.at(i)->GetMinX()
+                        ? minX : QDateTime::fromSecsSinceEpoch(objs.at(i)->GetMinX());*/
+                minX = objs.at(i)->GetMinX();
             }
-            if(autoMaxX)
+            if(autoMaxX && maxX < objs.at(i)->GetMaxX())
             {
-                maxX = maxX.toSecsSinceEpoch() > objs.at(i)->GetMaxX()
-                        ? maxX : QDateTime::fromSecsSinceEpoch(objs.at(i)->GetMaxX());
+//                maxX = maxX.toSecsSinceEpoch() > objs.at(i)->GetMaxX()
+//                        ? maxX : QDateTime::fromSecsSinceEpoch(objs.at(i)->GetMaxX());
+                maxX = objs.at(i)->GetMaxX();
             }
             if(autoMinY)
             {
@@ -290,16 +296,19 @@ void GraphForm::UpdateGraph(long)
     BaseLogger::Log("Y: Min: " + QString::number(minY) + " Max: " + QString::number(maxY));
 #endif
 
-    int xDiff = maxX.toSecsSinceEpoch() - minX.toSecsSinceEpoch();
+    //int xDiff = maxX.toSecsSinceEpoch() - minX.toSecsSinceEpoch();
+    int xDiff = maxX - minX;
     if(xDiff == 0)
     {
         if(autoMaxX)
         {
-            maxX = maxX.addSecs(60);
+            //maxX = maxX.addSecs(60);
+            maxX += 60;
         }
         if(autoMinX)
         {
-            minX = minX.addSecs(-60);
+            //minX = minX.addSecs(-60);
+            minX -= 60;
         }
     }
     else
@@ -307,11 +316,13 @@ void GraphForm::UpdateGraph(long)
         xDiff /= 10;
         if(autoMaxX)
         {
-            maxX = maxX.addSecs(xDiff);
+            //maxX = maxX.addSecs(xDiff);
+            maxX += xDiff;
         }
         if(autoMinX)
         {
-            minX = minX.addSecs(-xDiff);
+            //minX = minX.addSecs(-xDiff);
+            minX -= xDiff;
         }
     }
 
@@ -334,10 +345,13 @@ void GraphForm::UpdateGraph(long)
         }
     }
 
-    customPlot->xAxis->setRange(minX.toSecsSinceEpoch(), maxX.toSecsSinceEpoch());
+    //customPlot->xAxis->setRange(minX.toSecsSinceEpoch(), maxX.toSecsSinceEpoch());
+    customPlot->xAxis->setRange(minX, maxX);
     customPlot->yAxis->setRange(minY, maxY);
 
     //BaseLogger::Log("X range: " + minX.time().toString() + " to " + maxX.time().toString());
+    qDebug() << "X Range: " << minX << " to " << maxX;
+    qDebug() << "Y Range: " << minY << " to " << maxY;
 
     //BaseLogger::Log("X Range: " + QString::number(customPlot->xAxis->range().size()));
     //BaseLogger::Log("X: Min: " + QString::number(customPlot->xAxis->range().lower) + " Max: " + QString::number(customPlot->xAxis->range().upper));
@@ -427,16 +441,20 @@ void GraphForm::OnZoomInClicked()
     autoMaxY = false;
     autoMinY = false;
 
-    double xLength = (maxX.toSecsSinceEpoch() - minX.toSecsSinceEpoch()) / 40;
+//    double xLength = (maxX.toSecsSinceEpoch() - minX.toSecsSinceEpoch()) / 40;
+    double xLength = (maxX - minX) / 40;
     double yLength = (maxY - minY) / 40;
 
-    minX = minX.addSecs(-xLength);
-    maxX = maxX.addSecs(xLength);
+//    minX = minX.addSecs(-xLength);
+//    maxX = maxX.addSecs(xLength);
+    minX -= xLength;
+    maxX += xLength;
 
     minY += yLength;
     maxY -= yLength;
 
-    customPlot->xAxis->setRange(minX.toSecsSinceEpoch(), maxX.toSecsSinceEpoch());
+//    customPlot->xAxis->setRange(minX.toSecsSinceEpoch(), maxX.toSecsSinceEpoch());
+    customPlot->xAxis->setRange(minX, maxX);
     customPlot->yAxis->setRange(minY, maxY);
 
     FixScale();
@@ -450,16 +468,20 @@ void GraphForm::OnZoomOutClicked()
     autoMaxY = false;
     autoMinY = false;
 
-    double xLength = (maxX.toSecsSinceEpoch() - minX.toSecsSinceEpoch()) / 40;
+    //double xLength = (maxX.toSecsSinceEpoch() - minX.toSecsSinceEpoch()) / 40;
+    double xLength = (maxX - minX) / 40;
     double yLength = (maxY - minY) / 40;
 
-    minX = minX.addSecs(-xLength);
-    maxX = maxX.addSecs(xLength);
+//    minX = minX.addSecs(-xLength);
+//    maxX = maxX.addSecs(xLength);
+    minX -= xLength;
+    maxX += xLength;
 
     minY -= yLength;
     maxY += yLength;
 
-    customPlot->xAxis->setRange(minX.toSecsSinceEpoch(), maxX.toSecsSinceEpoch());
+    //customPlot->xAxis->setRange(minX.toSecsSinceEpoch(), maxX.toSecsSinceEpoch());
+    customPlot->xAxis->setRange(minX, maxX);
     customPlot->yAxis->setRange(minY, maxY);
 
     FixScale();
@@ -478,14 +500,18 @@ void GraphForm::OnResetClicked()
     autoMinY = true;
     autoMaxY = true;
 
-    UpdateGraph(0);
+    UpdateGraph();
 }
 
 void GraphForm::RedrawGraph()
 {
-    customPlot->xAxis->setRange(minX.toSecsSinceEpoch(), maxX.toSecsSinceEpoch());
+    //customPlot->xAxis->setRange(minX.toSecsSinceEpoch(), maxX.toSecsSinceEpoch());
+    customPlot->xAxis->setRange(minX, maxX);
     customPlot->yAxis->setRange(minY, maxY);
     customPlot->replot();
+
+    //qDebug() << "Redrawing graph";
+
     UpdateDataLabels();
 }
 
@@ -531,12 +557,15 @@ void GraphForm::HandleScrollEvent(QWheelEvent * event)
     autoMaxY = false;
     autoMinY = false;
 
-    minX = blankDT.addSecs(customPlot->xAxis->range().lower);
-    maxX = blankDT.addSecs(customPlot->xAxis->range().upper);
-    qDebug() << ("MinX: " + QString::number(customPlot->xAxis->range().lower));
-    qDebug() << ("MaxX: " + QString::number(customPlot->xAxis->range().upper));
-    qDebug() << ("MinX: " + blankDT.addSecs(customPlot->xAxis->range().lower).toString());
-    qDebug() << ("MaxX: " + blankDT.addSecs(customPlot->xAxis->range().upper).toString());
+//    minX = blankDT.addSecs(customPlot->xAxis->range().lower);
+//    maxX = blankDT.addSecs(customPlot->xAxis->range().upper);
+//    qDebug() << ("MinX: " + QString::number(customPlot->xAxis->range().lower));
+//    qDebug() << ("MaxX: " + QString::number(customPlot->xAxis->range().upper));
+//    qDebug() << ("MinX: " + blankDT.addSecs(customPlot->xAxis->range().lower).toString());
+//    qDebug() << ("MaxX: " + blankDT.addSecs(customPlot->xAxis->range().upper).toString());
+
+    minX = customPlot->xAxis->range().lower;
+    maxX = customPlot->xAxis->range().upper;
 
     minY = customPlot->yAxis->range().lower;
     maxY = customPlot->yAxis->range().upper;
@@ -551,8 +580,10 @@ void GraphForm::HandleMouseMove(QMouseEvent *event)
     autoMaxY = false;
     autoMinY = false;
 
-    minX = blankDT.addSecs(customPlot->xAxis->range().lower);
-    maxX = blankDT.addSecs(customPlot->xAxis->range().upper);
+//    minX = blankDT.addSecs(customPlot->xAxis->range().lower);
+//    maxX = blankDT.addSecs(customPlot->xAxis->range().upper);
+    minX = customPlot->xAxis->range().lower;
+    maxX = customPlot->xAxis->range().upper;
 
     minY = customPlot->yAxis->range().lower;
     maxY = customPlot->yAxis->range().upper;
@@ -608,7 +639,8 @@ void GraphForm::SetUpGraph()
     customPlot->xAxis->setTickLabelFont(QFont("Cabin", 8));
     customPlot->yAxis->setTickLabelFont(QFont("Cabin", 8));
 
-    customPlot->xAxis->setRange(minX.toSecsSinceEpoch(), maxX.toSecsSinceEpoch());
+    //customPlot->xAxis->setRange(minX.toSecsSinceEpoch(), maxX.toSecsSinceEpoch());
+    customPlot->xAxis->setRange(minX, maxX);
     customPlot->yAxis->setRange(minY, maxY);
 
     SetUpPlots();
@@ -622,6 +654,8 @@ void GraphForm::SetUpGraph()
 
     //Defaut to autoscale the graph
     autoMaxX = autoMaxY = autoMinX = autoMinY = true;
+
+    connect(DataHandler::GetInstance(), &DataHandler::ParsedDataLine, this, &GraphForm::UpdateGraph);
 }
 
 void GraphForm::SetUpPlots()

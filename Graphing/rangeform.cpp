@@ -176,7 +176,7 @@ void RangeForm::BuildUIElements()
     connect(cancelButton, &QPushButton::clicked, this, &RangeForm::OnCancelClicked);
 }
 
-void RangeForm::SetInformation(QDateTime* pMinX, QDateTime* pMaxX, double *pMinY, double* pMaxY, bool* pAutoMinX, bool* pAutoMaxX, bool* pAutoMinY, bool* pAutoMaxY)
+void RangeForm::SetInformation(int* pMinX, int* pMaxX, double *pMinY, double* pMaxY, bool* pAutoMinX, bool* pAutoMaxX, bool* pAutoMinY, bool* pAutoMaxY)
 {
     this->pMinX = pMinX;
     this->pMaxX = pMaxX;
@@ -200,7 +200,10 @@ void RangeForm::ReceiveMinX(QString val)
 {
     if (val.length() == 6)
     {
-        tempMinX.setTime(QTime(val.left(2).toInt(), val.left(4).right(2).toInt(), val.right(2).toInt()));
+        QDateTime temp = QDateTime::currentDateTime();
+        temp.setTime(QTime(val.left(2).toInt(), val.left(4).right(2).toInt(), val.right(2).toInt()));
+        tempMinX = temp.toTime_t();
+        UpdateUI();
     }
 }
 
@@ -215,7 +218,12 @@ void RangeForm::ReceiveMaxX(QString val)
 {
     if (!val.isEmpty())
     {
-        tempMaxX.setTime(QTime(val.left(2).toInt(), val.left(4).right(2).toInt(), val.right(2).toInt()));
+//        tempMaxX.setTime(QTime(val.left(2).toInt(), val.left(4).right(2).toInt(), val.right(2).toInt()));
+//        UpdateUI();
+
+        QDateTime temp = QDateTime::currentDateTime();
+        temp.setTime(QTime(val.left(2).toInt(), val.left(4).right(2).toInt(), val.right(2).toInt()));
+        tempMaxX = temp.toTime_t();
         UpdateUI();
     }
 }
@@ -271,8 +279,8 @@ void RangeForm::OnToggleClicked()
 
 void RangeForm::OnSaveClicked()
 {
-    qDebug() << ("Set MinX to " + tempMinX.time().toString());
-    qDebug() << ("Set MaxX to " + tempMaxX.time().toString());
+    //qDebug() << ("Set MinX to " + tempMinX.time().toString());
+    //qDebug() << ("Set MaxX to " + tempMaxX.time().toString());
     *pMinX = tempMinX;
     *pMaxX = tempMaxX;
     *pMinY = tempMinY;
@@ -297,8 +305,11 @@ void RangeForm::OnCancelClicked()
 
 void RangeForm::UpdateUI()
 {
-    minXLabel->setText("Min X: " + tempMinX.toString("hh:mm:ss"));
-    maxXLabel->setText("Max X: " + tempMaxX.toString("hh:mm:ss"));
+    //minXLabel->setText("Min X: " + tempMinX.toString("hh:mm:ss"));
+    //maxXLabel->setText("Max X: " + tempMaxX.toString("hh:mm:ss"));
+
+    minXLabel->setText(QDateTime::fromTime_t(tempMinX).toString("hh:mm:ss"));
+    maxXLabel->setText(QDateTime::fromTime_t(tempMaxX).toString("hh:mm:ss"));
     minYLabel->setText("Min Y: " + QString::number(tempMinY));
     maxYLabel->setText("Max Y: " + QString::number(tempMaxY));
 }
