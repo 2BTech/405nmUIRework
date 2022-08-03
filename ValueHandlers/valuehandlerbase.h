@@ -32,7 +32,7 @@ signals:
 
 protected:
     QMap<QString, BaseValueObject*> markerValueMap;
-    QList<BaseValueObject*> values;
+    //QList<BaseValueObject*> values;
 
     int registerIndex = -1;
     int numRegisters = 0;

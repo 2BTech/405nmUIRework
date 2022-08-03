@@ -26,6 +26,11 @@ MainWindow::MainWindow(QWidget *parent)
     parameters->BuildUIElements();
     connect(parameters, &ParametersForm::CloseForm, this, &MainWindow::show);
     connect(parameters, &ParametersForm::CloseForm, parameters, &ParametersForm::close);
+
+    graphForm = new GraphForm();
+    connect(graphForm, &GraphForm::CloseForm, this, &MainWindow::show);
+    connect(graphForm, &GraphForm::CloseForm, graphForm, &QWidget::close);
+    graphForm->AddValueObjects(DataHandler::GetInstance()->GetAllValues());
 }
 
 MainWindow::~MainWindow()
@@ -239,7 +244,8 @@ void MainWindow::OnParametersClicked()
 
 void MainWindow::OnGraphClicked()
 {
-    qDebug() << "Clicked on graph";
+    graphForm->show();
+    close();
 }
 
 void MainWindow::UpdateUI()

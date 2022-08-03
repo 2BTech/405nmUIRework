@@ -21,7 +21,7 @@ BaseValueObject* ValueHandlerBase::GetSetting(QString marker)
 
 QList<BaseValueObject*> ValueHandlerBase::GetAllValues()
 {
-    return values;
+    return markerValueMap.values();
 }
 
 bool ValueHandlerBase::AddValue(BaseValueObject* value)

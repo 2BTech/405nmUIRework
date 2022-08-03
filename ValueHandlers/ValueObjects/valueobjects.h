@@ -2,6 +2,7 @@
 #define VALUEOBJECTS_H
 
 #include <QQueue>
+#include <QMap>
 
 #include "basevalueobject.h"
 
@@ -37,6 +38,13 @@ public:
 
      uchar* GetBytes() override;
 
+     void AddDataPoint(int epoch, T value);
+
+     int GetMinX() override;
+     int GetMaxX() override;
+     float GetMinY() override;
+     float GetMaxY() override;
+
 protected:
     // Current value for the object
     T value = T();
@@ -46,6 +54,8 @@ protected:
     short* registerBytes = Q_NULLPTR;
     // Tracks the history of the values
     QQueue<T> history;
+
+    QMap<int, T> dataPoints;
 };
 
 #endif // VALUEOBJECTS_H

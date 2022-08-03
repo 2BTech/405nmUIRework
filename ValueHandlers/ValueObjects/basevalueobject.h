@@ -48,6 +48,11 @@ public:
     virtual uchar* GetBytes() = 0;
     virtual short* GetRegisterValues() = 0;
 
+    virtual int GetMinX() = 0;
+    virtual int GetMaxX() = 0;
+    virtual float GetMinY() = 0;
+    virtual float GetMaxY() = 0;
+
 signals:
     // Emitted when value is changed
     void ValueChanged();

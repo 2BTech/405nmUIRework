@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
     qDebug() << "Menu thread: " << &serialMenuThread;
     qDebug() << "Device thread: " << &serialDeviceThread;
 
-    InitializeModbus();
+    //InitializeModbus();
 
     return a.exec();
 }

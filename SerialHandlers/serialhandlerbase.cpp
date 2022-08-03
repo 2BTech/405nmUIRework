@@ -153,32 +153,32 @@ void SerialHandlerBase::OnReadyRead()
 
 void SerialHandlerBase::QueueMessage(QByteArray arr)
 {
-//    writeQueue.append(arr);
+    writeQueue.append(arr);
 
-//    //qDebug() << arr;
-//    if (!isSendingMessage)
+    //qDebug() << arr;
+    if (!isSendingMessage)
+    {
+        //qDebug() << "Starting write";
+        isSendingMessage = true;
+        WriteNextMessage();
+    }
+
+//    if (arr.length() > 40)
 //    {
-//        //qDebug() << "Starting write";
-//        isSendingMessage = true;
-//        WriteNextMessage();
+//        int length = arr.length() / 2;
+//        QueueMessage(arr.left(length));
+//        QueueMessage(arr.right(arr.length() - length));
 //    }
+//    else
+//    {
+//        writeQueue.append(arr);
 
-    if (arr.length() > 40)
-    {
-        int length = arr.length() / 2;
-        QueueMessage(arr.left(length));
-        QueueMessage(arr.right(arr.length() - length));
-    }
-    else
-    {
-        writeQueue.append(arr);
-
-        //qDebug() << arr;
-        if (!isSendingMessage)
-        {
-            //qDebug() << "Starting write";
-            isSendingMessage = true;
-            writeTimer.start();
-        }
-    }
+//        //qDebug() << arr;
+//        if (!isSendingMessage)
+//        {
+//            //qDebug() << "Starting write";
+//            isSendingMessage = true;
+//            writeTimer.start();
+//        }
+//    }
 }

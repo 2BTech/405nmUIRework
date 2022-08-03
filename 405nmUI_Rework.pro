@@ -1,4 +1,4 @@
-QT       += core gui serialport network
+QT       += core gui serialport network printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -11,6 +11,11 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Graphing/dataselectform.cpp \
+    Graphing/graphform.cpp \
+    Graphing/qcustomplot.cpp \
+    Graphing/rangeform.cpp \
+    Graphing/valuegraphsettings.cpp \
     Modbus/ASCII/modbusasciibase.cpp \
     Modbus/ASCII/modbusasciimaster.cpp \
     Modbus/ASCII/modbusasciimessage.cpp \
@@ -69,6 +74,11 @@ SOURCES += \
 
 HEADERS += \
     GlobalDefinitions.h \
+    Graphing/dataselectform.h \
+    Graphing/graphform.h \
+    Graphing/qcustomplot.h \
+    Graphing/rangeform.h \
+    Graphing/valuegraphsettings.h \
     Modbus/ASCII/modbusasciibase.h \
     Modbus/ASCII/modbusasciimaster.h \
     Modbus/ASCII/modbusasciimessage.h \

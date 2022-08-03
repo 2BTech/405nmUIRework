@@ -13,6 +13,7 @@
 
 #include "ValueHandlers/datahandler.h"
 #include "parametersform.h"
+#include "Graphing/graphform.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -74,6 +75,8 @@ private:
     QTimer updateTimer;
 
     ParametersForm* parameters = Q_NULLPTR;
+
+    GraphForm* graphForm = Q_NULLPTR;
 
     // Handles the process of building UI elements for the page
     void BuildUIElements();

@@ -452,3 +452,302 @@ uchar* ValueObject<QString>::GetBytes()
 {
     return bytes;
 }
+
+template <>
+void ValueObject<uchar>::AddDataPoint(int epoch, uchar val)
+{
+    dataPoints.insert(epoch, val);
+}
+
+template <>
+void ValueObject<int>::AddDataPoint(int epoch, int val)
+{
+    dataPoints.insert(epoch, val);
+}
+
+template <>
+void ValueObject<float>::AddDataPoint(int epoch, float val)
+{
+    dataPoints.insert(epoch, val);
+}
+
+template <>
+void ValueObject<QString>::AddDataPoint(int epoch, QString val)
+{
+    dataPoints.insert(epoch, val);
+}
+
+template <>
+int ValueObject<uchar>::GetMinX()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        return dataPoints.firstKey();
+    }
+}
+
+template <>
+int ValueObject<uchar>::GetMaxX()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        return dataPoints.lastKey();
+    }
+}
+
+template <>
+float ValueObject<uchar>::GetMinY()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        uchar min = dataPoints.first();
+        for (const uchar &val : dataPoints)
+        {
+            if (val < min)
+            {
+                min = val;
+            }
+        }
+        return min;
+    }
+}
+
+template <>
+float ValueObject<uchar>::GetMaxY()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        uchar max = dataPoints.first();
+        for (const uchar &val : dataPoints)
+        {
+            if (val > max)
+            {
+                max = val;
+            }
+        }
+        return max;
+    }
+}
+
+template <>
+int ValueObject<int>::GetMinX()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        return dataPoints.firstKey();
+    }
+}
+
+template <>
+int ValueObject<int>::GetMaxX()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        return dataPoints.lastKey();
+    }
+}
+
+template <>
+float ValueObject<int>::GetMinY()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        int min = dataPoints.first();
+        for (const int &val : dataPoints)
+        {
+            if (val < min)
+            {
+                min = val;
+            }
+        }
+        return min;
+    }
+}
+
+template <>
+float ValueObject<int>::GetMaxY()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        int max = dataPoints.first();
+        for (const int &val : dataPoints)
+        {
+            if (val > max)
+            {
+                max = val;
+            }
+        }
+        return max;
+    }
+}
+
+template <>
+int ValueObject<float>::GetMinX()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        return dataPoints.firstKey();
+    }
+}
+
+template <>
+int ValueObject<float>::GetMaxX()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        return dataPoints.lastKey();
+    }
+}
+
+template <>
+float ValueObject<float>::GetMinY()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        float min = dataPoints.first();
+        for (const float &val : dataPoints)
+        {
+            if (val < min)
+            {
+                min = val;
+            }
+        }
+        return min;
+    }
+}
+
+template <>
+float ValueObject<float>::GetMaxY()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        float max = dataPoints.first();
+        for (const float &val : dataPoints)
+        {
+            if (val > max)
+            {
+                max = val;
+            }
+        }
+        return max;
+    }
+}
+
+template <>
+int ValueObject<QString>::GetMinX()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        return dataPoints.firstKey();
+    }
+}
+
+template <>
+int ValueObject<QString>::GetMaxX()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        return dataPoints.lastKey();
+    }
+}
+
+template <>
+float ValueObject<QString>::GetMinY()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        float min = dataPoints.first().toFloat();
+        for (const QString &val : dataPoints)
+        {
+            if (val.toFloat() < min)
+            {
+                min = val.toFloat();
+            }
+        }
+        return min;
+    }
+}
+
+template <>
+float ValueObject<QString>::GetMaxY()
+{
+    if (dataPoints.isEmpty())
+    {
+        return 0;
+    }
+    else
+    {
+        float max = dataPoints.first().toFloat();
+        for (const QString &val : dataPoints)
+        {
+            if (val.toFloat() > max)
+            {
+                max = val.toFloat();
+            }
+        }
+        return max;
+    }
+}
+
+
+
