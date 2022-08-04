@@ -3,76 +3,96 @@
 template <>
 ValueObject<uchar>::ValueObject(QString name, QString marker, QString units) : BaseValueObject(name, marker, units)
 {
-    bytes = new uchar[1];
-    registerBytes = new short[1];
+//    valueBytes = new uchar[1];
+//    valRegisterBytes = new short[1];
+
+//    qDebug() << name << " UCHAR: " << (sizeof(this->valueBytes) / sizeof(this->valueBytes[0])) << " : " << (sizeof(this->valRegisterBytes) / sizeof(this->valRegisterBytes[0]));
+//    qDebug() << valueBytes << " - " << valRegisterBytes;
 }
 
 template <>
 ValueObject<int>::ValueObject(QString name, QString marker, QString units) : BaseValueObject(name, marker, units)
 {
-    bytes = new uchar[4];
-    registerBytes = new short[2];
+//    valueBytes = new uchar[4];
+//    valRegisterBytes = new short[2];
+//    qDebug() << name << " INT: " << (sizeof(this->valueBytes) / sizeof(this->valueBytes[0])) << " : " << (sizeof(this->valRegisterBytes) / sizeof(this->valRegisterBytes[0]));
+//    qDebug() << valueBytes << " - " << valRegisterBytes;
 }
 
 template <>
 ValueObject<float>::ValueObject(QString name, QString marker, QString units) : BaseValueObject(name, marker, units)
 {
-    bytes = new uchar[4];
-    registerBytes = new short[2];
+//    valueBytes = new uchar[4];
+//    valRegisterBytes = new short[2];
+//    qDebug() << name << " FLOAT: " << (sizeof(this->valueBytes) / sizeof(this->valueBytes[0])) << " : " << (sizeof(this->valRegisterBytes) / sizeof(this->valRegisterBytes[0]));
+//    qDebug() << valueBytes << " - " << valRegisterBytes;
 }
 
 template <>
 ValueObject<QString>::ValueObject(QString name, QString marker, QString units) : BaseValueObject(name, marker, units)
 {
-    bytes = new uchar[25];
-    registerBytes = new short[2];
+//    valueBytes = new uchar[25];
+//    valRegisterBytes = new short[2];
+//    qDebug() << name << " QSTRING: " << (sizeof(this->valueBytes) / sizeof(this->valueBytes[0])) << " : " << (sizeof(this->valRegisterBytes) / sizeof(this->valRegisterBytes[0]));
+//    qDebug() << valueBytes << " - " << valRegisterBytes;
 }
 
 template <>
 ValueObject<uchar>::~ValueObject()
 {
-    delete [] bytes;
-    delete [] registerBytes;
+//    delete [] valueBytes;
+//    delete [] valRegisterBytes;
 }
 
 template <>
 ValueObject<int>::~ValueObject()
 {
-    delete [] bytes;
-    delete [] registerBytes;
+//    delete [] valueBytes;
+//    delete [] valRegisterBytes;
 }
 
 template <>
 ValueObject<float>::~ValueObject()
 {
-    delete [] bytes;
-    delete [] registerBytes;
+//    delete [] valueBytes;
+//    delete [] valRegisterBytes;
 }
 
 template <>
 ValueObject<QString>::~ValueObject()
 {
-    delete [] bytes;
-    delete [] registerBytes;
+//    delete [] valueBytes;
+//    delete [] valRegisterBytes;
 }
 
 template <>
 void ValueObject<uchar>::setValue(uchar val)
 {
-    if (val != value)
+    bool diff = val != curValue;
+
+    mutex.lock();
+    if (diff)
     {
-        bytes[0] = val;
-        registerBytes[0] = value;
-        value = val;
+        valueBytes[0] = val;
+        valRegisterBytes[0] = curValue;
+        curValue = val;
+    }
+    valHistory.append(val);
+    mutex.unlock();
+
+    if (diff)
+    {
         emit ValueChanged();
     }
-    history.append(val);
+    emit SetValue();
 }
 
 template <>
 void ValueObject<int>::setValue(int val)
 {
-    if (val != value)
+    bool diff = val != curValue;
+    mutex.lock();
+    if (diff)
     {
         union {
             int v;
@@ -80,19 +100,27 @@ void ValueObject<int>::setValue(int val)
             short rBytes[2];
         };
         v = val;
-        memcpy(this->bytes, bytes, 4);
-        memcpy(registerBytes, rBytes, 2);
+        memcpy(this->valueBytes, bytes, 4);
+        memcpy(valRegisterBytes, rBytes, 2);
 
-        value = val;
+        curValue = val;
+    }
+    valHistory.append(val);
+    mutex.unlock();
+
+    if (diff)
+    {
         emit ValueChanged();
     }
-    history.append(val);
+    emit SetValue();
 }
 
 template <>
 void ValueObject<float>::setValue(float val)
 {
-    if (val != value)
+    bool diff = val != curValue;
+    mutex.lock();
+    if (diff)
     {
         union {
             float v;
@@ -100,38 +128,65 @@ void ValueObject<float>::setValue(float val)
             short rBytes[2];
         };
         v = val;
-        memcpy(this->bytes, bytes, 4);
-        memcpy(registerBytes, rBytes, 2);
+        memcpy(this->valueBytes, bytes, 4);
+        memcpy(valRegisterBytes, rBytes, 2);
 
-        value = val;
+        curValue = val;
+    }
+    valHistory.append(val);
+    mutex.unlock();
+
+    if (diff)
+    {
         emit ValueChanged();
     }
-    history.append(val);
+    emit SetValue();
 }
 
 template <>
 void ValueObject<QString>::setValue(QString val)
 {
-    if (val != value)
+//    qDebug() << "Started setting " << name << " with " << val;
+    mutex.lock();
+//    qDebug() << "Passed mutex";
+
+    bool diff = val != curValue;
+
+    if (diff)
     {
+//        qDebug() << "Name: " << name;
+//        qDebug() << "Value bytes are null: " << (valueBytes == Q_NULLPTR);
+//        qDebug() << "Val bytes len: " << (sizeof(valueBytes) / sizeof(valueBytes[0]));
+//        qDebug() << "Register bytes are null: " << (valRegisterBytes == Q_NULLPTR);
+//        qDebug() << "Reg bytes len: " << (sizeof(valRegisterBytes) / sizeof(valRegisterBytes[0]));
+
         int toCpy = val.length();
         // Max size is 25, make sure not to overwrite buffer
         toCpy = toCpy > 25 ? 25 : toCpy;
 
-        // Copy the data into the first part of the buffer
-        memcpy(bytes, val.toLatin1().data(), toCpy);
+        //qDebug() << "ToCpy: " << toCpy;
+
+//        // Copy the data into the first part of the buffer
+        memcpy(valueBytes, val.toLatin1().data(), toCpy);
+
         // Zero the remaining section
-        memset(bytes + toCpy, 0, 25 - toCpy);
+        memset(valueBytes + toCpy, 0, 25 - toCpy);
 
         for (int i = 0; i < 25; i++)
         {
-            registerBytes[i] = bytes[i];
+            valRegisterBytes[i] = valueBytes[i];
         }
 
-        value = val;
+        curValue = val;
+    }
+    valHistory.append(val);
+    mutex.unlock();
+
+    if (diff)
+    {
         emit ValueChanged();
     }
-    history.append(val);
+    emit SetValue();
 }
 
 template <>
@@ -140,7 +195,9 @@ void ValueObject<uchar>::setValue(BaseValueObject* oth)
     ValueObject<uchar>* other = Q_NULLPTR;
     if (oth != Q_NULLPTR && (other = dynamic_cast<ValueObject<uchar>*>(oth)) != Q_NULLPTR)
     {
-        setValue(other->value);
+        other->Mutex()->lock();
+        setValue(other->curValue);
+        other->Mutex()->unlock();
     }
 }
 
@@ -150,7 +207,9 @@ void ValueObject<int>::setValue(BaseValueObject* oth)
     ValueObject<int>* other = Q_NULLPTR;
     if (oth != Q_NULLPTR && (other = dynamic_cast<ValueObject<int>*>(oth)) != Q_NULLPTR)
     {
-        setValue(other->value);
+        other->Mutex()->lock();
+        setValue(other->curValue);
+        other->Mutex()->unlock();
     }
 }
 
@@ -160,7 +219,9 @@ void ValueObject<float>::setValue(BaseValueObject* oth)
     ValueObject<float>* other = Q_NULLPTR;
     if (oth != Q_NULLPTR && (other = dynamic_cast<ValueObject<float>*>(oth)) != Q_NULLPTR)
     {
-        setValue(other->value);
+        other->Mutex()->lock();
+        setValue(other->curValue);
+        other->Mutex()->unlock();
     }
 }
 
@@ -170,7 +231,9 @@ void ValueObject<QString>::setValue(BaseValueObject* oth)
     ValueObject<QString>* other = Q_NULLPTR;
     if (oth != Q_NULLPTR && (other = dynamic_cast<ValueObject<QString>*>(oth)) != Q_NULLPTR)
     {
-        setValue(other->value);
+        other->Mutex()->lock();
+        setValue(other->curValue);
+        other->Mutex()->unlock();
     }
 }
 
@@ -195,31 +258,54 @@ void ValueObject<float>::setValue_str(QString val)
 template <>
 void ValueObject<QString>::setValue_str(QString val)
 {
+    qDebug() << "Setting " << name << " with string";
     setValue(val);
+    qDebug() << "Finished setting " << name << " with string";
 }
 
 template <>
 uchar ValueObject<uchar>::getValue()
 {
-    return value;
+    uchar temp;
+    mutex.lock();
+    temp = curValue;
+    mutex.unlock();
+    return temp;
+
+    //return temp;
 }
 
 template <>
 int ValueObject<int>::getValue()
 {
-    return value;
+    int temp;
+    mutex.lock();
+    temp = curValue;
+    mutex.unlock();
+    return temp;
+    //return value;
 }
 
 template <>
 float ValueObject<float>::getValue()
 {
-    return value;
+    float temp;
+    mutex.lock();
+    temp = curValue;
+    mutex.unlock();
+    return temp;
+    //return value;
 }
 
 template <>
 QString ValueObject<QString>::getValue()
 {
-    return value;
+    QString temp;
+    mutex.lock();
+    temp = curValue;
+    mutex.unlock();
+    return temp;
+    //return value;
 }
 
 template <>
@@ -237,7 +323,7 @@ bool ValueObject<uchar>::ValueEquals(BaseValueObject* other)
     }
     else
     {
-        return dynamic_cast<ValueObject<uchar>*>(other)->value == value;
+        return dynamic_cast<ValueObject<uchar>*>(other)->curValue == curValue;
     }
 }
 
@@ -256,7 +342,7 @@ bool ValueObject<int>::ValueEquals(BaseValueObject* other)
     }
     else
     {
-        return dynamic_cast<ValueObject<int>*>(other)->value == value;
+        return dynamic_cast<ValueObject<int>*>(other)->curValue == curValue;
     }
 }
 
@@ -275,7 +361,7 @@ bool ValueObject<float>::ValueEquals(BaseValueObject* other)
     }
     else
     {
-        return dynamic_cast<ValueObject<float>*>(other)->value == value;
+        return dynamic_cast<ValueObject<float>*>(other)->curValue == curValue;
     }
 }
 
@@ -294,7 +380,7 @@ bool ValueObject<QString>::ValueEquals(BaseValueObject* other)
     }
     else
     {
-        return dynamic_cast<ValueObject<QString>*>(other)->value == value;
+        return dynamic_cast<ValueObject<QString>*>(other)->curValue == curValue;
     }
 }
 
@@ -318,6 +404,7 @@ template <>
 BaseValueObject* ValueObject<float>::MakeCopy()
 {
     ValueObject<float>* cpy = new ValueObject<float>(name, marker, units);
+    cpy->SetNumSigFigs(numSigFigs);
     cpy->setValue(this);
     return cpy;
 }
@@ -333,27 +420,44 @@ BaseValueObject* ValueObject<QString>::MakeCopy()
 template <>
 QString ValueObject<uchar>::ToString()
 {
-    return QString::number(value);
+    QString temp;
+    mutex.lock();
+    temp = QString::number(curValue);
+    mutex.unlock();
+
+    return temp;
 }
 
 template <>
 QString ValueObject<int>::ToString()
 {
-    return QString::number(value);
+    QString temp;
+    mutex.lock();
+    temp = QString::number(curValue);
+    mutex.unlock();
+
+    return temp;
 }
 
 template <>
 QString ValueObject<float>::ToString()
 {
     char buffer[25];
-    sprintf(buffer, "%1.2f", value);
+    mutex.lock();
+    sprintf(buffer, QString("%1.").append(QString::number(numSigFigs)).append('f').toLatin1(), curValue);
+    mutex.unlock();
     return QString(buffer);
 }
 
 template <>
 QString ValueObject<QString>::ToString()
 {
-    return value;
+    QString temp;
+    mutex.lock();
+    temp = curValue;
+    mutex.unlock();
+
+    return temp;
 }
 
 
@@ -408,345 +512,49 @@ int ValueObject<QString>::GetNumRegisters()
 template <>
 short* ValueObject<uchar>::GetRegisterValues()
 {
-    return registerBytes;
+    return valRegisterBytes;
 }
 
 template <>
 short* ValueObject<int>::GetRegisterValues()
 {
-    return registerBytes;
+    return valRegisterBytes;
 }
 
 template <>
 short* ValueObject<float>::GetRegisterValues()
 {
-    return registerBytes;
+    return valRegisterBytes;
 }
 
 template <>
 short* ValueObject<QString>::GetRegisterValues()
 {
-    return registerBytes;
+    return valRegisterBytes;
 }
 
 template <>
 uchar* ValueObject<uchar>::GetBytes()
 {
-    return bytes;
+    return valueBytes;
 }
 
 template <>
 uchar* ValueObject<int>::GetBytes()
 {
-    return bytes;
+    return valueBytes;
 }
 
 template <>
 uchar* ValueObject<float>::GetBytes()
 {
-    return bytes;
+    return valueBytes;
 }
 
 template <>
 uchar* ValueObject<QString>::GetBytes()
 {
-    return bytes;
-}
-
-template <>
-void ValueObject<uchar>::AddDataPoint(int epoch, uchar val)
-{
-    dataPoints.insert(epoch, val);
-}
-
-template <>
-void ValueObject<int>::AddDataPoint(int epoch, int val)
-{
-    dataPoints.insert(epoch, val);
-}
-
-template <>
-void ValueObject<float>::AddDataPoint(int epoch, float val)
-{
-    dataPoints.insert(epoch, val);
-}
-
-template <>
-void ValueObject<QString>::AddDataPoint(int epoch, QString val)
-{
-    dataPoints.insert(epoch, val);
-}
-
-template <>
-int ValueObject<uchar>::GetMinX()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        return dataPoints.firstKey();
-    }
-}
-
-template <>
-int ValueObject<uchar>::GetMaxX()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        return dataPoints.lastKey();
-    }
-}
-
-template <>
-float ValueObject<uchar>::GetMinY()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        uchar min = dataPoints.first();
-        for (const uchar &val : dataPoints)
-        {
-            if (val < min)
-            {
-                min = val;
-            }
-        }
-        return min;
-    }
-}
-
-template <>
-float ValueObject<uchar>::GetMaxY()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        uchar max = dataPoints.first();
-        for (const uchar &val : dataPoints)
-        {
-            if (val > max)
-            {
-                max = val;
-            }
-        }
-        return max;
-    }
-}
-
-template <>
-int ValueObject<int>::GetMinX()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        return dataPoints.firstKey();
-    }
-}
-
-template <>
-int ValueObject<int>::GetMaxX()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        return dataPoints.lastKey();
-    }
-}
-
-template <>
-float ValueObject<int>::GetMinY()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        int min = dataPoints.first();
-        for (const int &val : dataPoints)
-        {
-            if (val < min)
-            {
-                min = val;
-            }
-        }
-        return min;
-    }
-}
-
-template <>
-float ValueObject<int>::GetMaxY()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        int max = dataPoints.first();
-        for (const int &val : dataPoints)
-        {
-            if (val > max)
-            {
-                max = val;
-            }
-        }
-        return max;
-    }
-}
-
-template <>
-int ValueObject<float>::GetMinX()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        return dataPoints.firstKey();
-    }
-}
-
-template <>
-int ValueObject<float>::GetMaxX()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        return dataPoints.lastKey();
-    }
-}
-
-template <>
-float ValueObject<float>::GetMinY()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        float min = dataPoints.first();
-        for (const float &val : dataPoints)
-        {
-            if (val < min)
-            {
-                min = val;
-            }
-        }
-        return min;
-    }
-}
-
-template <>
-float ValueObject<float>::GetMaxY()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        float max = dataPoints.first();
-        for (const float &val : dataPoints)
-        {
-            if (val > max)
-            {
-                max = val;
-            }
-        }
-        return max;
-    }
-}
-
-template <>
-int ValueObject<QString>::GetMinX()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        return dataPoints.firstKey();
-    }
-}
-
-template <>
-int ValueObject<QString>::GetMaxX()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        return dataPoints.lastKey();
-    }
-}
-
-template <>
-float ValueObject<QString>::GetMinY()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        float min = dataPoints.first().toFloat();
-        for (const QString &val : dataPoints)
-        {
-            if (val.toFloat() < min)
-            {
-                min = val.toFloat();
-            }
-        }
-        return min;
-    }
-}
-
-template <>
-float ValueObject<QString>::GetMaxY()
-{
-    if (dataPoints.isEmpty())
-    {
-        return 0;
-    }
-    else
-    {
-        float max = dataPoints.first().toFloat();
-        for (const QString &val : dataPoints)
-        {
-            if (val.toFloat() > max)
-            {
-                max = val.toFloat();
-            }
-        }
-        return max;
-    }
+    return valueBytes;
 }
 
 

@@ -11,10 +11,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     BuildUIElements();
 
+    qDebug() << "Built Main Window UI";
+
     settingsMenu = new SettingsMenu();
     settingsMenu->BuildUIElements();
     connect(settingsMenu, &SettingsMenu::CloseMenu, this, &MainWindow::show);
     connect(settingsMenu, &SettingsMenu::CloseMenu, settingsMenu, &SettingsMenu::hide);
+
+    qDebug() << "Built Settings Menu";
 
     //Set the background to white
     QPalette pal = palette();
@@ -22,15 +26,21 @@ MainWindow::MainWindow(QWidget *parent)
     setAutoFillBackground(true);
     setPalette(pal);
 
+    qDebug() << "Set Main Window background";
+
     parameters = new ParametersForm();
     parameters->BuildUIElements();
     connect(parameters, &ParametersForm::CloseForm, this, &MainWindow::show);
     connect(parameters, &ParametersForm::CloseForm, parameters, &ParametersForm::close);
 
+    qDebug() << "Built Parameters";
+
     graphForm = new GraphForm();
     connect(graphForm, &GraphForm::CloseForm, this, &MainWindow::show);
     connect(graphForm, &GraphForm::CloseForm, graphForm, &QWidget::close);
     graphForm->AddValueObjects(DataHandler::GetInstance()->GetAllValues());
+
+    qDebug() << "Built Graph";
 }
 
 MainWindow::~MainWindow()
@@ -274,7 +284,7 @@ void MainWindow::UpdateUI()
         break;
     }
 
-    logLabel->setText("Log #: " + QString::number(dataHander->GetLogNumber()->getValue()));
+    logLabel->setText("Log #: " + dataHander->GetLogNumber()->ToString());
 
     switch (dynamic_cast<ValueObject<uchar>*>(SettingsHandler::GetInstance()->GetSetting("A"))->getValue())
     {
@@ -308,9 +318,9 @@ void MainWindow::UpdateUI()
         errLabel->setText("<font color='green'>No erros</font>");
     }
 
-    noLabel->setText("NO: " + QString::number(dataHander->GetNO()->getValue()) + " ppb");
-    no2Label->setText("NO2: " + QString::number(dataHander->GetNO2()->getValue()) + " ppb");
-    noxLabel->setText("NOx: " + QString::number(dataHander->GetNOx()->getValue()) + " ppb");
+    noLabel->setText("NO: " + dataHander->GetNO()->ToString() + " ppb");
+    no2Label->setText("NO2: " + dataHander->GetNO2()->ToString() + " ppb");
+    noxLabel->setText("NOx: " + dataHander->GetNOx()->ToString() + " ppb");
 
     dateTimeLabel->setText(QDateTime::currentDateTime().toString("dd/MM/yy hh:mm:ss"));
 }

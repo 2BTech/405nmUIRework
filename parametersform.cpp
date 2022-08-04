@@ -174,17 +174,17 @@ void ParametersForm::DisplayFirst()
 
     headerLabel->setText("Parameters 1");
 
-    logLabel->setText("Log #: " + QString::number(dataHandler->GetLogNumber()->getValue()));
-    noLabel->setText("NO: " + QString::number(dataHandler->GetNO()->getValue()) + " ppb");
-    no2Label->setText("NO<sub>2</sub>: " + QString::number(dataHandler->GetNO2()->getValue()) + " ppb");
-    noxLabel->setText("NO<sub>x</sub>: " + QString::number(dataHandler->GetNOx()->getValue()) + " ppb");
-    cellTempLabel->setText("Cell Temp: " + QString::number(dataHandler->GetCellTemp()->getValue()) + " <sup>o</sup>C");
+    logLabel->setText("Log #: " + dataHandler->GetLogNumber()->ToString());
+    noLabel->setText("NO: " + dataHandler->GetNO()->ToString() + " ppb");
+    no2Label->setText("NO<sub>2</sub>: " + dataHandler->GetNO2()->ToString() + " ppb");
+    noxLabel->setText("NO<sub>x</sub>: " + dataHandler->GetNOx()->ToString() + " ppb");
+    cellTempLabel->setText("Cell Temp: " + dataHandler->GetCellTemp()->ToString() + " <sup>o</sup>C");
 
-    cellPressLebal->setText("Cell Press: " + QString::number(dataHandler->GetCellPress()->getValue()) + " mbar");
-    cellFlowLabel->setText("Cell Flow: " + QString::number(dataHandler->GetCellFlow()->getValue()) + " ccm");
-    ozoneFlowLabel->setText("Ozone Flow: " + QString::number(dataHandler->GetOzoneFlow()->getValue()) + " ccm");
-    pdv1Label->setText("PDV1: " + QString::number(dataHandler->GetPDV1()->getValue()) + " V");
-    pdv2Label->setText("PDV2: " + QString::number(dataHandler->GetPDV2()->getValue()) + " V");
+    cellPressLebal->setText("Cell Press: " + dataHandler->GetCellPress()->ToString() + " mbar");
+    cellFlowLabel->setText("Cell Flow: " + dataHandler->GetCellFlow()->ToString() + " ccm");
+    ozoneFlowLabel->setText("Ozone Flow: " + dataHandler->GetOzoneFlow()->ToString() + " ccm");
+    pdv1Label->setText("PDV1: " + dataHandler->GetPDV1()->ToString() + " V");
+    pdv2Label->setText("PDV2: " + dataHandler->GetPDV2()->ToString() + " V");
 }
 
 void ParametersForm::DisplaySecond()
@@ -193,13 +193,13 @@ void ParametersForm::DisplaySecond()
 
     headerLabel->setText("Parameters 2");
 
-    logLabel->setText("Scrubber Temp: " + QString::number(dataHandler->GetScrubberTemp()->getValue()) + " <sup>o</sup>C");
+    logLabel->setText("Scrubber Temp: " + dataHandler->GetScrubberTemp()->ToString() + " <sup>o</sup>C");
     noLabel->setText("Date: " + dataHandler->GetDate()->getValue());
-    no2Label->setText("Mode: " + QString::number(dataHandler->GetMode()->getValue()));
+    no2Label->setText("Mode: " + dataHandler->GetMode()->ToString());
     noxLabel->setText("");
     cellTempLabel->setText("");
 
-    cellPressLebal->setText("Error Byte: " + QString::number(dataHandler->GetErrorByte()->getValue()));
+    cellPressLebal->setText("Error Byte: " + dataHandler->GetErrorByte()->ToString());
     cellFlowLabel->setText("Time: " + dataHandler->GetTime()->getValue());
     ozoneFlowLabel->setText("");
     pdv1Label->setText("");

@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QDate>
 #include <QDebug>
+#include <QDir>
 
 #include "GlobalDefinitions.h"
 #include "ValueHandlers/valuehandlerbase.h"

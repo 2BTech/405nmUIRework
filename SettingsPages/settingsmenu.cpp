@@ -6,12 +6,16 @@ SettingsMenu::SettingsMenu() : BasePage("Settings Menu")
     connect(this, &BasePage::MoveLeft, this, &SettingsMenu::OnPageMoveLeft);
     connect(this, &BasePage::MoveRight, this, &SettingsMenu::OnPageMoveRight);
 
+    qDebug() << "Connected Setting Menu Movement";
+
     avgForm = new AverageTimeForm();
     avgForm->BuildUIElements();
     avgForm->hide();
     connect(avgForm, &BasePage::ClosePage, this, &SettingsMenu::OnPageClose);
     connect(avgForm, &BasePage::MoveLeft, this, &SettingsMenu::OnPageMoveLeft);
     connect(avgForm, &BasePage::MoveRight, this, &SettingsMenu::OnPageMoveRight);
+
+    qDebug() << "Created avg form";
 
     modeForm = new ModeForm();
     modeForm->BuildUIElements();
@@ -20,12 +24,16 @@ SettingsMenu::SettingsMenu() : BasePage("Settings Menu")
     connect(modeForm, &BasePage::MoveLeft, this, &SettingsMenu::OnPageMoveLeft);
     connect(modeForm, &BasePage::MoveRight, this, &SettingsMenu::OnPageMoveRight);
 
+    qDebug() << "Created Mode";
+
     adFilterForm = new AdaptiveFilterForm();
     adFilterForm->BuildUIElements();
     adFilterForm->hide();
     connect(adFilterForm, &BasePage::ClosePage, this, &SettingsMenu::OnPageClose);
     connect(adFilterForm, &BasePage::MoveLeft, this, &SettingsMenu::OnPageMoveLeft);
     connect(adFilterForm, &BasePage::MoveRight, this, &SettingsMenu::OnPageMoveRight);
+
+    qDebug() << "Created ad filter";
 
     dateTimeForm = new DateTimeForm();
     dateTimeForm->BuildUIElements();
@@ -34,12 +42,16 @@ SettingsMenu::SettingsMenu() : BasePage("Settings Menu")
     connect(dateTimeForm, &BasePage::MoveLeft, this, &SettingsMenu::OnPageMoveLeft);
     connect(dateTimeForm, &BasePage::MoveRight, this, &SettingsMenu::OnPageMoveRight);
 
+    qDebug() << "Created date time";
+
     noCalForm = new NOCalForm();
     noCalForm->BuildUIElements();
     noCalForm->hide();
     connect(noCalForm, &BasePage::ClosePage, this, &SettingsMenu::OnPageClose);
     connect(noCalForm, &BasePage::MoveLeft, this, &SettingsMenu::OnPageMoveLeft);
     connect(noCalForm, &BasePage::MoveRight, this, &SettingsMenu::OnPageMoveRight);
+
+    qDebug() << "Created no cal";
 
     no2CalForm = new NO2CalForm();
     no2CalForm->BuildUIElements();
@@ -48,12 +60,16 @@ SettingsMenu::SettingsMenu() : BasePage("Settings Menu")
     connect(no2CalForm, &BasePage::MoveLeft, this, &SettingsMenu::OnPageMoveLeft);
     connect(no2CalForm, &BasePage::MoveRight, this, &SettingsMenu::OnPageMoveRight);
 
+    qDebug() << "Created NO2";
+
     flowCalForm = new FlowCalForm();
     flowCalForm->BuildUIElements();
     flowCalForm->hide();
     connect(flowCalForm, &BasePage::ClosePage, this, &SettingsMenu::OnPageClose);
     connect(flowCalForm, &BasePage::MoveLeft, this, &SettingsMenu::OnPageMoveLeft);
     connect(flowCalForm, &BasePage::MoveRight, this, &SettingsMenu::OnPageMoveRight);
+
+    qDebug() << "Created flow cal";
 
     dataFileForm = new DataFileMenuForm();
     dataFileForm->BuildUIElements();
@@ -62,12 +78,16 @@ SettingsMenu::SettingsMenu() : BasePage("Settings Menu")
     connect(dataFileForm, &BasePage::MoveLeft, this, &SettingsMenu::OnPageMoveLeft);
     connect(dataFileForm, &BasePage::MoveRight, this, &SettingsMenu::OnPageMoveRight);
 
+    qDebug() << "Created data files form";
+
     modbusServerForm = new ModbusServerForm();
     modbusServerForm->BuildUIElements();
     modbusServerForm->hide();
     connect(modbusServerForm, &BasePage::ClosePage, this, &SettingsMenu::OnPageClose);
     connect(modbusServerForm, &BasePage::MoveLeft, this, &SettingsMenu::OnPageMoveLeft);
     connect(modbusServerForm, &BasePage::MoveRight, this, &SettingsMenu::OnPageMoveRight);
+
+    qDebug() << "Created modbus server form";
 
     staticIPForm = new StaticIPForm();
     staticIPForm->BuildUIElements();
@@ -76,6 +96,8 @@ SettingsMenu::SettingsMenu() : BasePage("Settings Menu")
     connect(staticIPForm, &BasePage::MoveLeft, this, &SettingsMenu::OnPageMoveLeft);
     connect(staticIPForm, &BasePage::MoveRight, this, &SettingsMenu::OnPageMoveRight);
 
+    qDebug() << "Created static IP form";
+
     systemSettingsForm = new SystemSettingsForm();
     systemSettingsForm->BuildUIElements();
     systemSettingsForm->hide();
@@ -83,12 +105,16 @@ SettingsMenu::SettingsMenu() : BasePage("Settings Menu")
     connect(systemSettingsForm, &BasePage::MoveLeft, this, &SettingsMenu::OnPageMoveLeft);
     connect(systemSettingsForm, &BasePage::MoveRight, this, &SettingsMenu::OnPageMoveRight);
 
+    qDebug() << "Created system settings form";
+
     aboutForm = new AboutPage();
     aboutForm->BuildUIElements();
     aboutForm->hide();
     connect(aboutForm, &BasePage::ClosePage, this, &SettingsMenu::OnPageClose);
     connect(aboutForm, &BasePage::MoveLeft, this, &SettingsMenu::OnPageMoveLeft);
     connect(aboutForm, &BasePage::MoveRight, this, &SettingsMenu::OnPageMoveRight);
+
+    qDebug() << "Created about form";
 
     pages << this << avgForm << modeForm << adFilterForm << dateTimeForm << noCalForm << no2CalForm << flowCalForm << dataFileForm << modbusServerForm << staticIPForm << systemSettingsForm << aboutForm;
 }

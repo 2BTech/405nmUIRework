@@ -186,11 +186,21 @@ void GraphForm::AddValueObjects(QList<BaseValueObject*> values)
     {
         if (val->GetValueType() != ValueType::STRING_VALUE)
         {
-            ValueGraphSettings* obj = new ValueGraphSettings(val, val->getName().startsWith("NO"));
+            ValueGraphSettings* obj = new ValueGraphSettings(val, false);
             obj->SetGraph(customPlot->addGraph());
             obj->SetGraphColor(GetColorFromIndex(colorIndex++));
             // ToDo, add connect to update graph object internal buffer
-            connect(val, &BaseValueObject::ValueChanged, obj, &ValueGraphSettings::OnValueChange);
+            connect(val, &BaseValueObject::SetValue, obj, &ValueGraphSettings::OnValueChange);
+
+            if (val->getName() == "NO" || val->getName() == "NO2" || val->getName() == "NOx")
+            {
+                //qDebug() << "Setting visible: " << val->getName();
+                obj->SetVisible(true);
+            }
+            else
+            {
+                obj->SetVisible(false);
+            }
 
             graphObjects.insert(val, obj);
             if(colorIndex >= 15)
@@ -205,39 +215,20 @@ void GraphForm::AddValueObjects(QList<BaseValueObject*> values)
 
 void GraphForm::UpdateGraph()
 {
-    qDebug() << "Updating graph: " << isVisible();
+    //qDebug() << "Updating graph: " << isVisible();
     if (!isVisible())
     {
         return;
     }
 
-    QList<BaseValueObject*> objs = graphObjects.keys();
-
-    if(autoMinX)
-    {
-        //minX = QDateTime::fromSecsSinceEpoch(objs.at(0)->GetMinX());
-        minX = objs.at(0)->GetMinX();
-    }
-    if(autoMaxX)
-    {
-        //maxX = QDateTime::fromSecsSinceEpoch(objs.at(0)->GetMaxX());
-        maxX = objs.at(0)->GetMaxX();
-    }
-    if(autoMinY)
-    {
-         minY = objs.at(0)->GetMinY();
-    }
-    if(autoMaxY)
-    {
-        maxY = objs.at(0)->GetMaxY();
-    }
+    QList<ValueGraphSettings*> objs = graphObjects.values();
 
     bool grabbedInitial = false;
 
     int count = objs.count();
     for(int i = 1; i < count; i++)
     {
-        if(graphObjects[objs[i]]->GetGraph()->visible())
+        if(objs[i]->ShouldDisplay())
         {
             if(!grabbedInitial)
             {
@@ -289,6 +280,11 @@ void GraphForm::UpdateGraph()
             BaseLogger::Log("X: Min: " + QString::number(objs.at(i)->GetMinX()) + "Max: " + QString::number(objs.at(i)->GetMaxX()));
             BaseLogger::Log("Y: Min: " + QString::number(objs.at(i)->GetMinY()) + " Max: " + QString::number(objs.at(i)->GetMaxY()));
 #endif
+//            qDebug() << "X: " << objs.at(i)->GetMinX() << " to " << objs.at(i)->GetMaxX();
+//            qDebug() << "Y: " << objs.at(i)->GetMinY() << " to " << objs.at(i)->GetMaxY();
+
+//            qDebug() << "X: " << minX << " to " << maxX;
+//            qDebug() << "Y: " << minY << " to " << maxY;
         }
     }
 #if DEBUG_BUILD && DEBUG_GRAPH_FORM
@@ -350,8 +346,8 @@ void GraphForm::UpdateGraph()
     customPlot->yAxis->setRange(minY, maxY);
 
     //BaseLogger::Log("X range: " + minX.time().toString() + " to " + maxX.time().toString());
-    qDebug() << "X Range: " << minX << " to " << maxX;
-    qDebug() << "Y Range: " << minY << " to " << maxY;
+//    qDebug() << "X Range: " << minX << " to " << maxX;
+//    qDebug() << "Y Range: " << minY << " to " << maxY;
 
     //BaseLogger::Log("X Range: " + QString::number(customPlot->xAxis->range().size()));
     //BaseLogger::Log("X: Min: " + QString::number(customPlot->xAxis->range().lower) + " Max: " + QString::number(customPlot->xAxis->range().upper));
@@ -522,7 +518,7 @@ void GraphForm::UpdateDataLabels()
 
     if(graphObjects.count() == 0)
     {
-        qDebug() << ("No graph objects");
+        //qDebug() << ("No graph objects");
         return;
     }
 
@@ -628,7 +624,12 @@ void GraphForm::SetUpGraph()
 //    customPlot->xAxis->setTicker(dateTimeTicker);
 //    dateTimeTicker->setDateTimeFormat("hh:mm:ss");
 
-    customPlot->xAxis->setDateTimeFormat("dd/MM/yy");
+    customPlot->xAxis->setTickLabelType(QCPAxis::ltDateTime);
+    customPlot->xAxis->setDateTimeFormat("hh:mm:ss");
+    customPlot->xAxis->setTickLabelRotation(30);
+    customPlot->xAxis->setAutoTickStep(true);
+
+    customPlot->xAxis->setDateTimeFormat("hh:mm:ss");
 
     customPlot->setMouseTracking(false);
 
@@ -785,5 +786,5 @@ Qt::GlobalColor GraphForm::GetColorFromIndex(int index)
 void GraphForm::showEvent(QShowEvent* event)
 {
     QWidget::showEvent(event);
-    RedrawGraph();
+    UpdateGraph();
 }

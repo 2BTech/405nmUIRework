@@ -3,7 +3,7 @@
 ValueGraphSettings::ValueGraphSettings(BaseValueObject* value, bool show)
 {
     val = value;
-    isVisible = show;
+    SetVisible(show);
 }
 
 void ValueGraphSettings::SetGraphColor(Qt::GlobalColor color)
@@ -149,12 +149,28 @@ void ValueGraphSettings::OnValueChange()
                 }
             }
         }
+        else if (rem == maxY)
+        {
+            maxY = values.first();
+            int count = values.count();
+            for(int i = 1; i < count; i++)
+            {
+                if(values[i] > maxY)
+                {
+                    maxY = values[i];
+                }
+            }
+        }
         keys.removeFirst();
     }
 
-    graph->addData(yVal, xVal);
-    graph->setData(keys, values);
-    minX = keys[0];
+    //graph->addData(yVal, xVal);
+    graph->setData(values, keys);
+
+    //qDebug() << "X values: " << values;
+
+    minX = values.first();
+    maxX = values.last();
 
     //qDebug() << "X Range: " << minX << " -> " << maxX;
 

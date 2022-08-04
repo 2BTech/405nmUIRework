@@ -314,10 +314,13 @@ void SerialDeviceHandler::ConnectToSettingsObjects()
 
 void SerialDeviceHandler::OnSettingValueChange()
 {
+    qDebug() << "Called OnSettingValueChange";
     BaseValueObject* setting = dynamic_cast<BaseValueObject*>(sender());
     if (setting)
     {
+        qDebug() << "Writing settings file";
         WriteSetting(setting);
+        qDebug() << "After write settings file";
     }
 }
 

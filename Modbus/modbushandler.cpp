@@ -249,14 +249,18 @@ void ModbusHandler::RegisterValueObjects(QList<BaseValueObject*> values)
     for (BaseValueObject* val : values)
     {
         connect(val, &BaseValueObject::ValueChanged, this, &ModbusHandler::OnValueChange);
+        val->Mutex()->lock();
         dataTable.SetOutputRegisters(val->GetRegisterIndex(), val->GetBytes(), val->GetNumRegisters());
+        val->Mutex()->unlock();
     }
 }
 
 void ModbusHandler::OnValueChange()
 {
     BaseValueObject* val = dynamic_cast<BaseValueObject*>(sender());
+    val->Mutex()->lock();
     dataTable.SetOutputRegisters(val->GetRegisterIndex(), val->GetBytes(), val->GetNumRegisters());
+    val->Mutex()->unlock();
 }
 
 void ModbusHandler::SetModbusCoil(int index)

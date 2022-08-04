@@ -13,6 +13,12 @@ DataHandler * DataHandler::GetInstance()
 DataHandler::DataHandler() : ValueHandlerBase()
 {
     BuildObjects();
+
+    QDir dir(QString(WORKING_DIR).append("datafiles/"));
+    if (!dir.exists())
+    {
+        dir.mkpath(QString(WORKING_DIR).append("datafiles/"));
+    }
 }
 
 DataHandler::~DataHandler()
@@ -135,6 +141,8 @@ void DataHandler::ReceiveDataline(int serialNumber, long logNumber, float no2, f
     this->cellTemp->setValue(cellTemp);
     this->cellPress->setValue(cellPress);
     this->cellFlow->setValue(cellFlow);
+    this->pdv1->setValue(pdv1);
+    this->pdv2->setValue(pdv2);
     this->scrubberTemp->setValue(scrubberTemp);
     this->ozoneFlow->setValue(ozoneFlow);
     this->errorByte->setValue(errorByte);
@@ -183,33 +191,43 @@ void DataHandler::BuildObjects()
     AddValue(logNumber);
 
     no = new ValueObject<float>("NO", "_D3");
+    no->SetNumSigFigs(1);
     AddValue(no);
 
     no2 = new ValueObject<float>("NO2", "_D4");
+    no2->SetNumSigFigs(1);
     AddValue(no2);
 
     nox = new ValueObject<float>("NOx", "_D5");
+    nox->SetNumSigFigs(1);
     AddValue(nox);
 
     cellTemp = new ValueObject<float>("Cell Temp", "_D6");
+    cellTemp->SetNumSigFigs(1);
     AddValue(cellTemp);
 
     cellPress = new ValueObject<float>("Cell Press", "_D7");
+    cellPress->SetNumSigFigs(1);
     AddValue(cellPress);
 
     cellFlow = new ValueObject<float>("Cell Flow", "_D8");
+    cellFlow->SetNumSigFigs(1);
     AddValue(cellFlow);
 
     pdv1 = new ValueObject<float>("PDV1", "_D9");
+    pdv1->SetNumSigFigs(6);
     AddValue(pdv1);
 
     pdv2 = new ValueObject<float>("PDV2", "_D10");
+    pdv2->SetNumSigFigs(6);
     AddValue(pdv2);
 
     scrubberTemp = new ValueObject<float>("Scrubber Temp", "_D11", "C");
+    scrubberTemp->SetNumSigFigs(1);
     AddValue(scrubberTemp);
 
     ozoneFlow = new ValueObject<float>("Ozone Flow", "_D12");
+    ozoneFlow->SetNumSigFigs(1);
     AddValue(ozoneFlow);
 
     errorByte = new ValueObject<int>("Error Byte", "_D13");

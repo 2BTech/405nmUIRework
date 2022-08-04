@@ -5,6 +5,7 @@
 #include <QObject>
 // Name
 #include <QString>
+#include <QMutex>
 
 enum class ValueType {
     UCHAR_VALUE,
@@ -48,14 +49,15 @@ public:
     virtual uchar* GetBytes() = 0;
     virtual short* GetRegisterValues() = 0;
 
-    virtual int GetMinX() = 0;
-    virtual int GetMaxX() = 0;
-    virtual float GetMinY() = 0;
-    virtual float GetMaxY() = 0;
+    QMutex* Mutex()
+    {
+        return &mutex;
+    }
 
 signals:
     // Emitted when value is changed
     void ValueChanged();
+    void SetValue();
 
 protected:
     // Name of the value
@@ -66,6 +68,8 @@ protected:
     QString units;
     // First modbus register for the value
     int registerIndex = -1;
+
+    QMutex mutex;
 };
 
 #endif // BASEVALUEOBJECT_H

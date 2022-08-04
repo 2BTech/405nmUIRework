@@ -33,7 +33,10 @@ void StaticIPForm::BuildUIElements()
 {
     BasePage::BuildUIElements();
 
-    saveButton->deleteLater();
+    if (saveButton)
+    {
+        saveButton->hide();
+    }
 
     QFont font;
     font.setPointSize(10);
@@ -44,11 +47,15 @@ void StaticIPForm::BuildUIElements()
     statusLabel->setAlignment(Qt::AlignCenter);
     statusLabel->setFont(font);
 
+    qDebug() << "Created status label";
+
     font.setPointSize(12);
 
-    ValueObject<QString>* ipSetting = new ValueObject<QString>("IP Address", "_S1");
+    ValueObject<QString>* ipSetting = new ValueObject<QString>("Static IP Address", "_S1");
     SettingsHandler::GetInstance()->AddSettingObject(ipSetting, true);
     ipPair = AddLabelSetting(ipSetting, QRect(100, 100, 280, 40));
+
+    qDebug() << "Created ip setting";
 
     ipPair.second->setText("IP Address: 000.000.000.000");
     ipPair.second->setFont(font);
@@ -56,9 +63,13 @@ void StaticIPForm::BuildUIElements()
     ipPair.first->setStyleSheet("QPushButton { background-color: rgba(0, 0, 0, 0); }");
     connect(ipPair.first, &QPushButton::clicked, this, &StaticIPForm::OnIPClicked);
 
+    qDebug() << "Created ip pair";
+
     ValueObject<QString>* gatewaySetting = new ValueObject<QString>("Gateway", "_S2");
     SettingsHandler::GetInstance()->AddSettingObject(gatewaySetting, true);
     gatewayPair = AddLabelSetting(gatewaySetting, QRect(100, 140, 280, 40));
+
+    qDebug() << "Created gateway setting";
 
     gatewayPair.second->setText("Gateway: 000.000.000.000");
     gatewayPair.second->setFont(font);
@@ -66,15 +77,21 @@ void StaticIPForm::BuildUIElements()
     gatewayPair.first->setStyleSheet("QPushButton { background-color: rgba(0, 0, 0, 0); }");
     connect(gatewayPair.first, &QPushButton::clicked, this, &StaticIPForm::OnGatewayClicked);
 
+    qDebug() << "Created gateway pair";
+
     ValueObject<QString>* subnetSetting = new ValueObject<QString>("Subnet Mask", "_S3");
     SettingsHandler::GetInstance()->AddSettingObject(subnetSetting, true);
     subnetPair = AddLabelSetting(subnetSetting, QRect(100, 180, 280, 40));
+
+    qDebug() << "Created subnet setting";
 
     subnetPair.second->setText("Subnet Mask: 000.000.000.000");
     subnetPair.second->setFont(font);
 
     subnetPair.first->setStyleSheet("QPushButton { background-color: rgba(0, 0, 0, 0); }");
     connect(subnetPair.first, &QPushButton::clicked, this, &StaticIPForm::OnSubnetClicked);
+
+    qDebug() << "Created subnet pair";
 
     clearButton = new QPushButton(this);
     clearButton->setGeometry(100, 230, 120, 40);
@@ -83,6 +100,8 @@ void StaticIPForm::BuildUIElements()
     clearButton->setStyleSheet("QPushButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a); }");
     connect(clearButton, &QPushButton::clicked, this, &StaticIPForm::OnClearClicked);
 
+    qDebug() << "Created clear button";
+
     applyButton = new QPushButton(this);
     applyButton->setGeometry(260, 230, 120, 40);
     applyButton->setText("Apply");
@@ -90,9 +109,15 @@ void StaticIPForm::BuildUIElements()
     applyButton->setStyleSheet("QPushButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a); }");
     connect(applyButton, &QPushButton::clicked, this, &StaticIPForm::OnApplyClicked);
 
+    qDebug() << "Created apply button";
+
     SettingsHandler::GetInstance()->ReadSettingsFile();
 
+    qDebug() << "Read in current settings";
+
     HandleOldSettingsFile();
+
+    qDebug() << "Handled old settings file";
 }
 
 void StaticIPForm::OnIPClicked()
@@ -158,24 +183,33 @@ void StaticIPForm::HandleOldSettingsFile()
     QFile file(QString(WORKING_DIR).append("StaticIPSettings.txt"));
     if (file.exists())
     {
+        qDebug() << "Found old static ip settings file";
         if (file.open(QIODevice::ReadOnly))
         {
+            qDebug() << "Started reading";
             while (!file.atEnd())
             {
+                qDebug() << "Reading line";
                 QString line = file.readLine();
                 line = line.remove('\r').remove('\n');
                 switch (line.at(0).toLatin1())
                 {
                 case 'A':
+                    qDebug() << "Before set ip";
                     pageSettings[0].first->setValue_str(line.remove(0, 1));
+                    qDebug() << "After set ip";
                     break;
 
                 case 'B':
+                    qDebug() << "Before set gateway";
                     pageSettings[1].first->setValue_str(line.remove(0, 1));
+                    qDebug() << "After set gateway";
                     break;
 
                 case 'C':
+                    qDebug() << "Before set subnet";
                     pageSettings[2].first->setValue_str(line.remove(0, 1));
+                    qDebug() << "After set subnet";
                     break;
 
                 default:

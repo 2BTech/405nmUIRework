@@ -53,7 +53,9 @@ SettingsHandler::~SettingsHandler()
 
 void SettingsHandler::OnValueChanged()
 {
+    qDebug() << "Called OnValueChanged";
     WriteSettingsFile();
+    qDebug() << "Finished OnValueChanged";
 }
 
 void SettingsHandler::ReadSettingsFile()

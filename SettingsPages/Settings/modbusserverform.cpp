@@ -45,7 +45,7 @@ void ModbusServerForm::BuildUIElements()
 
     font.setPointSize(12);
 
-    ValueObject<QString>* tempSetting = new ValueObject<QString>("IP Address", "_M1");
+    ValueObject<QString>* tempSetting = new ValueObject<QString>("Modbus IP Address", "_M1");
     SettingsHandler::GetInstance()->AddSettingObject(tempSetting, true);
 
     ipPair = AddLabelSetting(tempSetting, QRect(100, 100, 280, 40));
