@@ -118,6 +118,7 @@ public:
     void SetOutputRegister(int address, unsigned short value);
     // Sets a collection of output registers starting at address based off of the values in buffer. The length of buffer is assumed to be 2*numRegisters.
     void SetOutputRegisters(int address, unsigned char* buffer, int numRegisters);
+    void SetOutputRegisters(int address, short* buffer, int numRegisters);
     // Gets the value of the register at address.
     unsigned short GetOutputRegister(int address);
     // Gets quanity of registers starting at startAddress. Returns the registers in a list.

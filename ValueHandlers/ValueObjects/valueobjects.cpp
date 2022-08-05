@@ -258,9 +258,9 @@ void ValueObject<float>::setValue_str(QString val)
 template <>
 void ValueObject<QString>::setValue_str(QString val)
 {
-    qDebug() << "Setting " << name << " with string";
+    //qDebug() << "Setting " << name << " with string";
     setValue(val);
-    qDebug() << "Finished setting " << name << " with string";
+    //qDebug() << "Finished setting " << name << " with string";
 }
 
 template <>

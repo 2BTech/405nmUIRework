@@ -11,14 +11,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     BuildUIElements();
 
-    qDebug() << "Built Main Window UI";
+    //qDebug() << "Built Main Window UI";
 
     settingsMenu = new SettingsMenu();
     settingsMenu->BuildUIElements();
     connect(settingsMenu, &SettingsMenu::CloseMenu, this, &MainWindow::show);
     connect(settingsMenu, &SettingsMenu::CloseMenu, settingsMenu, &SettingsMenu::hide);
 
-    qDebug() << "Built Settings Menu";
+    //qDebug() << "Built Settings Menu";
 
     //Set the background to white
     QPalette pal = palette();
@@ -26,21 +26,21 @@ MainWindow::MainWindow(QWidget *parent)
     setAutoFillBackground(true);
     setPalette(pal);
 
-    qDebug() << "Set Main Window background";
+    //qDebug() << "Set Main Window background";
 
     parameters = new ParametersForm();
     parameters->BuildUIElements();
     connect(parameters, &ParametersForm::CloseForm, this, &MainWindow::show);
     connect(parameters, &ParametersForm::CloseForm, parameters, &ParametersForm::close);
 
-    qDebug() << "Built Parameters";
+    //qDebug() << "Built Parameters";
 
     graphForm = new GraphForm();
     connect(graphForm, &GraphForm::CloseForm, this, &MainWindow::show);
     connect(graphForm, &GraphForm::CloseForm, graphForm, &QWidget::close);
     graphForm->AddValueObjects(DataHandler::GetInstance()->GetAllValues());
 
-    qDebug() << "Built Graph";
+    //qDebug() << "Built Graph";
 }
 
 MainWindow::~MainWindow()

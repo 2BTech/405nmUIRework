@@ -63,10 +63,15 @@ void InitializeModbus()
     //ModbusHandler::GetInstance()->DataTable()->ResizeOutputRegisters(TOTAL_MODBUS_REGISTERS);
     //ModbusHandler::GetInstance()->DataTable()->ResizeOutputCoils(2);
 
+    QFile logFile(QString(WORKING_DIR).append("Modbus_Map.csv"));
+    logFile.open(QIODevice::WriteOnly);
+
     int registerIndex = 0;
     int coilIndex = 0;
 
     ModbusHandler* modbus = ModbusHandler::GetInstance();
+
+    logFile.write("Setting Registers\n");
 
     const QList<BaseValueObject*> settings = SettingsHandler::GetInstance()->GetAllValues();
     SettingsHandler::GetInstance()->SetRegisterIndex(0);
@@ -74,11 +79,13 @@ void InitializeModbus()
     for (BaseValueObject* set : settings)
     {
         set->SetRegisterIndex(registerIndex);
+        logFile.write(set->getName().append(",").append(QString::number(registerIndex)).append('\n').toLatin1());
 
         registerIndex += set->GetNumRegisters();
     }
     SettingsHandler::GetInstance()->SetNumRegisters(registerIndex);
 
+    logFile.write("Data Registers\n");
 
     const QList<BaseValueObject*> data = DataHandler::GetInstance()->GetAllValues();
     DataHandler::GetInstance()->SetRegisterIndex(registerIndex);
@@ -86,6 +93,8 @@ void InitializeModbus()
     for (BaseValueObject* dat : data)
     {
         dat->SetRegisterIndex(registerIndex);
+
+        logFile.write(dat->getName().append(",").append(QString::number(registerIndex)).append('\n').toLatin1());
 
         registerIndex += dat->GetNumRegisters();
     }
@@ -97,8 +106,48 @@ void InitializeModbus()
     modbus->RegisterValueObjects(settings);
     modbus->RegisterValueObjects(data);
 
+    logFile.write(QString("Total number of registers: ").append(QString::number(registerIndex)).append("\n").toLatin1());
+
     SettingsHandler::GetInstance()->connect(SettingsHandler::GetInstance(), &ValueHandlerBase::SetModbusCoil, modbus, &ModbusHandler::SetModbusCoil);
     DataHandler::GetInstance()->connect(DataHandler::GetInstance(), &ValueHandlerBase::SetModbusCoil, modbus, &ModbusHandler::SetModbusCoil);
+}
+
+void TestModbus()
+{
+    const QList<short> regs = ModbusHandler::GetInstance()->DataTable()->GetOutputRegisters(0, 180);
+    //qDebug() << SettingsHandler::GetInstance()->GetSetting("A")->GetRegisterValues()[0];
+    for (const short &val : regs)
+    {
+        qDebug() << val;
+    }
+
+    //return;
+
+    union {
+        float tVal;
+        short rBytes[2];
+    };
+    rBytes[0] = regs[5];
+    rBytes[1] = regs[6];
+
+    qDebug() << regs[5];
+    qDebug() << regs[6];
+
+    qDebug() << "NO Slope: " << tVal << " - " << SettingsHandler::GetInstance()->GetSetting("G")->ToString();
+
+    return;
+
+    const QList<BaseValueObject*> sets = SettingsHandler::GetInstance()->GetAllValues();
+    for (BaseValueObject* set : sets)
+    {
+        qDebug() << set->GetRegisterIndex() << " : " << set->getName();
+    }
+
+    const QList<BaseValueObject*> data = DataHandler::GetInstance()->GetAllValues();
+    for (BaseValueObject* dat : data)
+    {
+        qDebug() << dat->GetRegisterIndex() << " : " << dat->getName();
+    }
 }
 
 int main(int argc, char *argv[])
@@ -137,10 +186,12 @@ int main(int argc, char *argv[])
     serialMenuHandler.MoveToThread(&serialMenuThread);
     serialMenuThread.start(QThread::HighestPriority);
 
-    qDebug() << "Menu thread: " << &serialMenuThread;
-    qDebug() << "Device thread: " << &serialDeviceThread;
+    //qDebug() << "Menu thread: " << &serialMenuThread;
+    //qDebug() << "Device thread: " << &serialDeviceThread;
 
-    //InitializeModbus();
+    InitializeModbus();
+
+    TestModbus();
 
     return a.exec();
 }

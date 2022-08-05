@@ -103,6 +103,8 @@ private:
     // Thread to run the modbus classes in
     QThread modbusThread;
 
+    void UpdateValueObjectRegisters(BaseValueObject* val);
+
     void CloseModbus();
 };
 

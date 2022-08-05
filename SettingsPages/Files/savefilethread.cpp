@@ -7,6 +7,7 @@ SaveFileThread::SaveFileThread()
 
 void SaveFileThread::SaveSingleFile(QString source, QString file, QString dest)
 {
+    qDebug() << "Started saving single file from " << source << " to " << dest;
     QDir destDir(dest);
     if (!destDir.exists() && !destDir.mkpath(dest))
     {
@@ -19,11 +20,13 @@ void SaveFileThread::SaveSingleFile(QString source, QString file, QString dest)
         QFile fileObj;
         if (fileObj.copy(source.append(file), dest.append(file)))
         {
+            qDebug() << "Successfully saved single file";
             errorString = "No error";
             emit Finished(true);
         }
         else
         {
+            qDebug() << "Failed to save single file: " << errorString;
             errorString = fileObj.errorString();
             emit Finished(false);
         }
@@ -32,6 +35,7 @@ void SaveFileThread::SaveSingleFile(QString source, QString file, QString dest)
 
 void SaveFileThread::SaveCollection(QString source, QStringList files, QString dest)
 {
+    qDebug() << "Started saving collection from " << source << " to " << dest;
     QDir destDir(dest);
     if (!destDir.exists() && !destDir.mkpath(dest))
     {
@@ -48,10 +52,12 @@ void SaveFileThread::SaveCollection(QString source, QStringList files, QString d
         {
             if (!fileObj.copy(source + file, dest + file))
             {
+                qDebug() << "Failed to save file: " << file << " :  " << fileObj.errorString();
                 errorString += fileObj.errorString() + " ";
                 savedAll = false;
             }
         }
+        qDebug() << "Finished saving collection. Saved all: " << savedAll;
         emit Finished(savedAll);
     }
 }

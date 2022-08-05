@@ -50,6 +50,8 @@ private:
     void WriteSetting(BaseValueObject* setting);
 
     void HandleAck();
+
+    void WriteAllSettings();
 };
 
 #endif // SERIALDEVICEHANDLER_H

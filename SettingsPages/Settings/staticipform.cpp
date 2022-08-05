@@ -47,7 +47,7 @@ void StaticIPForm::BuildUIElements()
     statusLabel->setAlignment(Qt::AlignCenter);
     statusLabel->setFont(font);
 
-    qDebug() << "Created status label";
+    //qDebug() << "Created status label";
 
     font.setPointSize(12);
 
@@ -55,7 +55,7 @@ void StaticIPForm::BuildUIElements()
     SettingsHandler::GetInstance()->AddSettingObject(ipSetting, true);
     ipPair = AddLabelSetting(ipSetting, QRect(100, 100, 280, 40));
 
-    qDebug() << "Created ip setting";
+    //qDebug() << "Created ip setting";
 
     ipPair.second->setText("IP Address: 000.000.000.000");
     ipPair.second->setFont(font);
@@ -63,13 +63,13 @@ void StaticIPForm::BuildUIElements()
     ipPair.first->setStyleSheet("QPushButton { background-color: rgba(0, 0, 0, 0); }");
     connect(ipPair.first, &QPushButton::clicked, this, &StaticIPForm::OnIPClicked);
 
-    qDebug() << "Created ip pair";
+    //qDebug() << "Created ip pair";
 
     ValueObject<QString>* gatewaySetting = new ValueObject<QString>("Gateway", "_S2");
     SettingsHandler::GetInstance()->AddSettingObject(gatewaySetting, true);
     gatewayPair = AddLabelSetting(gatewaySetting, QRect(100, 140, 280, 40));
 
-    qDebug() << "Created gateway setting";
+    //qDebug() << "Created gateway setting";
 
     gatewayPair.second->setText("Gateway: 000.000.000.000");
     gatewayPair.second->setFont(font);
@@ -77,13 +77,13 @@ void StaticIPForm::BuildUIElements()
     gatewayPair.first->setStyleSheet("QPushButton { background-color: rgba(0, 0, 0, 0); }");
     connect(gatewayPair.first, &QPushButton::clicked, this, &StaticIPForm::OnGatewayClicked);
 
-    qDebug() << "Created gateway pair";
+    //qDebug() << "Created gateway pair";
 
     ValueObject<QString>* subnetSetting = new ValueObject<QString>("Subnet Mask", "_S3");
     SettingsHandler::GetInstance()->AddSettingObject(subnetSetting, true);
     subnetPair = AddLabelSetting(subnetSetting, QRect(100, 180, 280, 40));
 
-    qDebug() << "Created subnet setting";
+    //qDebug() << "Created subnet setting";
 
     subnetPair.second->setText("Subnet Mask: 000.000.000.000");
     subnetPair.second->setFont(font);
@@ -91,7 +91,7 @@ void StaticIPForm::BuildUIElements()
     subnetPair.first->setStyleSheet("QPushButton { background-color: rgba(0, 0, 0, 0); }");
     connect(subnetPair.first, &QPushButton::clicked, this, &StaticIPForm::OnSubnetClicked);
 
-    qDebug() << "Created subnet pair";
+    //qDebug() << "Created subnet pair";
 
     clearButton = new QPushButton(this);
     clearButton->setGeometry(100, 230, 120, 40);
@@ -100,7 +100,7 @@ void StaticIPForm::BuildUIElements()
     clearButton->setStyleSheet("QPushButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a); }");
     connect(clearButton, &QPushButton::clicked, this, &StaticIPForm::OnClearClicked);
 
-    qDebug() << "Created clear button";
+    //qDebug() << "Created clear button";
 
     applyButton = new QPushButton(this);
     applyButton->setGeometry(260, 230, 120, 40);
@@ -109,15 +109,15 @@ void StaticIPForm::BuildUIElements()
     applyButton->setStyleSheet("QPushButton { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a); }");
     connect(applyButton, &QPushButton::clicked, this, &StaticIPForm::OnApplyClicked);
 
-    qDebug() << "Created apply button";
+    //qDebug() << "Created apply button";
 
     SettingsHandler::GetInstance()->ReadSettingsFile();
 
-    qDebug() << "Read in current settings";
+    //qDebug() << "Read in current settings";
 
     HandleOldSettingsFile();
 
-    qDebug() << "Handled old settings file";
+    //qDebug() << "Handled old settings file";
 }
 
 void StaticIPForm::OnIPClicked()

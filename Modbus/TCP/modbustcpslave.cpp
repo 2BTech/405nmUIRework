@@ -7,6 +7,8 @@ ModbusTCPSlave::ModbusTCPSlave() : response()
     // Handle accepting new connections
     connect(tcpServer, &QTcpServer::newConnection, this, &ModbusTCPSlave::OnPeerConnect);
     connect(tcpServer, &QTcpServer::acceptError, this, &ModbusTCPSlave::OnPeerSocketError);
+
+    qDebug() << "Created tcp modbus slave";
 }
 
 unsigned char ModbusTCPSlave::UnitAddress()
@@ -28,6 +30,8 @@ void ModbusTCPSlave::SetConnectionInformation(QString targetIP, unsigned short p
 
     this->targetIP = targetIP;
     this->port = port;
+
+    qDebug() << "Modbus TCP is listening at " << targetIP << " at port " << port;
 
     //tcpServer.listen(QHostAddress(targetIP), port);
     if(!tcpServer->listen(QHostAddress::AnyIPv4, port))
@@ -85,6 +89,7 @@ void ModbusTCPSlave::CloseConnection()
 
 void ModbusTCPSlave::OnPeerConnect()
 {
+    qDebug() << "On Peer Connect";
     if(curConn != Q_NULLPTR)
     {
         qDebug() << ("ModbusTCPSlave is trying to accept new connection when one is already present");

@@ -554,11 +554,11 @@ void ModbusDatatable::SetOutputRegister(int address, unsigned short value)
 
 void ModbusDatatable::SetOutputRegisters(int address, unsigned char *buffer, int numRegisters)
 {
-    if(address >= 0 && (address + numRegisters < numberOfOutputRegisters))
+    if(address >= 0 && (address + numRegisters <= numberOfOutputRegisters))
     {
         while(numRegisters)
         {
-            outputRegisters[address] = ((buffer[0] << 8) | buffer[1]);
+            outputRegisters[address] = ((buffer[1] << 8) | buffer[0]);
             //BaseLogger::Log("Set output register at " + QString::number(address) + " to " + QString::number(outputRegisters[address]));
             address++;
             buffer += 2;
@@ -568,7 +568,28 @@ void ModbusDatatable::SetOutputRegisters(int address, unsigned char *buffer, int
     }
     else
     {
-        qDebug() << ("Error: Index out of bounds in SetHoldingRegisters");
+        qDebug() << "Error: Index out of bounds in SetHoldingRegisters. Requesting " << (address + numRegisters) << " total " << numberOfOutputRegisters;
+        //BaseLogger::LogCritical("Error: Index out of bounds in SetHoldingRegisters");
+    }
+}
+
+void ModbusDatatable::SetOutputRegisters(int address, short* buffer, int numRegisters)
+{
+    if(address >= 0 && (address + numRegisters <= numberOfOutputRegisters))
+    {
+        while(numRegisters)
+        {
+            outputRegisters[address] = *(buffer++);
+            //BaseLogger::Log("Set output register at " + QString::number(address) + " to " + QString::number(outputRegisters[address]));
+            address++;
+            buffer += 2;
+            numRegisters--;
+            emit OutputRegisterChanged(address);
+        }
+    }
+    else
+    {
+        qDebug() << "Error: Index out of bounds in SetHoldingRegisters. Requesting " << (address + numRegisters) << " total " << numberOfOutputRegisters;
         //BaseLogger::LogCritical("Error: Index out of bounds in SetHoldingRegisters");
     }
 }

@@ -205,7 +205,7 @@ void SerialDeviceHandler::ParseAsDataline()
 
     sqlInsert = split.join(',');
 
-    qDebug() << "Received dataline: " << finalDataline;
+    //qDebug() << "Received dataline: " << finalDataline;
 //    qDebug() << "SQL insert: " << sqlInsert;
 
     emit ReceivedDataline(finalDataline.toLatin1());
@@ -216,11 +216,35 @@ void SerialDeviceHandler::ParseAsDataline()
     if (qAbs(currentDateTime.secsTo(receivedDateTime)) > 2)
     {
         QString command = "sudo date --set=\"" + receivedDateTime.toString("yyyyMMdd hh:mm:ss") + "\"";
-        qDebug() << "System clock is wrong. Setting based off of data line. Command: " << command << " : " << currentDateTime.secsTo(receivedDateTime);
+        //qDebug() << "System clock is wrong. Setting based off of data line. Command: " << command << " : " << currentDateTime.secsTo(receivedDateTime);
 #ifndef Q_OS_WIN
         system(command.toLatin1());
 #endif
     }
+
+    if (serialNumber == -1)
+    {
+        WriteAllSettings();
+    }
+}
+
+void SerialDeviceHandler::WriteAllSettings()
+{
+    WriteSetting("A");
+    WriteSetting("C");
+    WriteSetting("D");
+    WriteSetting("E");
+    WriteSetting("F");
+    WriteSetting("I");
+    WriteSetting("L");
+    WriteSetting("G");
+    WriteSetting("H");
+    WriteSetting("J");
+    WriteSetting("K");
+    WriteSetting("M");
+    WriteSetting("N");
+    WriteSetting("O");
+    WriteSetting("R");
 }
 
 void SerialDeviceHandler::HandleAck()
@@ -318,9 +342,7 @@ void SerialDeviceHandler::OnSettingValueChange()
     BaseValueObject* setting = dynamic_cast<BaseValueObject*>(sender());
     if (setting)
     {
-        qDebug() << "Writing settings file";
         WriteSetting(setting);
-        qDebug() << "After write settings file";
     }
 }
 

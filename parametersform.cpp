@@ -47,10 +47,11 @@ void ParametersForm::BuildUIElements()
     font.setPointSize(20);
 
     headerLabel = new QLabel(this);
-    headerLabel->setGeometry(0, 10, 480, 50);
+    headerLabel->setGeometry(0, 0, 480, 75);
     headerLabel->setAlignment(Qt::AlignCenter);
     headerLabel->setText("Data 1");
     headerLabel->setFont(font);
+    headerLabel->setStyleSheet("QLabel { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a); }");
 
     leftButton = new QPushButton(this);
     leftButton->setGeometry(10, 10, 50, 50);

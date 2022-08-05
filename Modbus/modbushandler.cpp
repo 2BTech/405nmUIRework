@@ -250,15 +250,22 @@ void ModbusHandler::RegisterValueObjects(QList<BaseValueObject*> values)
     {
         connect(val, &BaseValueObject::ValueChanged, this, &ModbusHandler::OnValueChange);
         val->Mutex()->lock();
-        dataTable.SetOutputRegisters(val->GetRegisterIndex(), val->GetBytes(), val->GetNumRegisters());
+        dataTable.SetOutputRegisters(val->GetRegisterIndex(), val->GetRegisterValues(), val->GetNumRegisters());
         val->Mutex()->unlock();
+        UpdateValueObjectRegisters(val);
     }
 }
 
 void ModbusHandler::OnValueChange()
 {
     BaseValueObject* val = dynamic_cast<BaseValueObject*>(sender());
+    UpdateValueObjectRegisters(val);
+}
+
+void ModbusHandler::UpdateValueObjectRegisters(BaseValueObject* val)
+{
     val->Mutex()->lock();
+    qDebug() << "Setting modbus registers starting at " << val->GetRegisterIndex() << " for " << val->GetNumRegisters();
     dataTable.SetOutputRegisters(val->GetRegisterIndex(), val->GetBytes(), val->GetNumRegisters());
     val->Mutex()->unlock();
 }

@@ -124,11 +124,12 @@ void DataFileMenuForm::OnSaveClicked()
     blockingForm->show();
     if (selectedFile == "Current")
     {
-        //qDebug () << "Saving current: " << QString("405nm_").append(QDate::currentDate().toString("yyyy_MM_dd")).append(".csv");
+        qDebug () << "Saving current: " << QString("405nm_").append(QDate::currentDate().toString("yyyy_MM_dd")).append(".csv");
         emit SaveSingleFile(QString(WORKING_DIR).append("datafiles/"), QString("405nm_").append(QDate::currentDate().toString("yyyy_MM_dd")).append(".csv"), "/media/usb/");
     }
     else if (selectedFile == "All")
     {
+        qDebug() << "Saving all";
         emit SaveCollection(QString(WORKING_DIR).append("datafiles/"), QDir(QString(WORKING_DIR).append("datafiles/")).entryList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot), "/media/usb/");
     }
     else
