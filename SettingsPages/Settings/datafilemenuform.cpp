@@ -129,7 +129,7 @@ void DataFileMenuForm::OnSaveClicked()
     }
     else if (selectedFile == "All")
     {
-        qDebug() << "Saving all";
+        qDebug() << "Saving all from: " << QString(WORKING_DIR).append("datafiles/") << " : " << QDir(QString(WORKING_DIR).append("datafiles/")).entryList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot);
         emit SaveCollection(QString(WORKING_DIR).append("datafiles/"), QDir(QString(WORKING_DIR).append("datafiles/")).entryList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot), "/media/usb/");
     }
     else
