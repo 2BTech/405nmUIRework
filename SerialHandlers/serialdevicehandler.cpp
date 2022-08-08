@@ -222,7 +222,7 @@ void SerialDeviceHandler::ParseAsDataline()
 #endif
     }
 
-    if (serialNumber == -1)
+    if (serialNumber == -1 && writeQueue.isEmpty())
     {
         WriteAllSettings();
     }
@@ -254,12 +254,12 @@ void SerialDeviceHandler::HandleAck()
     {
         received = received.remove(0, 1);
 
-        qDebug() << "Checking ack: " << received;
+        //qDebug() << "Checking ack: " << received;
 
         int index = acksList.indexOf(received);
         if(index >= 0)
         {
-            qDebug() << "Received ack. Remaining: " << acksList.count();
+            //qDebug() << "Received ack. Remaining: " << acksList.count();
             acksList.removeAt(index);
             //acksToCheck.removeAt(acksList.indexOf(received));
         }
@@ -338,7 +338,7 @@ void SerialDeviceHandler::ConnectToSettingsObjects()
 
 void SerialDeviceHandler::OnSettingValueChange()
 {
-    qDebug() << "Called OnSettingValueChange";
+    //qDebug() << "Called OnSettingValueChange";
     BaseValueObject* setting = dynamic_cast<BaseValueObject*>(sender());
     if (setting)
     {
@@ -360,7 +360,7 @@ void SerialDeviceHandler::WriteNextMessage()
 #else
             serialPort->writeData(message.data(), message.count());
             //serialPort->waitForBytesWritten(3000);
-            qDebug() << "Writing: " << message;
+            //qDebug() << "Writing: " << message;
 #endif
         }
         else
@@ -379,8 +379,8 @@ void SerialDeviceHandler::WriteNextMessage()
             isSendingMessage = false;
         }
     }
-    else
-    {
-        qDebug() << "Recieved prompt to send message with empty queue";
-    }
+//    else
+//    {
+//        qDebug() << "Recieved prompt to send message with empty queue";
+//    }
 }

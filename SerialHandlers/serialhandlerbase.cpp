@@ -65,7 +65,7 @@ void SerialHandlerBase::WriteNextMessage()
 #ifdef Q_OS_WIN
 #ifdef DEBUG_SER_WRITE
         QByteArray message = writeQueue.dequeue();
-        qDebug() << "Writing: " << message;
+        //qDebug() << "Writing: " << message;
         int count = serialPort->write(message);
         if (count <= 0)
         {
