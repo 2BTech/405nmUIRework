@@ -30,6 +30,8 @@ public:
 private slots:
     void OnAvgMaskClicked();
 
+    void OnModeMaskClicked();
+
     void OnErrMaskClicked();
 
     void OnSettingsClicked();
@@ -52,6 +54,7 @@ private:
     // Status bar objects
     QLabel* statusLabel = Q_NULLPTR;
     QLabel* loggingLabel = Q_NULLPTR;
+    QPushButton* modeMask = Q_NULLPTR;
     QLabel* logLabel = Q_NULLPTR;
     QLabel* avgStateLabel = Q_NULLPTR;
     QPushButton* avgStateMask = Q_NULLPTR;

@@ -70,8 +70,9 @@ MainWindow::~MainWindow()
 
         avgStateMask->deleteLater();
         errMask->deleteLater();
+        modeMask->deleteLater();
 
-        avgStateMask = errMask = Q_NULLPTR;
+        avgStateMask = errMask = modeMask = Q_NULLPTR;
     }
 
     // Clean up nav bar objects
@@ -141,6 +142,11 @@ void MainWindow::BuildStatusBar()
     loggingLabel->setFont(font);
     loggingLabel->setText("Logging");
 
+    modeMask = new QPushButton(this);
+    modeMask->setGeometry(5, 35, 130, 30);
+    modeMask->setStyleSheet("QPushButton { background-color: rgba(0, 0, 0, 0); }");
+    connect(modeMask, &QPushButton::clicked, this, &MainWindow::OnModeMaskClicked);
+
     logLabel = new QLabel(this);
     logLabel->setGeometry(5, 65, 130, 30);
     logLabel->setFont(font);
@@ -153,7 +159,7 @@ void MainWindow::BuildStatusBar()
 
     avgStateMask = new QPushButton(this);
     avgStateMask->setGeometry(5, 95, 130, 30);
-    avgStateMask->setStyleSheet("QPushButton { background-color: rgba(10, 0, 0, 0); }");
+    avgStateMask->setStyleSheet("QPushButton { background-color: rgba(0, 0, 0, 0); }");
     connect(avgStateMask, &QPushButton::clicked, this, &MainWindow::OnAvgMaskClicked);
 
     errLabel = new QLabel(this);
@@ -163,7 +169,7 @@ void MainWindow::BuildStatusBar()
 
     errMask = new QPushButton(this);
     errMask->setGeometry(5, 180, 130, 30);
-    errMask->setStyleSheet("QPushButton { background-color: rgba(10, 0, 0, 0); }");
+    errMask->setStyleSheet("QPushButton { background-color: rgba(0, 0, 0, 0); }");
     connect(errMask, &QPushButton::clicked, this, &MainWindow::OnErrMaskClicked);
 }
 
@@ -227,6 +233,12 @@ void MainWindow::BuildDataLabels()
 void MainWindow::OnAvgMaskClicked()
 {
     settingsMenu->OpenPage(1);
+    hide();
+}
+
+void MainWindow::OnModeMaskClicked()
+{
+    settingsMenu->OpenPage(2);
     hide();
 }
 
