@@ -277,3 +277,8 @@ void SettingsMenu::OnPageClose()
         emit CloseMenu();
     }
 }
+
+void SettingsMenu::OpenPage(int pageIndex)
+{
+    JumpToPage(pageIndex);
+}

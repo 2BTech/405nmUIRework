@@ -245,3 +245,91 @@ void DataHandler::BuildObjects()
     dutyPercent = new ValueObject<int>("Duty Percent", "_D17");
     AddValue(dutyPercent);
 }
+
+QString DataHandler::GetErrorString()
+{
+    switch (errorByte->getValue())
+    {
+    //No Error
+    case 0x00:
+        return "No Errors";
+
+    //Cell Voltage out of range
+    case 0x02:
+        return "Cell voltage out of range (< 0.1V or 2.4V)";
+
+    //Cell flow out of range
+    case 0x04:
+        return "Cell flow out of range (< 1200 or > 1600)";
+
+    //Scrubber temp out of range
+    case 0x08:
+        return "Scrubber Temp out of range (< 110 or > 113)";
+
+    //Ozone generator volatage out of range
+    case 0x20:
+        return "Ozone generator voltage out of range (< 0.1V or > 2.4V)";
+
+    //Ozone flow out of range
+    case 0x40:
+        return "Ozone flow out of range (< 30 or > 110)";
+
+    //Pressure control out of range
+    case 0x80:
+        return "Pressure control out of range by > 1 mbar";
+
+    default:
+        break;
+    }
+
+    QStringList lst;
+    QString toReturn;
+
+    //Get error sections
+    if(errorByte->getValue() & 0x02)
+    {
+        lst.append("Cell Voltage");
+    }
+
+    if(errorByte->getValue() & 0x04)
+    {
+        lst.append("Cell Flow");
+    }
+
+    if(errorByte->getValue() & 0x08)
+    {
+        lst.append("Scrubber Temp");
+    }
+
+    if(errorByte->getValue() & 0x20)
+    {
+        lst.append("Ozone Generator Voltage");
+    }
+
+    if(errorByte->getValue() & 0x40)
+    {
+        lst.append("Ozone Flow");
+    }
+
+    if(errorByte->getValue() & 0x80)
+    {
+        lst.append("Pressure Control");
+    }
+
+    //Combine sections
+    for(int i = 0; i < lst.count(); i++)
+    {
+        //Check if not last item
+        if(i + 1 < lst.count())
+        {
+            toReturn.append(lst.at(i)).append(", ");
+        }
+        else
+        {
+            //Remove seperator
+            toReturn.remove(toReturn.count() - 2, 2);
+            toReturn.append(" and ").append(lst.at(i));
+        }
+    }
+    return toReturn;
+}

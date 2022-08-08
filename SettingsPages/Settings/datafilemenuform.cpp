@@ -106,7 +106,7 @@ void DataFileMenuForm::OnDeleteClicked()
     }
     else if (selectedFile == "All")
     {
-        emit DeleteCollection(QString(WORKING_DIR).append("datafiles/"), QDir(QString(WORKING_DIR).append("datafiles/")).entryList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot));
+        emit DeleteCollection(QString(WORKING_DIR).append("datafiles/"), QDir(QString(WORKING_DIR).append("datafiles/")).entryList(QDir::Filter::Files));
     }
     else
     {
@@ -125,17 +125,17 @@ void DataFileMenuForm::OnSaveClicked()
     if (selectedFile == "Current")
     {
         qDebug () << "Saving current: " << QString("405nm_").append(QDate::currentDate().toString("yyyy_MM_dd")).append(".csv");
-        emit SaveSingleFile(QString(WORKING_DIR).append("datafiles/"), QString("405nm_").append(QDate::currentDate().toString("yyyy_MM_dd")).append(".csv"), "/media/usb/");
+        emit SaveSingleFile(QString(WORKING_DIR).append('/').append("datafiles/"), QString("405nm_").append(QDate::currentDate().toString("yyyy_MM_dd")).append(".csv"), "/media/usb/");
     }
     else if (selectedFile == "All")
     {
-        qDebug() << "Saving all from: " << QString(WORKING_DIR).append("datafiles/") << " : " << QDir(QString(WORKING_DIR).append("datafiles/")).entryList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot);
-        emit SaveCollection(QString(WORKING_DIR).append("datafiles/"), QDir(QString(WORKING_DIR).append("datafiles/")).entryList(QDir::Filter::Dirs | QDir::Filter::NoDotAndDotDot), "/media/usb/");
+        qDebug() << "Saving all from: " << QString(WORKING_DIR).append('/').append("datafiles/") << " : " << QDir(QString(WORKING_DIR).append('/').append("datafiles/")).entryList(QDir::Filter::Files);
+        emit SaveCollection(QString(WORKING_DIR).append('/').append("datafiles/"), QDir(QString(WORKING_DIR).append('/').append("datafiles/")).entryList(QDir::Filter::Files), "/media/usb/");
     }
     else
     {
         qDebug () << "Saving single: " << selectedFile;
-        emit SaveSingleFile(QString(WORKING_DIR).append("datafiles/"), selectedFile, "/media/usb/");
+        emit SaveSingleFile(QString(WORKING_DIR).append('/').append("datafiles/"), selectedFile, "/media/usb/");
     }
 }
 

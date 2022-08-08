@@ -25,6 +25,8 @@ public:
 
     void BuildUIElements() override;
 
+    void OpenPage(int pageIndex);
+
 signals:
     void CloseMenu();
 

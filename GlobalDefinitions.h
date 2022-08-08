@@ -16,8 +16,8 @@
 #define WORKING_DIR QDir::currentPath().append('/')
 #endif
 
-#define BUILD_VER "0.0.1"
-#define BUILD_DATE "07/2022"
+#define BUILD_VER "2.0.0"
+#define BUILD_DATE "08/2022"
 
 #define UI_COLOR "qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6fa0cc, stop:1 #627c8a);"
 

@@ -226,12 +226,20 @@ void MainWindow::BuildDataLabels()
 
 void MainWindow::OnAvgMaskClicked()
 {
-    qDebug() << "Clicked on avg state mask";
+    settingsMenu->OpenPage(1);
+    hide();
 }
 
 void MainWindow::OnErrMaskClicked()
 {
-    qDebug() << "Clicked on err mask";
+    if (DataHandler::GetInstance()->GetErrorByte()->getValue())
+    {
+        QMessageBox::warning(this, "Error", DataHandler::GetInstance()->GetErrorString());
+    }
+    else
+    {
+        QMessageBox::information(this, "No Error", "No Errors");
+    }
 }
 
 void MainWindow::OnSettingsClicked()
@@ -309,13 +317,13 @@ void MainWindow::UpdateUI()
         break;
     }
 
-    if (dataHander->GetErrorByte())
+    if (dataHander->GetErrorByte()->getValue())
     {
         errLabel->setText("<font color='red'>ERROR</font>");
     }
     else
     {
-        errLabel->setText("<font color='green'>No erros</font>");
+        errLabel->setText("<font color='green'>No Errors</font>");
     }
 
     noLabel->setText("NO: " + dataHander->GetNO()->ToString() + " ppb");

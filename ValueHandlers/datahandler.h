@@ -34,6 +34,7 @@ public:
     ValueObject<QString>* GetDate();
     ValueObject<QString>* GetTime();
     ValueObject<int>* GetErrorByte();
+    QString GetErrorString();
 
     void ReceiveDataline(int serialNumber, long logNumber, float no2, float no, float nox, float cellTemp, float cellPress, float cellFlow, float pdv1, float pdv2, float scrubberTemp, float ozoneFlow, int errorByte, QString date, QString time, char mode, int dutyPercent);
 
