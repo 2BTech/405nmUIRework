@@ -577,15 +577,21 @@ void ModbusDatatable::SetOutputRegisters(int address, short* buffer, int numRegi
 {
     if(address >= 0 && (address + numRegisters <= numberOfOutputRegisters))
     {
-        while(numRegisters)
+        for (int i = 0; i < numRegisters; i++)
         {
-            outputRegisters[address] = *(buffer++);
-            //BaseLogger::Log("Set output register at " + QString::number(address) + " to " + QString::number(outputRegisters[address]));
-            address++;
-            buffer += 2;
-            numRegisters--;
-            emit OutputRegisterChanged(address);
+            outputRegisters[address+i] = buffer[i];
+            emit OutputRegisterChanged(address + i);
         }
+
+//        while(numRegisters)
+//        {
+//            outputRegisters[address] = *(buffer++);
+//            //BaseLogger::Log("Set output register at " + QString::number(address) + " to " + QString::number(outputRegisters[address]));
+//            address++;
+//            buffer += 2;
+//            numRegisters--;
+//            emit OutputRegisterChanged(address);
+//        }
     }
     else
     {

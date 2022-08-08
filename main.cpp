@@ -79,8 +79,7 @@ void InitializeModbus()
     for (BaseValueObject* set : settings)
     {
         set->SetRegisterIndex(registerIndex);
-        logFile.write(set->getName().append(",").append(QString::number(registerIndex)).append('\n').toLatin1());
-
+        logFile.write(set->getName().append(",").append(QString::number(set->GetRegisterIndex())).append(',').append(set->getMarker()).append('\n').toLatin1());
         registerIndex += set->GetNumRegisters();
     }
     SettingsHandler::GetInstance()->SetNumRegisters(registerIndex);
@@ -93,9 +92,7 @@ void InitializeModbus()
     for (BaseValueObject* dat : data)
     {
         dat->SetRegisterIndex(registerIndex);
-
-        logFile.write(dat->getName().append(",").append(QString::number(registerIndex)).append('\n').toLatin1());
-
+        logFile.write(dat->getName().append(",").append(QString::number(dat->GetRegisterIndex())).append(',').append(dat->getMarker()).append('\n').toLatin1());
         registerIndex += dat->GetNumRegisters();
     }
     DataHandler::GetInstance()->SetNumRegisters(registerIndex);
@@ -130,8 +127,8 @@ void TestModbus()
     rBytes[0] = regs[5];
     rBytes[1] = regs[6];
 
-    qDebug() << regs[5];
-    qDebug() << regs[6];
+    qDebug() << "NO Slope byte(1): " << regs[5];
+    qDebug() << "NO Slope byte(2): " << regs[6];
 
     qDebug() << "NO Slope: " << tVal << " - " << SettingsHandler::GetInstance()->GetSetting("G")->ToString();
 
@@ -190,8 +187,6 @@ int main(int argc, char *argv[])
     //qDebug() << "Device thread: " << &serialDeviceThread;
 
     InitializeModbus();
-
-    TestModbus();
 
     return a.exec();
 }

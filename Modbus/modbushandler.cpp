@@ -265,8 +265,32 @@ void ModbusHandler::OnValueChange()
 void ModbusHandler::UpdateValueObjectRegisters(BaseValueObject* val)
 {
     val->Mutex()->lock();
-    qDebug() << "Setting modbus registers starting at " << val->GetRegisterIndex() << " for " << val->GetNumRegisters();
-    dataTable.SetOutputRegisters(val->GetRegisterIndex(), val->GetBytes(), val->GetNumRegisters());
+    //qDebug() << "Setting modbus registers for " << val->getName() << " starting at " << val->GetRegisterIndex() << " for " << val->GetNumRegisters();
+
+
+    switch(val->GetValueType())
+    {
+    case ValueType::FLOAT_VALUE:
+        dataTable.SetOutputRegisters(val->GetRegisterIndex(), val->GetBytes() + 2, 1);
+        dataTable.SetOutputRegisters(val->GetRegisterIndex() + 1, val->GetBytes(), 1);
+        break;
+
+    case ValueType::INT_VALUE:
+        dataTable.SetOutputRegisters(val->GetRegisterIndex(), val->GetBytes() + 2, 1);
+        dataTable.SetOutputRegisters(val->GetRegisterIndex() + 1, val->GetBytes(), 1);
+        break;
+
+    case ValueType::UCHAR_VALUE:
+        dataTable.SetOutputRegisters(val->GetRegisterIndex(), val->GetBytes(), val->GetNumRegisters());
+        break;
+
+    case ValueType::STRING_VALUE:
+        //qDebug() << "Reg pointer: " << val->GetRegisterValues();
+        dataTable.SetOutputRegisters(val->GetRegisterIndex(), val->GetRegisterValues(), val->GetNumRegisters());
+        //qDebug() << "Setting modbus registers for " << val->getName() << " with " << reinterpret_cast<char*>(val->GetBytes()) << " starting at " << val->GetRegisterIndex() << " for " << val->GetNumRegisters();
+        break;
+    }
+
     val->Mutex()->unlock();
 }
 

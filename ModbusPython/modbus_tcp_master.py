@@ -337,7 +337,6 @@ class ModbusMasterTCP():
 
             if len(source) != (quantity * 2):
                 print('Error: Modbus TCP Master received bad number of data bytes in ParseReadOutputRegisters')
-                print('Received: ', len(source), ' Expected: ', quantity * 2)
 
             byts = []
             for byte in source:
@@ -698,21 +697,22 @@ def OutputCoilsTest(master, verbose):
 if __name__ == "__main__":
     print('Starting ModbusMasterTCP')
 
-    master = ModbusMasterTCP('192.168.1.134', 50200, 1, dt.ModbusDatatable(100, 100, 300, 300), False)
+    master = ModbusMasterTCP('192.168.1.134', 50200, 1, dt.ModbusDatatable(100, 100, 400, 400), False)
     #master = ModbusMasterTCP('000.000.000.000', 50200, 5, dt.ModbusDatatable(100, 100, 100, 100))
     master.OpenConnection()
 
     #OutputCoilsTest(master, True)
 
     master.ReadOutputRegisters(0, 100)
-    master.ReadOutputRegisters(100, 80)
+    master.ReadOutputRegisters(100, 100)
+    master.ReadOutputRegisters(200, 59)
 
-    setRegisters = bytes(master.datatable.GetOutputRegistersPacked(0, 180))
+    setRegisters = bytes(master.datatable.GetOutputRegistersPacked(0, 400))
 
     regs = []
 
     for i in range(0, len(setRegisters), 2):
-        print(struct.unpack('>h', setRegisters[i:i+2])[0])
+        #print(struct.unpack('>h', setRegisters[i:i+2])[0])
         regs.append(struct.unpack('>h', setRegisters[i:i+2])[0])
 
     print('Avg Time: ', regs[0])
@@ -720,14 +720,116 @@ if __name__ == "__main__":
     print('Ad Long: ', regs[2])
     print('Ad Diff: ', regs[3])
     print('Ad Per: ', regs[4])
-    print(regs[5])
-    print(regs[6])
     print('NO Slope: ', struct.unpack('>f', setRegisters[10: 14])[0])
+    print('NO Zero: ', struct.unpack('>f', setRegisters[14: 18])[0])
+    print('NO Analog: ', struct.unpack('>i', setRegisters[18: 22])[0])
+    print('NO2 Slope: ', struct.unpack('>f', setRegisters[22: 26])[0])
+    print('NO2 Zero: ', struct.unpack('>f', setRegisters[26: 30])[0])
+    print('NO2 Analog: ', struct.unpack('>i', setRegisters[30: 34])[0])
+    print('Ozone Flow Slope: ', struct.unpack('>f', setRegisters[34: 38])[0])
+    print('Cell Flow Slope: ', struct.unpack('>f', setRegisters[38: 42])[0])
+    print('Mode: ', regs[21])
 
-    temp = []
-    temp.append(struct.pack('>h', regs[6]))
-    temp.append(struct.pack('>h', regs[5]))
-    print('NO Slope: ', struct.unpack('>f', bytes(temp))[0])
+    date = ''
+    date += chr(regs[22])
+    date += chr(regs[23])
+    date += '/'
+    date += chr(regs[24])
+    date += chr(regs[25])
+    date += '/'
+    date += chr(regs[26])
+    date += chr(regs[27])
+    print("Date: ", date)
+
+    date = ''
+    date += chr(regs[28])
+    date += chr(regs[29])
+    date += '/'
+    date += chr(regs[30])
+    date += chr(regs[31])
+    date += '/'
+    date += chr(regs[32])
+    date += chr(regs[33])
+    print("Time: ", date)
+
+    print('Serial Number: ', struct.unpack('>i', setRegisters[68: 72])[0])
+    print('Error Code: ', struct.unpack('>i', setRegisters[72: 76])[0])
+    print('Date format: ', regs[76])
+
+    modbusIP = ''
+    for i in range(77, 102):
+        modbusIP += chr(regs[i])
+        #print(i, regs[i], chr(regs[i]))
+    print('Modbus IP: ', modbusIP)
+
+    print('Modbus Port: ', struct.unpack('>i', setRegisters[204: 208])[0])
+    print('Device ID: ', regs[104])
+
+    staticIP = ''
+    for i in range(105, 130):
+        staticIP += chr(regs[i])
+        #print(i, regs[i], chr(regs[i]))
+    print('Static IP: ', modbusIP)
+
+    gateway = ''
+    for i in range(130, 155):
+        gateway += chr(regs[i])
+        #print(i, regs[i], chr(regs[i]))
+    print('Gateway: ', gateway)
+
+    subnet = ''
+    for i in range(155, 180):
+        subnet += chr(regs[i])
+        #print(i, regs[i], chr(regs[i]))
+    print('Subnet: ', subnet)
+
+    date = ''
+    for i in range(180, 205):
+        subnet += chr(regs[i])
+        #print(i, regs[i], chr(regs[i]))
+    print('Date: ', date)
+
+    print('Serial number: ', struct.unpack('>i', setRegisters[410: 414])[0])
+    print('PDV2: ', struct.unpack('>f', setRegisters[414: 418])[0])
+    print('Scrubber Temp: ', struct.unpack('>f', setRegisters[418: 422])[0])
+    print('Ozone Flow: ', struct.unpack('>f', setRegisters[422: 426])[0])
+    print('Error Byte: ', struct.unpack('>i', setRegisters[426: 430])[0])
+    
+    time = ''
+    for i in range(215, 240):
+        subnet += chr(regs[i])
+        #print(i, regs[i], chr(regs[i]))
+    print('Time: ', time)
+
+    print('Mode: ', regs[240])
+    print('Duty Percent: ', struct.unpack('>i', setRegisters[482: 486])[0])
+    print('Log Number: ', struct.unpack('>i', setRegisters[486: 490])[0])
+    print('NO: ', struct.unpack('>f', setRegisters[490: 494])[0])
+    print('NO2: ', struct.unpack('>f', setRegisters[494: 498])[0])
+    print('NOx: ', struct.unpack('>f', setRegisters[498: 502])[0])
+    print('Cell Temp: ', struct.unpack('>f', setRegisters[502: 506])[0])
+    print('Cell Press: ', struct.unpack('>f', setRegisters[506: 510])[0])
+    print('Cell Flow: ', struct.unpack('>f', setRegisters[510: 514])[0])
+    print('PDV1: ', struct.unpack('>f', setRegisters[514: 518])[0])
+
+
+
+
+
+
+    # print('NO Slope: ', struct.unpack('<f', setRegisters[10: 14])[0])
+
+    # temp = []
+    # for b in struct.pack('>h', regs[6]):
+    #     temp.append(b)
+    # for b in struct.pack('>h', regs[5]):
+    #     temp.append(b)
+    # print(temp)
+    # print('NO Slope: ', struct.unpack('>f', bytes(temp))[0])
+
+    # print('Correct: ', struct.pack('>f', 1.00), len(struct.pack('>f', 1.00)))
+    # print('Current: ', setRegisters[10: 14])
+    # print('Unpacked: ', struct.unpack('>f', setRegisters[10: 14])[0])
 
     exit(0)
 

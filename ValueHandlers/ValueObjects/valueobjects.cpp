@@ -8,6 +8,9 @@ ValueObject<uchar>::ValueObject(QString name, QString marker, QString units) : B
 
 //    qDebug() << name << " UCHAR: " << (sizeof(this->valueBytes) / sizeof(this->valueBytes[0])) << " : " << (sizeof(this->valRegisterBytes) / sizeof(this->valRegisterBytes[0]));
 //    qDebug() << valueBytes << " - " << valRegisterBytes;
+
+    memset(valueBytes, 0, 25);
+    memset(valRegisterBytes, 0, 25);
 }
 
 template <>
@@ -17,6 +20,8 @@ ValueObject<int>::ValueObject(QString name, QString marker, QString units) : Bas
 //    valRegisterBytes = new short[2];
 //    qDebug() << name << " INT: " << (sizeof(this->valueBytes) / sizeof(this->valueBytes[0])) << " : " << (sizeof(this->valRegisterBytes) / sizeof(this->valRegisterBytes[0]));
 //    qDebug() << valueBytes << " - " << valRegisterBytes;
+    memset(valueBytes, 0, 25);
+    memset(valRegisterBytes, 0, 25);
 }
 
 template <>
@@ -26,6 +31,8 @@ ValueObject<float>::ValueObject(QString name, QString marker, QString units) : B
 //    valRegisterBytes = new short[2];
 //    qDebug() << name << " FLOAT: " << (sizeof(this->valueBytes) / sizeof(this->valueBytes[0])) << " : " << (sizeof(this->valRegisterBytes) / sizeof(this->valRegisterBytes[0]));
 //    qDebug() << valueBytes << " - " << valRegisterBytes;
+    memset(valueBytes, 0, 25);
+    memset(valRegisterBytes, 0, 25);
 }
 
 template <>
@@ -35,6 +42,8 @@ ValueObject<QString>::ValueObject(QString name, QString marker, QString units) :
 //    valRegisterBytes = new short[2];
 //    qDebug() << name << " QSTRING: " << (sizeof(this->valueBytes) / sizeof(this->valueBytes[0])) << " : " << (sizeof(this->valRegisterBytes) / sizeof(this->valRegisterBytes[0]));
 //    qDebug() << valueBytes << " - " << valRegisterBytes;
+    memset(valueBytes, 0, 25);
+    memset(valRegisterBytes, 0, 25);
 }
 
 template <>
@@ -172,9 +181,11 @@ void ValueObject<QString>::setValue(QString val)
         // Zero the remaining section
         memset(valueBytes + toCpy, 0, 25 - toCpy);
 
+        //qDebug() << "ModbusValues: " << val;
         for (int i = 0; i < 25; i++)
         {
             valRegisterBytes[i] = valueBytes[i];
+            //qDebug() << "Setting: " << registerIndex + i << static_cast<char>(valRegisterBytes[i]);
         }
 
         curValue = val;

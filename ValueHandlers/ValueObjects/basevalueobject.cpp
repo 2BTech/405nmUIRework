@@ -45,4 +45,5 @@ int BaseValueObject::GetRegisterIndex()
 void BaseValueObject::SetRegisterIndex(int index)
 {
     registerIndex = index;
+    emit SetValue();
 }
