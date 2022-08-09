@@ -33,7 +33,7 @@ private slots:
     void OnSetStaticIPError(QProcess::ProcessError error);
 
     void OnClearStaticIPExit(int exitCode, QProcess::ExitStatus exitStatus);
-    void OnClearStaticIPEror(QProcess::ProcessError error);
+    void OnClearStaticIPError(QProcess::ProcessError error);
 
 private:
     QLabel* statusLabel = Q_NULLPTR;
