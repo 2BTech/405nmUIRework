@@ -3,14 +3,15 @@
 StaticIPForm::StaticIPForm() : BaseSettingsPage("Static IP Settings")
 {
     connect(&setStaticIPProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(OnSetStaticIPExit(int,QProcess::ExitStatus)));
-    connect(&setStaticIPProcess, SIGNAL(finished(QProcess::ProcessError)), this, SLOT(OnSetStaticIPError(QProcess::ProcessError)));
+    connect(&setStaticIPProcess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(OnSetStaticIPError(QProcess::ProcessError)));
     setStaticIPProcess.setProgram("/home/2b/SetStaticIP");
 
-    connect(&clearStaticIPPRocess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(OnSetStaticIPExit(int,QProcess::ExitStatus)));
-    connect(&clearStaticIPPRocess, SIGNAL(finished(QProcess::ProcessError)), this, SLOT(OnSetStaticIPError(QProcess::ProcessError)));
+    connect(&clearStaticIPPRocess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(OnClearStaticIPExit(int,QProcess::ExitStatus)));
+    connect(&clearStaticIPPRocess, SIGNAL(error(QProcess::ProcessError)), this, SLOT(OnClearStaticIPError(QProcess::ProcessError)));
     clearStaticIPPRocess.setProgram("/home/2b/ClearStaticIP.sh");
 
     blocking = new BlockingForm();
+    blocking->BuildUIElements();
 }
 
 StaticIPForm::~StaticIPForm()
@@ -171,12 +172,16 @@ void StaticIPForm::OnApplyClicked()
 {
     OnSaveClicked();
 
+    blocking->show();
+
     setStaticIPProcess.setArguments(QStringList() << pageSettings[0].first->ToString() << pageSettings[1].first->ToString() << pageSettings[2].first->ToString());
     setStaticIPProcess.start();
 }
 
 void StaticIPForm::OnClearClicked()
 {
+    blocking->show();
+
     clearStaticIPPRocess.start();
 }
 
@@ -265,7 +270,7 @@ void StaticIPForm::OnClearStaticIPExit(int exitCode, QProcess::ExitStatus exitSt
     blocking->hide();
 }
 
-void StaticIPForm::OnClearStaticIPEror(QProcess::ProcessError error)
+void StaticIPForm::OnClearStaticIPError(QProcess::ProcessError error)
 {
     QMessageBox::warning(this, "Failed", "Failed to clear static IP Address");
     qDebug() << "Clear static ip error: " << error;
