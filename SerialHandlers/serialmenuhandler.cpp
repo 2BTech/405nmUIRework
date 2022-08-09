@@ -121,7 +121,96 @@ void SerialMenuHandler::ParseReceived()
     {
     // Print all settings
     case '0':
+        PrintAllSettings();
+        break;
+
+    default:
 
         break;
     }
+}
+
+// Prints all settings to the serial port
+void SerialMenuHandler::PrintAllSettings()
+{
+    GetSerialNumber();
+    GetAverageTime();
+}
+
+// Prints the header to the serial port
+void SerialMenuHandler::PrintHeader()
+{
+    QueueMessage("Serial#,LOG#,NO2,NO,NOx,CTemp,CPress,CFlow,OZFlow,PDVs,PDVo3,STemp,ErrorByte,Date,Time,Mode,Duty%\r\n");
+}
+
+// Gets a serial number for the device
+void SerialMenuHandler::GetSerialNumber()
+{
+    QueueMessage(QString("Serial Number: ").append(SettingsHandler::GetInstance()->GetSetting("R")->ToString()).append('\n').toLatin1());
+}
+
+void SerialMenuHandler::SetSerialNumber()
+{
+#ifdef Q_OS_WIN
+    disconnect(serialPort, &QSerialPort::readyRead, this, &SerialHandlerBase::OnReadyRead);
+#else
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialHandlerBase::OnReadyRead);
+#endif
+
+    QueueMessage("Current serial number: " + SettingsHandler::GetInstance()->GetSetting("R")->ToString().toLatin1());
+    QueueMessage("Change serial number? (Y,n)\n");
+
+#ifdef Q_OS_WIN
+    connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::SetSerialNumberStep1);
+#else
+    connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::SetSerialNumberStep1);
+#endif
+}
+
+void SerialMenuHandler::SetSerialNumberStep1()
+{
+    char
+}
+
+// Prints the help message
+void SerialMenuHandler::PrintHelp()
+{
+
+}
+
+// Avgerage Time
+void SerialMenuHandler::SetAverageTime()
+{
+
+}
+
+void SerialMenuHandler::GetAverageTime()
+{
+    switch (dynamic_cast<ValueObject<uchar>*>(SettingsHandler::GetInstance()->GetSetting("A"))->getValue())
+    {
+    case 1:
+        QueueMessage("Averaging Time: 5 secs\n");
+        break;
+
+    case 2:
+        QueueMessage("Averaging Time: 1 min\n");
+        break;
+
+    case 3:
+        QueueMessage("Averaging Time: 5 mins\n");
+        break;
+
+    case 4:
+        QueueMessage("Averaging Time: 1 hour\n");
+        break;
+
+    default:
+        QueueMessage("Averaging Time: invalid\n");
+        break;
+    }
+}
+
+bool SerialMenuHandler::GetPassword()
+{
+
 }
