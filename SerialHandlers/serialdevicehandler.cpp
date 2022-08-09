@@ -213,6 +213,11 @@ void SerialDeviceHandler::ParseAsDataline()
     split[13] = date.toString("yyyy/MM/dd").insert(0, '\'').append('\'');
     split[14] = time.toString(time.toString("hh:mm:ss")).insert(0, '\'').append('\'');
 
+    // Remove serial number
+    split.takeFirst();
+    // Remove duty percent
+    split.takeLast();
+
     sqlInsert = split.join(',');
 
     //qDebug() << "Received dataline: " << finalDataline;
