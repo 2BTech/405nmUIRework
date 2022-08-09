@@ -3,11 +3,11 @@
 StaticIPForm::StaticIPForm() : BaseSettingsPage("Static IP Settings")
 {
     connect(&setStaticIPProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(OnSetStaticIPExit(int,QProcess::ExitStatus)));
-    connect(&setStaticIPProcess, SIGNAL(finished(QProcess::ProcessError)), this, SLOT(OnSetStaticIPError(QProcess::ProcessError)));
+    connect(&setStaticIPProcess, SIGNAL(finished(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
     setStaticIPProcess.setProgram("/home/2b/SetStaticIP");
 
     connect(&clearStaticIPPRocess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(OnClearStaticIPExit(int,QProcess::ExitStatus)));
-    connect(&clearStaticIPPRocess, SIGNAL(finished(QProcess::ProcessError)), this, SLOT(OnClearStaticIPError(QProcess::ProcessError)));
+    connect(&clearStaticIPPRocess, SIGNAL(finished(QProcess::ProcessError)), this, SLOT(error(QProcess::ProcessError)));
     clearStaticIPPRocess.setProgram("/home/2b/ClearStaticIP.sh");
 
     blocking = new BlockingForm();
