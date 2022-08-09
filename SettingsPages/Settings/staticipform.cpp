@@ -2,7 +2,15 @@
 
 StaticIPForm::StaticIPForm() : BaseSettingsPage("Static IP Settings")
 {
+    connect(&setStaticIPProcess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(OnSetStaticIPExit(int,QProcess::ExitStatus)));
+    connect(&setStaticIPProcess, SIGNAL(finished(QProcess::ProcessError)), this, SLOT(OnSetStaticIPError(QProcess::ProcessError)));
+    setStaticIPProcess.setProgram("/home/2b/SetStaticIP");
 
+    connect(&clearStaticIPPRocess, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(OnSetStaticIPExit(int,QProcess::ExitStatus)));
+    connect(&clearStaticIPPRocess, SIGNAL(finished(QProcess::ProcessError)), this, SLOT(OnSetStaticIPError(QProcess::ProcessError)));
+    clearStaticIPPRocess.setProgram("/home/2b/ClearStaticIP.sh");
+
+    blocking = new BlockingForm();
 }
 
 StaticIPForm::~StaticIPForm()
@@ -163,12 +171,13 @@ void StaticIPForm::OnApplyClicked()
 {
     OnSaveClicked();
 
-    emit UpdateStaticIPSettings(pageSettings[0].first->ToString(), pageSettings[1].first->ToString(), pageSettings[2].first->ToString());
+    setStaticIPProcess.setArguments(QStringList() << pageSettings[0].first->ToString() << pageSettings[1].first->ToString() << pageSettings[2].first->ToString());
+    setStaticIPProcess.start();
 }
 
 void StaticIPForm::OnClearClicked()
 {
-    emit ClearStaticIPAddress();
+    clearStaticIPPRocess.start();
 }
 
 void StaticIPForm::UpdateUI()
@@ -220,4 +229,45 @@ void StaticIPForm::HandleOldSettingsFile()
             file.remove();
         }
     }
+}
+
+void StaticIPForm::OnSetStaticIPExit(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    if (exitCode == 0 && exitStatus == QProcess::ExitStatus::NormalExit)
+    {
+        QMessageBox::information(this, "Success", "Successfully set static IP Address to " + pageSettings.first().first->ToString());
+    }
+    else
+    {
+        QMessageBox::warning(this, "Failed", "Failed to set static IP Address to " + pageSettings.first().first->ToString());
+    }
+
+    blocking->hide();
+}
+
+void StaticIPForm::OnSetStaticIPError(QProcess::ProcessError error)
+{
+    QMessageBox::warning(this, "Failed", "Failed to set static IP Address to " + pageSettings.first().first->ToString());
+    qDebug() << "Set static ip error: " << error;
+    blocking->hide();
+}
+
+void StaticIPForm::OnClearStaticIPExit(int exitCode, QProcess::ExitStatus exitStatus)
+{
+    if (exitCode == 0 && exitStatus == QProcess::ExitStatus::NormalExit)
+    {
+        QMessageBox::information(this, "Success", "Successfully cleared Static IP Address");
+    }
+    else
+    {
+        QMessageBox::warning(this, "Failed", "Failed to clear static IP Address");
+    }
+    blocking->hide();
+}
+
+void StaticIPForm::OnClearStaticIPEror(QProcess::ProcessError error)
+{
+    QMessageBox::warning(this, "Failed", "Failed to clear static IP Address");
+    qDebug() << "Clear static ip error: " << error;
+    blocking->hide();
 }

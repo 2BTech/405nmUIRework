@@ -1,7 +1,10 @@
 #ifndef STATICIPFORM_H
 #define STATICIPFORM_H
 
+#include <QProcess>
+
 #include "../basesettingspage.h"
+#include "../blockingform.h"
 
 class StaticIPForm : public BaseSettingsPage
 {
@@ -12,10 +15,6 @@ public:
 
     // Builds all UI elements for the page
     void BuildUIElements() override;
-
-signals:
-    void UpdateStaticIPSettings(QString ipAddress, QString gateway, QString subnet);
-    void ClearStaticIPAddress();
 
 private slots:
     void OnIPClicked();
@@ -30,6 +29,12 @@ private slots:
     void OnApplyClicked();
     void OnClearClicked();
 
+    void OnSetStaticIPExit(int exitCode, QProcess::ExitStatus exitStatus);
+    void OnSetStaticIPError(QProcess::ProcessError error);
+
+    void OnClearStaticIPExit(int exitCode, QProcess::ExitStatus exitStatus);
+    void OnClearStaticIPEror(QProcess::ProcessError error);
+
 private:
     QLabel* statusLabel = Q_NULLPTR;
     QPair<QPushButton*,QLabel*> ipPair;
@@ -37,6 +42,11 @@ private:
     QPair<QPushButton*,QLabel*> subnetPair;
     QPushButton* applyButton = Q_NULLPTR;
     QPushButton* clearButton = Q_NULLPTR;
+
+    BlockingForm* blocking = Q_NULLPTR;
+
+    QProcess setStaticIPProcess;
+    QProcess clearStaticIPPRocess;
 
     void UpdateUI() override;
 
