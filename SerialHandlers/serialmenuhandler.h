@@ -36,9 +36,6 @@ private slots:
     // Override base version to handle opening the menu
     void OnReadyRead() override;
 
-    // First step in getting the serial number
-    void SetSerialNumberStep1();
-
 private:
 #ifdef WRITE_TEST_DATA
     QTimer testWriteTimer;
@@ -62,79 +59,78 @@ private:
     // Prints the header to the serial port
     void PrintHeader();
 
-    // Gets a serial number for the device
+    // Prints a serial number for the device
     void SetSerialNumber();
-    void GetSerialNumber();
+    void PrintSerialNumber();
 
     // Prints the help message
     void PrintHelp();
 
     // Avgerage Time
     void SetAverageTime();
-    void GetAverageTime();
+    void PrintAverageTime();
 
     // Adaptive short
     void SetAdaptiveShort();
-    void GetAdaptiveShort();
+    void PrintAdaptiveShort();
 
     // Adaptive long
     void SetAdaptiveLong();
-    void GetAdaptiveLong();
+    void PrintAdaptiveLong();
 
     // Adaptive diff
     void SetAdaptiveDiff();
-    void GetAdaptiveDiff();
+    void PrintAdaptiveDiff();
 
     // Adaptive per
     void SetAdaptivePer();
-    void GetAdaptivePer();
+    void PrintAdaptivePer();
 
     // NO Slope
     void SetNOSlope();
-    void GetNOSlope();
+    void PrintNOSlope();
 
     // NO Zero
     void SetNOZero();
-    void GetNOZero();
+    void PrintNOZero();
 
     // NO Analog
     void SetNOAnalog();
-    void GetNOAnalog();
+    void PrintNOAnalog();
 
     // NO2 Slope
     void SetNO2Slope();
-    void GetNO2Slope();
+    void PrintNO2Slope();
 
     // NO2 Zero
     void SetNO2Zero();
-    void GetNO2Zero();
+    void PrintNO2Zero();
 
     // NO1 Analog
     void SetNO2Analog();
-    void GetNO2Analog();
+    void PrintNO2Analog();
 
     // Cell Flow Slope
     void SetCellFlowSlope();
-    void GetCellFlowSlope();
+    void PrintCellFlowSlope();
 
     // Ozone Flow Slope
     void SetOzoneFlowSlope();
-    void GetOzoneFlowSlope();
+    void PrintOzoneFlowSlope();
 
     // Mode
     void SetMode();
-    void GetMode();
+    void PrintMode();
 
     // Date
     void SetDate();
-    void GetDate();
+    void PrintDate();
 
     // Time
     void SetTime();
-    void GetTime();
+    void PrintTime();
 
-    // Password
-    bool GetPassword();
+    void PrintMenuMessage();
 };
 
 #endif // SERIALMENUHANDLER_H

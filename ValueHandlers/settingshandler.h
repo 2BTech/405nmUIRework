@@ -46,6 +46,36 @@ public:
 
     bool AddSettingObject(BaseValueObject* val, bool updateSettingsFileOnValChange);
 
+    ValueObject<uchar>* GetAverageTime();
+
+    ValueObject<uchar>* GetAdShort();
+    ValueObject<uchar>* GetAdLong();
+    ValueObject<uchar>* GetAdDiff();
+    ValueObject<uchar>* GetAdPercent();
+
+    ValueObject<int>* GetAnalogNO();
+    ValueObject<int>* GetAnalogNO2();
+
+    ValueObject<float>* GetNOSlope();
+    ValueObject<float>* GetNOZero();
+
+    ValueObject<float>* GetNO2Slope();
+    ValueObject<float>* GetNO2Zero();
+
+    ValueObject<float>* GetOzoneFlowSlope();
+    ValueObject<float>* GetCellFlowSlope();
+
+    ValueObject<uchar>* GetMode();
+
+    ValueObject<int>* GetErrorCode();
+
+    ValueObject<uchar>* GetDateFormat();
+
+    ValueObject<int>* GetSerialNumber();
+
+    ValueObject<QString>* GetDate();
+    ValueObject<QString>* GetTime();
+
 private slots:
     void OnValueChanged();
 

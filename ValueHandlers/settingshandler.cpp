@@ -51,6 +51,101 @@ SettingsHandler::~SettingsHandler()
     noSlope = noZero = no2Slope = no2Zero = ozoneFlowSlope = cellFlowSlope = Q_NULLPTR;
 }
 
+ValueObject<uchar>* SettingsHandler::GetAverageTime()
+{
+    return avgTime;
+}
+
+ValueObject<uchar>* SettingsHandler::GetAdShort()
+{
+    return adShort;
+}
+
+ValueObject<uchar>* SettingsHandler::GetAdLong()
+{
+    return adLong;
+}
+
+ValueObject<uchar>* SettingsHandler::GetAdDiff()
+{
+    return adDiff;
+}
+
+ValueObject<uchar>* SettingsHandler::GetAdPercent()
+{
+    return adPercent;
+}
+
+ValueObject<int>* SettingsHandler::GetAnalogNO()
+{
+    return analogNO;
+}
+
+ValueObject<int>* SettingsHandler::GetAnalogNO2()
+{
+    return analogNO2;
+}
+
+ValueObject<float>* SettingsHandler::GetNOSlope()
+{
+    return noSlope;
+}
+
+ValueObject<float>* SettingsHandler::GetNOZero()
+{
+    return noZero;
+}
+
+ValueObject<float>* SettingsHandler::GetNO2Slope()
+{
+    return no2Slope;
+}
+
+ValueObject<float>* SettingsHandler::GetNO2Zero()
+{
+    return no2Zero;
+}
+
+ValueObject<float>* SettingsHandler::GetOzoneFlowSlope()
+{
+    return ozoneFlowSlope;
+}
+
+ValueObject<float>* SettingsHandler::GetCellFlowSlope()
+{
+    return cellFlowSlope;
+}
+
+ValueObject<uchar>* SettingsHandler::GetMode()
+{
+    return mode;
+}
+
+ValueObject<int>* SettingsHandler::GetErrorCode()
+{
+    return errorCode;
+}
+
+ValueObject<uchar>* SettingsHandler::GetDateFormat()
+{
+    return dateFormat;
+}
+
+ValueObject<int>* SettingsHandler::GetSerialNumber()
+{
+    return serialNumber;
+}
+
+ValueObject<QString>* SettingsHandler::GetDate()
+{
+    return date;
+}
+
+ValueObject<QString>* SettingsHandler::GetTime()
+{
+    return time;
+}
+
 void SettingsHandler::OnValueChanged()
 {
     //qDebug() << "Called OnValueChanged";
