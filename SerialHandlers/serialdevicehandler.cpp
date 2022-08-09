@@ -5,6 +5,16 @@ SerialDeviceHandler::SerialDeviceHandler() : SerialHandlerBase("Device")
     writeTimer.disconnect();
 
     ConnectToSettingsObjects();
+
+    netManager = new QNetworkAccessManager(this);
+}
+
+SerialDeviceHandler::~SerialDeviceHandler()
+{
+    if (netManager)
+    {
+        netManager->deleteLater();
+    }
 }
 
 //#define DEBUG_PARSE_RECEIVED
@@ -212,6 +222,10 @@ void SerialDeviceHandler::ParseAsDataline()
 
     QDateTime currentDateTime = QDateTime::currentDateTime();
     QDateTime receivedDateTime = QDateTime(date, time);
+
+    QString tempURL = "http://localhost/WriteToDatabase.php?line=" + sqlInsert;
+    tempURL.append(sqlInsert);
+    netManager->get(QNetworkRequest(QUrl(tempURL)))->deleteLater();
 
     if (qAbs(currentDateTime.secsTo(receivedDateTime)) > 2)
     {

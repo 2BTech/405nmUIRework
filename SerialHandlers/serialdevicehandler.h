@@ -3,6 +3,8 @@
 
 #include <QDate>
 #include <QTime>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 #include "ValueHandlers/datahandler.h"
 #include "ValueHandlers/settingshandler.h"
@@ -15,6 +17,7 @@ class SerialDeviceHandler : public SerialHandlerBase
     Q_OBJECT
 public:
     SerialDeviceHandler();
+    ~SerialDeviceHandler();
 
 signals:
     // Emits the dataline string
@@ -34,6 +37,8 @@ private:
     QMap<QByteArray, int> missedAcksCounter;
 
     QTimer ackTimer;
+
+    QNetworkAccessManager* netManager = Q_NULLPTR;
 
     void ConnectToSettingsObjects();
 
