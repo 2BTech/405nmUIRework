@@ -131,6 +131,8 @@ private:
     void PrintTime();
 
     void PrintMenuMessage();
+
+    void ReadChar(char* chr);
 };
 
 #endif // SERIALMENUHANDLER_H

@@ -117,7 +117,9 @@ public:
     qint64 readData(QByteArray &data);
     qint64 readData(char* buffer, qint64 maxLen);
 
-    int available();
+    int bytesAvailable();
+
+    QByteArray readAll();
 
 signals:
     void ReadyRead();

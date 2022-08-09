@@ -57,7 +57,7 @@ void SerialMenuHandler::OnReadyRead()
         serialPort->read(&in, 1);
 #else
     // Continue reading bytes until all are handled
-    while (serialPort->available())
+    while (serialPort->bytesAvailable())
     {
         // Read in each byte indiidually
         serialPort->readData(&in, 1);
@@ -323,19 +323,33 @@ void SerialMenuHandler::SetSerialNumber()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
 #endif
+
+#endif
         char temp = 0;
-        serialPort->read(&temp, 1);
+        ReadChar(&temp);
         if(temp != 'Y' || temp != 'y' || temp != '\n')
         {
 #ifdef USE_EXT_SER
             disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
             connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
             disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
             connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
             PrintMenuMessage();
         }
@@ -346,15 +360,24 @@ void SerialMenuHandler::SetSerialNumber()
             WriteMessage("Enter serial number:\r\n");
         });
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+        connect(serialPort, &SerialPort::ReadyRead, this, [=](){
+            QueueMessage("Enter serial number:\r\n");
+        });
+#else
         disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
         connect(serialPort, &QSerialPort::readyRead, this, [=](){
             QueueMessage("Enter serial number:\r\n");
         });
 #endif
 
+#endif
+
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
                 break;
             else if(temp == 8)
@@ -368,8 +391,15 @@ void SerialMenuHandler::SetSerialNumber()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -405,11 +435,18 @@ void SerialMenuHandler::SetAverageTime()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
 #endif
+
+#endif
         char temp = 0;
-        serialPort->read(&temp, 1);
+        ReadChar(&temp);
         qDebug() << "Read in byte: " << temp;
         QueueMessage("Setting avergaing time to ");
         switch (temp)
@@ -442,8 +479,15 @@ void SerialMenuHandler::SetAverageTime()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -485,13 +529,20 @@ void SerialMenuHandler::SetAdaptiveShort()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+
 #endif
         char temp = 0;
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
             {
                 break;
@@ -508,8 +559,15 @@ void SerialMenuHandler::SetAdaptiveShort()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -552,8 +610,15 @@ void SerialMenuHandler::SetAdaptiveShort()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -575,13 +640,20 @@ void SerialMenuHandler::SetAdaptiveLong()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+
 #endif
         char temp = 0;
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
             {
                 break;
@@ -598,8 +670,15 @@ void SerialMenuHandler::SetAdaptiveLong()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -642,8 +721,15 @@ void SerialMenuHandler::SetAdaptiveLong()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -664,13 +750,20 @@ void SerialMenuHandler::SetAdaptiveDiff()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+
 #endif
         char temp = 0;
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
             {
                 break;
@@ -687,8 +780,15 @@ void SerialMenuHandler::SetAdaptiveDiff()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -731,8 +831,15 @@ void SerialMenuHandler::SetAdaptiveDiff()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -753,13 +860,20 @@ void SerialMenuHandler::SetAdaptivePer()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+
 #endif
         char temp = 0;
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
             {
                 break;
@@ -776,8 +890,15 @@ void SerialMenuHandler::SetAdaptivePer()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -809,8 +930,15 @@ void SerialMenuHandler::SetAdaptivePer()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -831,13 +959,20 @@ void SerialMenuHandler::SetNOSlope()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+
 #endif
         char temp = 0;
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
             {
                 break;
@@ -854,8 +989,15 @@ void SerialMenuHandler::SetNOSlope()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -898,8 +1040,15 @@ void SerialMenuHandler::SetNOSlope()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -920,13 +1069,20 @@ void SerialMenuHandler::SetNOZero()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+
 #endif
         char temp = 0;
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
             {
                 break;
@@ -943,8 +1099,15 @@ void SerialMenuHandler::SetNOZero()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -987,8 +1150,15 @@ void SerialMenuHandler::SetNOZero()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -1009,13 +1179,20 @@ void SerialMenuHandler::SetNOAnalog()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+
 #endif
         char temp = 0;
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
             {
                 break;
@@ -1032,8 +1209,15 @@ void SerialMenuHandler::SetNOAnalog()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -1076,8 +1260,15 @@ void SerialMenuHandler::SetNOAnalog()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -1098,13 +1289,20 @@ void SerialMenuHandler::SetNO2Slope()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+
 #endif
         char temp = 0;
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
             {
                 break;
@@ -1121,8 +1319,15 @@ void SerialMenuHandler::SetNO2Slope()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -1165,8 +1370,15 @@ void SerialMenuHandler::SetNO2Slope()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -1187,13 +1399,20 @@ void SerialMenuHandler::SetNO2Zero()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+
 #endif
         char temp = 0;
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
             {
                 break;
@@ -1210,8 +1429,15 @@ void SerialMenuHandler::SetNO2Zero()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -1254,8 +1480,15 @@ void SerialMenuHandler::SetNO2Zero()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -1276,13 +1509,20 @@ void SerialMenuHandler::SetNO2Analog()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+
 #endif
         char temp = 0;
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
             {
                 break;
@@ -1299,8 +1539,15 @@ void SerialMenuHandler::SetNO2Analog()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -1343,8 +1590,15 @@ void SerialMenuHandler::SetNO2Analog()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -1365,13 +1619,20 @@ void SerialMenuHandler::SetOzoneFlowSlope()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+
 #endif
         char temp = 0;
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
             {
                 break;
@@ -1388,8 +1649,15 @@ void SerialMenuHandler::SetOzoneFlowSlope()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -1432,8 +1700,15 @@ void SerialMenuHandler::SetOzoneFlowSlope()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -1454,13 +1729,20 @@ void SerialMenuHandler::SetCellFlowSlope()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+
 #endif
         char temp = 0;
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
             {
                 break;
@@ -1477,8 +1759,15 @@ void SerialMenuHandler::SetCellFlowSlope()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -1521,8 +1810,15 @@ void SerialMenuHandler::SetCellFlowSlope()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -1547,11 +1843,18 @@ void SerialMenuHandler::SetMode()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
 #endif
+
+#endif
         char temp = 0;
-        serialPort->read(&temp, 1);
+        ReadChar(&temp);
 
         qDebug() << "Read in byte: " << temp;
         temp -= 0x30;
@@ -1587,8 +1890,15 @@ void SerialMenuHandler::SetMode()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -1627,13 +1937,20 @@ void SerialMenuHandler::SetDate()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+
 #endif
         char temp = 0;
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
                 break;
             // Delete key
@@ -1648,8 +1965,15 @@ void SerialMenuHandler::SetDate()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -1693,8 +2017,15 @@ void SerialMenuHandler::SetDate()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -1715,13 +2046,20 @@ void SerialMenuHandler::SetTime()
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QextSerialPort::readyRead, this, [=](){
 #else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+#else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
     connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+
 #endif
         char temp = 0;
         while(serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
+            ReadChar(&temp);
             if(temp == '\n' || temp == '\r')
             {
                 break;
@@ -1738,8 +2076,15 @@ void SerialMenuHandler::SetTime()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -1781,8 +2126,15 @@ void SerialMenuHandler::SetTime()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
-        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
         PrintMenuMessage();
     });
@@ -1801,6 +2153,14 @@ void SerialMenuHandler::PrintMenuMessage()
     QueueMessage("Press X to exit\r\n");
 }
 
+void SerialMenuHandler::ReadChar(char* chr)
+{
+#ifndef Q_OS_WIN
+    serialPort->readData(chr, 1);
+#else
+    serialPort->read(chr, 1);
+#endif
+}
 
 
 
