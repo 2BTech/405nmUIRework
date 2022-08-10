@@ -6,6 +6,8 @@ SerialMenuHandler::SerialMenuHandler() : SerialHandlerBase("Menu")
     testWriteTimer.setInterval(600);
     connect(&testWriteTimer, &QTimer::timeout, this, &SerialMenuHandler::WriteTestString);
 #endif
+
+    writeTimer.setInterval(100);
 }
 
 //#define DEBUG_ECHO_MESSAGE
@@ -49,12 +51,12 @@ void SerialMenuHandler::OnReadyRead()
     // Holds the most recent character
     char in;
 
+    //qDebug() << "Menu ready read";
+
 #ifdef Q_OS_WIN
     // Continue reading bytes until all are handled
     while (serialPort->bytesAvailable())
     {
-        // Read in each byte indiidually
-        serialPort->read(&in, 1);
 #else
     // Continue reading bytes until all are handled
     while (serialPort->available())
@@ -65,6 +67,10 @@ void SerialMenuHandler::OnReadyRead()
 
         if (!isInMenu)
         {
+            //qDebug() << "Not in menu";
+            // Read in each byte indiidually
+            serialPort->read(&in, 1);
+            qDebug() << "In: " << in;
             if (in == 'M' || in == 'm')
             {
                 isInMenu = true;
@@ -87,6 +93,7 @@ void SerialMenuHandler::OnReadyRead()
 //            {
 //                received.append(in);
 //            }
+            //qDebug() << "In menu";
             ParseReceived();
         }
     }
@@ -103,6 +110,7 @@ void SerialMenuHandler::OutputMenuHeader()
     QueueMessage("Press ? for list of commands\r\n");
     QueueMessage("Enter Upper case to display value and lower to set\r\n");
     QueueMessage("Press X to exit\r\n");
+    PrintMenuMessage();
 }
 
 void SerialMenuHandler::ParseReceived()
@@ -117,20 +125,28 @@ void SerialMenuHandler::ParseReceived()
     serialPort->readData(&in,  1);
 #endif
 
+    serialPort->readAll();
+
+    //qDebug() << "Read in: " << in;
+    QueueMessage(QByteArray().append(in).append("\r\n"));
+
     switch(in)
     {
     // Print help
     case '?':
         PrintHelp();
+        PrintMenuMessage();
         break;
 
     // Print all settings
     case '0':
         PrintAllSettings();
+        PrintMenuMessage();
         break;
 
     case '1':
         PrintHeader();
+        PrintMenuMessage();
         break;
 
     case '9':
@@ -139,6 +155,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'a':
         PrintAverageTime();
+        PrintMenuMessage();
         break;
 
     case 'A':
@@ -147,6 +164,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'c':
         PrintAdaptiveShort();
+        PrintMenuMessage();
         break;
 
     case 'C':
@@ -155,6 +173,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'd':
         PrintAdaptiveLong();
+        PrintMenuMessage();
         break;
 
     case 'D':
@@ -163,6 +182,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'e':
         PrintAdaptiveDiff();
+        PrintMenuMessage();
         break;
 
     case 'E':
@@ -171,6 +191,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'f':
         PrintAdaptivePer();
+        PrintMenuMessage();
         break;
 
     case 'F':
@@ -179,6 +200,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'g':
         PrintNOSlope();
+        PrintMenuMessage();
         break;
 
     case 'G':
@@ -187,6 +209,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'h':
         PrintNOZero();
+        PrintMenuMessage();
         break;
 
     case 'H':
@@ -195,6 +218,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'i':
         PrintNOAnalog();
+        PrintMenuMessage();
         break;
 
     case 'I':
@@ -203,6 +227,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'j':
         PrintNO2Slope();
+        PrintMenuMessage();
         break;
 
     case 'J':
@@ -211,6 +236,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'k':
         PrintNO2Zero();
+        PrintMenuMessage();
         break;
 
     case 'K':
@@ -219,6 +245,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'l':
         PrintNO2Analog();
+        PrintMenuMessage();
         break;
 
     case 'L':
@@ -227,6 +254,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'm':
         PrintOzoneFlowSlope();
+        PrintMenuMessage();
         break;
 
     case 'M':
@@ -235,6 +263,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'n':
         PrintCellFlowSlope();
+        PrintMenuMessage();
         break;
 
     case 'N':
@@ -243,6 +272,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'o':
         PrintDate();
+        PrintMenuMessage();
         break;
 
     case 'O':
@@ -251,6 +281,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'p':
         PrintTime();
+        PrintMenuMessage();
         break;
 
     case 'P':
@@ -259,6 +290,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'q':
         PrintMode();
+        PrintMenuMessage();
         break;
 
     case 'Q':
@@ -267,6 +299,7 @@ void SerialMenuHandler::ParseReceived()
 
     case 'X':
     case 'x':
+        QueueMessage("Exiting Menu\r\n");
         isInMenu = false;
         while (!menuBlockedMessages.isEmpty())
         {
@@ -275,7 +308,8 @@ void SerialMenuHandler::ParseReceived()
         break;
 
     default:
-
+        QueueMessage("Unknown Command\r\n");
+        PrintMenuMessage();
         break;
     }
 }
@@ -311,7 +345,7 @@ void SerialMenuHandler::PrintHeader()
 // Gets a serial number for the device
 void SerialMenuHandler::PrintSerialNumber()
 {
-    QueueMessage(QString("Serial Number: ").append(SettingsHandler::GetInstance()->GetSerialNumber()->ToString()).append('\n').toLatin1());
+    QueueMessage(QString("Serial Number: ").append(SettingsHandler::GetInstance()->GetSerialNumber()->ToString()).append("\r\n").toLatin1());
 }
 
 void SerialMenuHandler::SetSerialNumber()
@@ -328,7 +362,7 @@ void SerialMenuHandler::SetSerialNumber()
 #endif
         char temp = 0;
         serialPort->read(&temp, 1);
-        if(temp != 'Y' || temp != 'y' || temp != '\n')
+        if(temp != 'Y' && temp != 'y' && temp != '\n' && temp != '\r')
         {
 #ifdef USE_EXT_SER
             disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
@@ -338,47 +372,115 @@ void SerialMenuHandler::SetSerialNumber()
             connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
             PrintMenuMessage();
+            return;
         }
-
-#ifdef USE_EXT_SER
-        disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
-        connect(serialPort, &QextSerialPort::readyRead, this, [=](){
-            WriteMessage("Enter serial number:\r\n");
-        });
-#else
-        disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-        connect(serialPort, &QSerialPort::readyRead, this, [=](){
-            QueueMessage("Enter serial number:\r\n");
-        });
-#endif
-
-        while(serialPort->bytesAvailable())
+        else
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
-                break;
-            else if(temp == 8)
-            {
-                received.remove(received.count() - 1, 1);
-                QueueMessage("\b \b");
-            }
-            else if (temp == 0 || temp == 4)
-            {
+            QueueMessage("Enter password: ");
+            received.clear();
+
 #ifdef USE_EXT_SER
-                disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
+            disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-                disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, [=](){
 #endif
-                PrintMenuMessage();
-                return;
-            }
-            else
-            {
-                 received.append(temp);
-                 QueueMessage(QByteArray().append(temp));
-            }
+                char temp = 0;
+                while (serialPort->bytesAvailable())
+                {
+                    serialPort->read(&temp, 1);
+
+                    if(temp == '\n' || temp == '\r')
+                    {
+                        qDebug() << "Entered password: " << received;
+
+                        if (received == "boulder123")
+                        {
+                            QueueMessage("\r\nEnter new serial number\r\n");
+                            received.clear();
+
+#ifdef USE_EXT_SER
+                            disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+                            connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
+#else
+                            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+                            connect(serialPort, &QSerialPort::readyRead, this, [=](){
+#endif
+                                char temp = 0;
+                                while (serialPort->bytesAvailable())
+                                {
+                                    serialPort->read(&temp, 1);
+
+                                    if (temp == '\r' || temp == '\n')
+                                    {
+                                        QueueMessage("\r\nSetting serial number to: " + received + "\r\n");
+                                        SettingsHandler::GetInstance()->GetSerialNumber()->setValue(received.toInt());
+                                        PrintMenuMessage();
+#ifdef USE_EXT_SER
+            disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
+                                    }
+                                    else if (temp == 8 || temp == 4)
+                                    {
+                                        received = received.remove(received.count() - 1, 1);
+                                        QueueMessage("\b \b");
+                                    }
+                                    else
+                                    {
+                                        received.append(temp);
+                                        QueueMessage(QByteArray().append(temp));
+                                    }
+                                }
+                            });
+                        }
+                        else
+                        {
+                            QueueMessage("\r\nIncorrect\r\n");
+                            PrintMenuMessage()
+                                    ;
+#ifdef USE_EXT_SER
+            disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
+#else
+            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
+                        }
+                        break;
+                    }
+                    // Delete key
+                    else if(temp == 8)
+                    {
+                        received.remove(received.count() - 1, 1);
+                        QueueMessage("\b \b");
+                    }
+                    else if (temp == 0 || temp == 4)
+                    {
+        #ifdef USE_EXT_SER
+                        disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+                        connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
+        #else
+                        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+                        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+        #endif
+                        PrintMenuMessage();
+                        return;
+                    }
+                    else
+                    {
+                        received.append(temp);
+                        QueueMessage(QByteArray().append(temp));
+                    }
+                }
+
+            });
         }
     });
 }
@@ -386,7 +488,43 @@ void SerialMenuHandler::SetSerialNumber()
 // Prints the help message
 void SerialMenuHandler::PrintHelp()
 {
-
+    QueueMessage("Help menu:\r\n");
+    QueueMessage("? - Print Help\r\n");
+    QueueMessage("0 - Print All Settings\r\n");
+    QueueMessage("1 - Print Header\r\n");
+    QueueMessage("A - Set averaging time\r\n");
+    QueueMessage("a - Print Averaging time\r\n");
+    QueueMessage("C - Set Adaptive Short\r\n");
+    QueueMessage("c - Print Adaptive Short\r\n");
+    QueueMessage("D - Set Adaptive Long\r\n");
+    QueueMessage("d - Print Adaptive Long\r\n");
+    QueueMessage("E - Set Adaptive Difference\r\n");
+    QueueMessage("e - Print Adaptive Difference\r\n");
+    QueueMessage("F - Set Adaptive Percent\r\n");
+    QueueMessage("f - Print Adaptive Percent\r\n");
+    QueueMessage("G - Set NO Slope\r\n");
+    QueueMessage("g - Print NO Slope\r\n");
+    QueueMessage("H - Set NO Zero\r\n");
+    QueueMessage("h - Print NO Zero\r\n");
+    QueueMessage("I - Set NO V scale\r\n");
+    QueueMessage("i - Print NO V scale\r\n");
+    QueueMessage("J - Set NO2 Slope\r\n");
+    QueueMessage("j - Print NO2 Slope\r\n");
+    QueueMessage("K - Set NO2 Zero\r\n");
+    QueueMessage("k - Print NO2 Zero\r\n");
+    QueueMessage("L - Set NO2 V Scale\r\n");
+    QueueMessage("l - Print NO2 V Scale\r\n");
+    QueueMessage("M - Set Ozone Flow Slope\r\n");
+    QueueMessage("m - Print Ozone Flow Slope\r\n");
+    QueueMessage("N - Set Cell Flow Slope\r\n");
+    QueueMessage("n - Print Cell Flow Slope\r\n");
+    QueueMessage("O - Set Date\r\n");
+    QueueMessage("o - Print Date\r\n");
+    QueueMessage("P - Set Time\r\n");
+    QueueMessage("P - Print Time\r\n");
+    QueueMessage("Q - Set Mode\r\n");
+    QueueMessage("Q - Print Mode\r\n");
+    QueueMessage("X - Exit Serial Menu\r\n");
 }
 
 // Avgerage Time
@@ -434,7 +572,7 @@ void SerialMenuHandler::SetAverageTime()
             QueueMessage("Invalid\r\n");
             break;
         }
-        if(temp >= 1 && temp <= 4)
+        if(temp >= '1' && temp <= '4')
         {
             SettingsHandler::GetInstance()->GetAverageTime()->setValue_str(QString().append(temp));
         }
@@ -454,23 +592,23 @@ void SerialMenuHandler::PrintAverageTime()
     switch (SettingsHandler::GetInstance()->GetAverageTime()->getValue())
     {
     case 1:
-        QueueMessage("Averaging Time: 5 secs\n");
+        QueueMessage("Averaging Time: 5 secs\r\n");
         break;
 
     case 2:
-        QueueMessage("Averaging Time: 1 min\n");
+        QueueMessage("Averaging Time: 1 min\r\n");
         break;
 
     case 3:
-        QueueMessage("Averaging Time: 5 mins\n");
+        QueueMessage("Averaging Time: 5 mins\r\n");
         break;
 
     case 4:
-        QueueMessage("Averaging Time: 1 hour\n");
+        QueueMessage("Averaging Time: 1 hour\r\n");
         break;
 
     default:
-        QueueMessage("Averaging Time: invalid\n");
+        QueueMessage("Averaging Time: invalid\r\n");
         break;
     }
 }
@@ -1600,7 +1738,7 @@ void SerialMenuHandler::PrintMode()
     switch (SettingsHandler::GetInstance()->GetMode()->getValue())
     {
     case 1:
-        QueueMessage("NO");
+        QueueMessage("NO\r\n");
         break;
 
     case 2:
@@ -1790,15 +1928,16 @@ void SerialMenuHandler::SetTime()
 
 void SerialMenuHandler::PrintTime()
 {
-    QueueMessage("Date: " + QTime::currentTime().toString("hh:mm:ss").toLatin1() + "\r\n");
+    QueueMessage("Time: " + QTime::currentTime().toString("hh:mm:ss").toLatin1() + "\r\n");
 }
 
 void SerialMenuHandler::PrintMenuMessage()
 {
-    QueueMessage("Serial Menu:\r\n");
-    QueueMessage("Press ? for list of commands\r\n");
-    QueueMessage("Enter Upper case to display value and lower to set\r\n");
-    QueueMessage("Press X to exit\r\n");
+//    QueueMessage("Serial Menu:\r\n");
+//    QueueMessage("Press ? for list of commands\r\n");
+//    QueueMessage("Enter Upper case to display value and lower to set\r\n");
+//    QueueMessage("Press X to exit\r\n");
+    QueueMessage("menu>");
 }
 
 

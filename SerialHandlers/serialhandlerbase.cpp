@@ -38,11 +38,11 @@ void SerialHandlerBase::OpenSerialPort(QString portName)
     if (serialPort->openPort(QIODevice::ReadWrite))
 #endif
     {
-        qDebug() << "Opened serial device handler at " << portName;
+        qDebug() << "Opened " << name << " serial handler at " << portName;
     }
     else
     {
-        qDebug() << "Failed to open serial device handler at " << portName;
+        qDebug() << "Failed to open " << name << " serial handler at " << portName;
     }
 }
 
