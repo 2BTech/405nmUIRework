@@ -328,7 +328,7 @@ qint64 SerialPort::readData(char* buffer, qint64 maxLen)
     return maxLen;
 }
 
-int SerialPort::available()
+int SerialPort::bytesAvailable()
 {
     return readBuffer.length();
 }
@@ -600,5 +600,14 @@ void SerialPort::OnReadyRead()
     qDebug() << "Read in: " << data;
 }
 
+QByteArray SerialPort::readAll()
+{
+    QByteArray ret;
+    readBufferMutex.lock();
+    ret.append(readBuffer);
+    readBuffer.clear();
+    readBufferMutex.unlock();
+    return ret;
+}
 
 #endif // ifndef Q_OS_WIN

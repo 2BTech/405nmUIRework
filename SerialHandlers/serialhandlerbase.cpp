@@ -121,7 +121,7 @@ void SerialHandlerBase::OnReadyRead()
         serialPort->read(&in, 1);
 #else
     // Continue reading bytes until all are handled
-    while (serialPort->available())
+    while (serialPort->bytesAvailable())
     {
         // Read in each byte indiidually
         serialPort->readData(&in, 1);

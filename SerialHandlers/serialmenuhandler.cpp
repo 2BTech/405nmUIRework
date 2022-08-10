@@ -59,7 +59,7 @@ void SerialMenuHandler::OnReadyRead()
     {
 #else
     // Continue reading bytes until all are handled
-    while (serialPort->available())
+    while (serialPort->bytesAvailable())
     {
         // Read in each byte indiidually
         serialPort->readData(&in, 1);
@@ -70,7 +70,7 @@ void SerialMenuHandler::OnReadyRead()
             //qDebug() << "Not in menu";
             // Read in each byte indiidually
             serialPort->read(&in, 1);
-            qDebug() << "In: " << in;
+            //qDebug() << "In: " << in;
             if (in == 'M' || in == 'm')
             {
                 isInMenu = true;
@@ -102,7 +102,7 @@ void SerialMenuHandler::OnReadyRead()
     {
         received.clear();
     }
-}
+    }
 
 void SerialMenuHandler::OutputMenuHeader()
 {
@@ -120,9 +120,9 @@ void SerialMenuHandler::ParseReceived()
     char in;
 
 #ifdef Q_OS_WIN
-    serialPort->read(&in,  1);
+    serialPort->read(&in, 1);
 #else
-    serialPort->readData(&in,  1);
+    serialPort->readData(&in, 1);
 #endif
 
     serialPort->readAll();
@@ -130,15 +130,15 @@ void SerialMenuHandler::ParseReceived()
     //qDebug() << "Read in: " << in;
     QueueMessage(QByteArray().append(in).append("\r\n"));
 
-    switch(in)
+    switch (in)
     {
-    // Print help
+        // Print help
     case '?':
         PrintHelp();
         PrintMenuMessage();
         break;
 
-    // Print all settings
+        // Print all settings
     case '0':
         PrintAllSettings();
         PrintMenuMessage();
@@ -353,23 +353,39 @@ void SerialMenuHandler::SetSerialNumber()
     //GetSerialNumber();
     QueueMessage("Current Serial Number: " + SettingsHandler::GetInstance()->GetSerialNumber()->ToString().toLatin1() + "\n");
     QueueMessage("Change serial number?(Y/n)\r\n");
+
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
 #endif
+
+#endif
+
         char temp = 0;
         serialPort->read(&temp, 1);
-        if(temp != 'Y' && temp != 'y' && temp != '\n' && temp != '\r')
+        if (temp != 'Y' && temp != 'y' && temp != '\n' && temp != '\r')
         {
 #ifdef USE_EXT_SER
             disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
             connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
             disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
             connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
             PrintMenuMessage();
             return;
@@ -378,34 +394,51 @@ void SerialMenuHandler::SetSerialNumber()
         {
             QueueMessage("Enter password: ");
             received.clear();
+            serialPort->readAll();
 
 #ifdef USE_EXT_SER
             disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
             connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+            connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+
+#else
             disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-            connect(serialPort, &QSerialPort::readyRead, this, [=](){
+            connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
 #endif
                 char temp = 0;
                 while (serialPort->bytesAvailable())
                 {
                     serialPort->read(&temp, 1);
 
-                    if(temp == '\n' || temp == '\r')
+                    //qDebug() << "Read: " << temp;
+
+                    if (temp == '\r' || temp == '\n')
                     {
                         qDebug() << "Entered password: " << received;
-
+                        serialPort->readAll();
                         if (received == "boulder123")
                         {
-                            QueueMessage("\r\nEnter new serial number\r\n");
                             received.clear();
+                            QueueMessage("\r\nEnter new serial number\r\n");
 
 #ifdef USE_EXT_SER
                             disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                             connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                            connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
+
+#else
                             disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                            connect(serialPort, &QSerialPort::readyRead, this, [=](){
+                            connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
 #endif
                                 char temp = 0;
                                 while (serialPort->bytesAvailable())
@@ -414,19 +447,22 @@ void SerialMenuHandler::SetSerialNumber()
 
                                     if (temp == '\r' || temp == '\n')
                                     {
-                                        QueueMessage("\r\nSetting serial number to: " + received + "\r\n");
-                                        SettingsHandler::GetInstance()->GetSerialNumber()->setValue(received.toInt());
-                                        PrintMenuMessage();
-#ifdef USE_EXT_SER
-            disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-            connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
-#else
-            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-#endif
+                                        int sn = received.toInt();
+                                        received.clear();
+                                        if (sn >= 1000 && sn <= 9999)
+                                        {
+                                            SettingsHandler::GetInstance()->GetSerialNumber()->setValue(sn);
+                                            QueueMessage("\r\nSet Serial Number to " + SettingsHandler::GetInstance()->GetSerialNumber()->ToString().toLatin1() + "\r\n");
+                                        }
+                                        else
+                                        {
 
+                                            qDebug() << "Entered value: " << sn << (sn >= 1000 ? "true" : "false") << (sn <= 9999 ? "true" : "false");
+                                            QueueMessage("\r\nInvalid\r\n");
+                                        }
+                                        PrintMenuMessage();
                                     }
-                                    else if (temp == 8 || temp == 4)
+                                    else if (temp == 4 || temp == 8)
                                     {
                                         received = received.remove(received.count() - 1, 1);
                                         QueueMessage("\b \b");
@@ -437,41 +473,34 @@ void SerialMenuHandler::SetSerialNumber()
                                         QueueMessage(QByteArray().append(temp));
                                     }
                                 }
-                            });
-                        }
+                                });
+                                }
                         else
                         {
+                            received.clear();
                             QueueMessage("\r\nIncorrect\r\n");
-                            PrintMenuMessage()
-                                    ;
+                            PrintMenuMessage();
+
 #ifdef USE_EXT_SER
-            disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-            connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
+                            disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+                            connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
-            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+
+#ifndef Q_OS_WIN
+                            disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                            connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
+                            disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
+                            connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
 
+#endif
                         }
-                        break;
                     }
-                    // Delete key
-                    else if(temp == 8)
+                    else if (temp == 8 || temp == 4)
                     {
-                        received.remove(received.count() - 1, 1);
+                        received = received.remove(received.count() - 1, 1);
                         QueueMessage("\b \b");
-                    }
-                    else if (temp == 0 || temp == 4)
-                    {
-        #ifdef USE_EXT_SER
-                        disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                        connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
-        #else
-                        disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
-                        connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-        #endif
-                        PrintMenuMessage();
-                        return;
                     }
                     else
                     {
@@ -479,7 +508,6 @@ void SerialMenuHandler::SetSerialNumber()
                         QueueMessage(QByteArray().append(temp));
                     }
                 }
-
             });
         }
     });
@@ -541,13 +569,20 @@ void SerialMenuHandler::SetAverageTime()
     // Reading bytes here, not in ready read so will temporarily disble the connect
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        serialPort->read(&temp, 1);
+        ReadChar(&temp);
         qDebug() << "Read in byte: " << temp;
         QueueMessage("Setting avergaing time to ");
         switch (temp)
@@ -572,7 +607,7 @@ void SerialMenuHandler::SetAverageTime()
             QueueMessage("Invalid\r\n");
             break;
         }
-        if(temp >= '1' && temp <= '4')
+        if (temp >= '1' && temp <= '4')
         {
             SettingsHandler::GetInstance()->GetAverageTime()->setValue_str(QString().append(temp));
         }
@@ -580,12 +615,19 @@ void SerialMenuHandler::SetAverageTime()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintAverageTime()
 {
@@ -621,21 +663,28 @@ void SerialMenuHandler::SetAdaptiveShort()
 
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        while(serialPort->bytesAvailable())
+        while (serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
+            ReadChar(&temp);
+            if (temp == '\n' || temp == '\r')
             {
                 break;
             }
             // Delete key
-            else if(temp == 8)
+            else if (temp == 8)
             {
                 received.remove(received.count() - 1, 1);
                 QueueMessage("\b \b");
@@ -646,8 +695,15 @@ void SerialMenuHandler::SetAdaptiveShort()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
                 disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -659,7 +715,7 @@ void SerialMenuHandler::SetAdaptiveShort()
             }
         }
         // If temp != \n or \r, then the read is not complete
-        if(temp != '\r' && temp != '\n')
+        if (temp != '\r' && temp != '\n')
         {
             return;
         }
@@ -669,9 +725,9 @@ void SerialMenuHandler::SetAdaptiveShort()
 
         bool ok;
         int val = received.toInt(&ok);
-        if(ok)
+        if (ok)
         {
-            if(val >= 1 && val <= 5)
+            if (val >= 1 && val <= 5)
             {
                 QueueMessage("Setting adaptive short length to " + received + " from " + SettingsHandler::GetInstance()->GetAdShort()->ToString().toLatin1() + "\r\n");
                 SettingsHandler::GetInstance()->GetAdShort()->setValue(val);
@@ -690,12 +746,19 @@ void SerialMenuHandler::SetAdaptiveShort()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintAdaptiveShort()
 {
@@ -711,21 +774,28 @@ void SerialMenuHandler::SetAdaptiveLong()
 
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        while(serialPort->bytesAvailable())
+        while (serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
+            ReadChar(&temp);
+            if (temp == '\n' || temp == '\r')
             {
                 break;
             }
             // Delete key
-            else if(temp == 8)
+            else if (temp == 8)
             {
                 QueueMessage("\b \b");
                 received.remove(received.count() - 1, 1);
@@ -736,8 +806,15 @@ void SerialMenuHandler::SetAdaptiveLong()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
                 disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -749,7 +826,7 @@ void SerialMenuHandler::SetAdaptiveLong()
             }
         }
         // If temp != \n or \r, then the read is not complete
-        if(temp != '\r' && temp != '\n')
+        if (temp != '\r' && temp != '\n')
         {
             return;
         }
@@ -759,9 +836,9 @@ void SerialMenuHandler::SetAdaptiveLong()
 
         bool ok;
         int val = received.toInt(&ok);
-        if(ok)
+        if (ok)
         {
-            if(val >= 6 && val <= 50)
+            if (val >= 6 && val <= 50)
             {
                 QueueMessage("Setting adaptive long length to " + received + " from " + SettingsHandler::GetInstance()->GetAdLong()->ToString().toLatin1() + "\r\n");
                 SettingsHandler::GetInstance()->GetAdLong()->setValue(val);
@@ -780,12 +857,19 @@ void SerialMenuHandler::SetAdaptiveLong()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintAdaptiveLong()
 {
@@ -800,21 +884,28 @@ void SerialMenuHandler::SetAdaptiveDiff()
     received.clear();
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        while(serialPort->bytesAvailable())
+        while (serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
+            ReadChar(&temp);
+            if (temp == '\n' || temp == '\r')
             {
                 break;
             }
             // Delete key
-            else if(temp == 8)
+            else if (temp == 8)
             {
                 received.remove(received.count() - 1, 1);
                 QueueMessage("\b \b");
@@ -825,8 +916,15 @@ void SerialMenuHandler::SetAdaptiveDiff()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
                 disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
@@ -838,7 +936,7 @@ void SerialMenuHandler::SetAdaptiveDiff()
             }
         }
         // If temp != \n or \r, then the read is not complete
-        if(temp != '\r' && temp != '\n')
+        if (temp != '\r' && temp != '\n')
         {
             return;
         }
@@ -848,9 +946,9 @@ void SerialMenuHandler::SetAdaptiveDiff()
 
         bool ok;
         int val = received.toInt(&ok);
-        if(ok)
+        if (ok)
         {
-            if(val >= 0 && val <= 50)
+            if (val >= 0 && val <= 50)
             {
                 QueueMessage("Setting adaptive difference to " + received + " from " + SettingsHandler::GetInstance()->GetAdDiff()->ToString().toLatin1() + "\r\n");
                 SettingsHandler::GetInstance()->GetAdDiff()->setValue(val);
@@ -869,12 +967,19 @@ void SerialMenuHandler::SetAdaptiveDiff()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintAdaptiveDiff()
 {
@@ -889,21 +994,28 @@ void SerialMenuHandler::SetAdaptivePer()
     received.clear();
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        while(serialPort->bytesAvailable())
+        while (serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
+            ReadChar(&temp);
+            if (temp == '\n' || temp == '\r')
             {
                 break;
             }
             // Delete key
-            else if(temp == 8)
+            else if (temp == 8)
             {
                 received.remove(received.count() - 1, 1);
                 QueueMessage("\b \b");
@@ -914,20 +1026,27 @@ void SerialMenuHandler::SetAdaptivePer()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
                 disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
             }
             else
             {
-                 received.append(temp);
-                 QueueMessage(QByteArray().append(temp));
+                received.append(temp);
+                QueueMessage(QByteArray().append(temp));
             }
         }
         // If temp != \n or \r, then the read is not complete
-        if(temp != '\r' && temp != '\n')
+        if (temp != '\r' && temp != '\n')
         {
             return;
         }
@@ -937,7 +1056,7 @@ void SerialMenuHandler::SetAdaptivePer()
 
         bool ok;
         int val = received.toInt(&ok);
-        if(ok && val >= 0 && val <= 10)
+        if (ok && val >= 0 && val <= 10)
         {
             QueueMessage("Setting adaptive percent length to " + received + " from " + SettingsHandler::GetInstance()->GetAdPercent()->ToString().toLatin1() + "\r\n");
             SettingsHandler::GetInstance()->GetAdPercent()->setValue(val);
@@ -947,12 +1066,19 @@ void SerialMenuHandler::SetAdaptivePer()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintAdaptivePer()
 {
@@ -967,21 +1093,28 @@ void SerialMenuHandler::SetNOSlope()
     received.clear();
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        while(serialPort->bytesAvailable())
+        while (serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
+            ReadChar(&temp);
+            if (temp == '\n' || temp == '\r')
             {
                 break;
             }
             // Delete key
-            else if(temp == 8)
+            else if (temp == 8)
             {
                 received.remove(received.count() - 1, 1);
                 QueueMessage("\b \b");
@@ -992,20 +1125,27 @@ void SerialMenuHandler::SetNOSlope()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
                 disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
             }
             else
             {
-                 received.append(temp);
-                 QueueMessage(QByteArray().append(temp));
+                received.append(temp);
+                QueueMessage(QByteArray().append(temp));
             }
         }
         // If temp != \n or \r, then the read is not complete
-        if(temp != '\r' && temp != '\n')
+        if (temp != '\r' && temp != '\n')
         {
             return;
         }
@@ -1015,9 +1155,9 @@ void SerialMenuHandler::SetNOSlope()
 
         bool ok;
         float val = received.toFloat(&ok);
-        if(ok)
+        if (ok)
         {
-            if(val >= 0.2f && val <= 3)
+            if (val >= 0.2f && val <= 3)
             {
                 QueueMessage("Setting NO Slope to " + received + " from " + SettingsHandler::GetInstance()->GetNOSlope()->ToString().toLatin1() + "\r\n");
                 SettingsHandler::GetInstance()->GetNOSlope()->setValue(val);
@@ -1036,12 +1176,19 @@ void SerialMenuHandler::SetNOSlope()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintNOSlope()
 {
@@ -1056,21 +1203,28 @@ void SerialMenuHandler::SetNOZero()
     received.clear();
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        while(serialPort->bytesAvailable())
+        while (serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
+            ReadChar(&temp);
+            if (temp == '\n' || temp == '\r')
             {
                 break;
             }
             // Delete key
-            else if(temp == 8)
+            else if (temp == 8)
             {
                 received.remove(received.count() - 1, 1);
                 QueueMessage("\b \b");
@@ -1081,20 +1235,27 @@ void SerialMenuHandler::SetNOZero()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
                 disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
             }
             else
             {
-                 received.append(temp);
-                 QueueMessage(QByteArray().append(temp));
+                received.append(temp);
+                QueueMessage(QByteArray().append(temp));
             }
         }
         // If temp != \n or \r, then the read is not complete
-        if(temp != '\r' && temp != '\n')
+        if (temp != '\r' && temp != '\n')
         {
             return;
         }
@@ -1104,9 +1265,9 @@ void SerialMenuHandler::SetNOZero()
 
         bool ok;
         float val = received.toFloat(&ok);
-        if(ok)
+        if (ok)
         {
-            if(val >= -50.9f && val <= 50.9f)
+            if (val >= -50.9f && val <= 50.9f)
             {
                 QueueMessage("Setting NO Zero to " + received + " from " + SettingsHandler::GetInstance()->GetNOZero()->ToString().toLatin1() + "\r\n");
                 SettingsHandler::GetInstance()->GetNOZero()->setValue(val);
@@ -1125,12 +1286,19 @@ void SerialMenuHandler::SetNOZero()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintNOZero()
 {
@@ -1145,21 +1313,28 @@ void SerialMenuHandler::SetNOAnalog()
     received.clear();
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        while(serialPort->bytesAvailable())
+        while (serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
+            ReadChar(&temp);
+            if (temp == '\n' || temp == '\r')
             {
                 break;
             }
             // Delete key
-            else if(temp == 8)
+            else if (temp == 8)
             {
                 received.remove(received.count() - 1, 1);
                 QueueMessage("\b \b");
@@ -1170,20 +1345,27 @@ void SerialMenuHandler::SetNOAnalog()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::ReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
                 disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
             }
             else
             {
-                 received.append(temp);
-                 QueueMessage(QByteArray().append(temp));
+                received.append(temp);
+                QueueMessage(QByteArray().append(temp));
             }
         }
         // If temp != \n or \r, then the read is not complete
-        if(temp != '\r' && temp != '\n')
+        if (temp != '\r' && temp != '\n')
         {
             return;
         }
@@ -1193,9 +1375,9 @@ void SerialMenuHandler::SetNOAnalog()
 
         bool ok;
         int val = received.toInt(&ok);
-        if(ok)
+        if (ok)
         {
-            if(val >= 250 && val <= 1000)
+            if (val >= 250 && val <= 1000)
             {
                 QueueMessage("Setting NO V Scale to " + received + " from " + SettingsHandler::GetInstance()->GetAnalogNO()->ToString().toLatin1() + "\r\n");
                 SettingsHandler::GetInstance()->GetAnalogNO()->setValue(val);
@@ -1214,12 +1396,19 @@ void SerialMenuHandler::SetNOAnalog()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintNOAnalog()
 {
@@ -1234,21 +1423,28 @@ void SerialMenuHandler::SetNO2Slope()
     received.clear();
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        while(serialPort->bytesAvailable())
+        while (serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
+            ReadChar(&temp);
+            if (temp == '\n' || temp == '\r')
             {
                 break;
             }
             // Delete key
-            else if(temp == 8)
+            else if (temp == 8)
             {
                 received.remove(received.count() - 1, 1);
                 QueueMessage("\b \b");
@@ -1259,20 +1455,27 @@ void SerialMenuHandler::SetNO2Slope()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
                 disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
             }
             else
             {
-                 received.append(temp);
-                 QueueMessage(QByteArray().append(temp));
+                received.append(temp);
+                QueueMessage(QByteArray().append(temp));
             }
         }
         // If temp != \n or \r, then the read is not complete
-        if(temp != '\r' && temp != '\n')
+        if (temp != '\r' && temp != '\n')
         {
             return;
         }
@@ -1282,9 +1485,9 @@ void SerialMenuHandler::SetNO2Slope()
 
         bool ok;
         float val = received.toFloat(&ok);
-        if(ok)
+        if (ok)
         {
-            if(val >= 0.2f && val <= 3)
+            if (val >= 0.2f && val <= 3)
             {
                 QueueMessage("Setting NO2 Slope to " + received + " from " + SettingsHandler::GetInstance()->GetNO2Slope()->ToString().toLatin1() + "\r\n");
                 SettingsHandler::GetInstance()->GetNO2Slope()->setValue(val);
@@ -1303,12 +1506,19 @@ void SerialMenuHandler::SetNO2Slope()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintNO2Slope()
 {
@@ -1323,21 +1533,28 @@ void SerialMenuHandler::SetNO2Zero()
     received.clear();
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        while(serialPort->bytesAvailable())
+        while (serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
+            ReadChar(&temp);
+            if (temp == '\n' || temp == '\r')
             {
                 break;
             }
             // Delete key
-            else if(temp == 8)
+            else if (temp == 8)
             {
                 received.remove(received.count() - 1, 1);
                 QueueMessage("\b \b");
@@ -1348,20 +1565,27 @@ void SerialMenuHandler::SetNO2Zero()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
                 disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
             }
             else
             {
-                 received.append(temp);
-                 QueueMessage(QByteArray().append(temp));
+                received.append(temp);
+                QueueMessage(QByteArray().append(temp));
             }
         }
         // If temp != \n or \r, then the read is not complete
-        if(temp != '\r' && temp != '\n')
+        if (temp != '\r' && temp != '\n')
         {
             return;
         }
@@ -1371,9 +1595,9 @@ void SerialMenuHandler::SetNO2Zero()
 
         bool ok;
         float val = received.toFloat(&ok);
-        if(ok)
+        if (ok)
         {
-            if(val >= -50.9f && val <= 50.9f)
+            if (val >= -50.9f && val <= 50.9f)
             {
                 QueueMessage("Setting NO2 Zero to " + received + " from " + SettingsHandler::GetInstance()->GetNO2Zero()->ToString().toLatin1() + "\r\n");
                 SettingsHandler::GetInstance()->GetNO2Zero()->setValue(val);
@@ -1392,12 +1616,19 @@ void SerialMenuHandler::SetNO2Zero()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintNO2Zero()
 {
@@ -1412,21 +1643,28 @@ void SerialMenuHandler::SetNO2Analog()
     received.clear();
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        while(serialPort->bytesAvailable())
+        while (serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
+            ReadChar(&temp);
+            if (temp == '\n' || temp == '\r')
             {
                 break;
             }
             // Delete key
-            else if(temp == 8)
+            else if (temp == 8)
             {
                 received.remove(received.count() - 1, 1);
                 QueueMessage("\b \b");
@@ -1437,20 +1675,27 @@ void SerialMenuHandler::SetNO2Analog()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
                 disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
             }
             else
             {
-                 received.append(temp);
-                 QueueMessage(QByteArray().append(temp));
+                received.append(temp);
+                QueueMessage(QByteArray().append(temp));
             }
         }
         // If temp != \n or \r, then the read is not complete
-        if(temp != '\r' && temp != '\n')
+        if (temp != '\r' && temp != '\n')
         {
             return;
         }
@@ -1460,9 +1705,9 @@ void SerialMenuHandler::SetNO2Analog()
 
         bool ok;
         int val = received.toInt(&ok);
-        if(ok)
+        if (ok)
         {
-            if(val >= 250 && val <= 1000)
+            if (val >= 250 && val <= 1000)
             {
                 QueueMessage("Setting NO2 V Scale to " + received + " from " + SettingsHandler::GetInstance()->GetAnalogNO2()->ToString().toLatin1() + "\r\n");
                 SettingsHandler::GetInstance()->GetAnalogNO2()->setValue(val);
@@ -1481,12 +1726,19 @@ void SerialMenuHandler::SetNO2Analog()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintNO2Analog()
 {
@@ -1501,21 +1753,28 @@ void SerialMenuHandler::SetOzoneFlowSlope()
     received.clear();
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        while(serialPort->bytesAvailable())
+        while (serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
+            ReadChar(&temp);
+            if (temp == '\n' || temp == '\r')
             {
                 break;
             }
             // Delete key
-            else if(temp == 8)
+            else if (temp == 8)
             {
                 received.remove(received.count() - 1, 1);
                 QueueMessage("\b \b");
@@ -1526,20 +1785,27 @@ void SerialMenuHandler::SetOzoneFlowSlope()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
                 disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
             }
             else
             {
-                 received.append(temp);
-                 QueueMessage(QByteArray().append(temp));
+                received.append(temp);
+                QueueMessage(QByteArray().append(temp));
             }
         }
         // If temp != \n or \r, then the read is not complete
-        if(temp != '\r' && temp != '\n')
+        if (temp != '\r' && temp != '\n')
         {
             return;
         }
@@ -1549,9 +1815,9 @@ void SerialMenuHandler::SetOzoneFlowSlope()
 
         bool ok;
         float val = received.toFloat(&ok);
-        if(ok)
+        if (ok)
         {
-            if(val >= 0.2f && val <= 3)
+            if (val >= 0.2f && val <= 3)
             {
                 QueueMessage("Setting Ozone Flow Slope to " + received + " from " + SettingsHandler::GetInstance()->GetOzoneFlowSlope()->ToString().toLatin1() + "\r\n");
                 SettingsHandler::GetInstance()->GetOzoneFlowSlope()->setValue(val);
@@ -1570,12 +1836,19 @@ void SerialMenuHandler::SetOzoneFlowSlope()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintOzoneFlowSlope()
 {
@@ -1590,21 +1863,28 @@ void SerialMenuHandler::SetCellFlowSlope()
     received.clear();
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        while(serialPort->bytesAvailable())
+        while (serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
+            ReadChar(&temp);
+            if (temp == '\n' || temp == '\r')
             {
                 break;
             }
             // Delete key
-            else if(temp == 8)
+            else if (temp == 8)
             {
                 received.remove(received.count() - 1, 1);
                 QueueMessage("\b \b");
@@ -1615,20 +1895,27 @@ void SerialMenuHandler::SetCellFlowSlope()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
                 disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
             }
             else
             {
-                 received.append(temp);
-                 QueueMessage(QByteArray().append(temp));
+                received.append(temp);
+                QueueMessage(QByteArray().append(temp));
             }
         }
         // If temp != \n or \r, then the read is not complete
-        if(temp != '\r' && temp != '\n')
+        if (temp != '\r' && temp != '\n')
         {
             return;
         }
@@ -1638,9 +1925,9 @@ void SerialMenuHandler::SetCellFlowSlope()
 
         bool ok;
         float val = received.toFloat(&ok);
-        if(ok)
+        if (ok)
         {
-            if(val >= 0.2f && val <= 3)
+            if (val >= 0.2f && val <= 3)
             {
                 QueueMessage("Setting Cell Flow Slope to " + received + " from " + SettingsHandler::GetInstance()->GetCellFlowSlope()->ToString().toLatin1() + "\r\n");
                 SettingsHandler::GetInstance()->GetCellFlowSlope()->setValue(val);
@@ -1659,12 +1946,19 @@ void SerialMenuHandler::SetCellFlowSlope()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintCellFlowSlope()
 {
@@ -1683,13 +1977,20 @@ void SerialMenuHandler::SetMode()
 
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        serialPort->read(&temp, 1);
+        ReadChar(&temp);
 
         qDebug() << "Read in byte: " << temp;
         temp -= 0x30;
@@ -1716,7 +2017,7 @@ void SerialMenuHandler::SetMode()
             QueueMessage("Invalid\r\n");
             break;
         }
-        if(temp >= 1 && temp <= 3)
+        if (temp >= 1 && temp <= 3)
         {
             SettingsHandler::GetInstance()->GetMode()->setValue(temp);
         }
@@ -1725,12 +2026,19 @@ void SerialMenuHandler::SetMode()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintMode()
 {
@@ -1763,19 +2071,26 @@ void SerialMenuHandler::SetDate()
     received.clear();
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        while(serialPort->bytesAvailable())
+        while (serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
+            ReadChar(&temp);
+            if (temp == '\n' || temp == '\r')
                 break;
             // Delete key
-            else if(temp == 8)
+            else if (temp == 8)
             {
                 received.remove(received.count() - 1, 1);
                 QueueMessage("\b \b");
@@ -1786,20 +2101,27 @@ void SerialMenuHandler::SetDate()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
                 disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
             }
             else
             {
-                 received.append(temp);
-                 QueueMessage(QByteArray().append(temp));
+                received.append(temp);
+                QueueMessage(QByteArray().append(temp));
             }
         }
         // If temp != \n or \r, then the read is not complete
-        if(temp != '\r' && temp != '\n')
+        if (temp != '\r' && temp != '\n')
         {
             return;
         }
@@ -1808,10 +2130,10 @@ void SerialMenuHandler::SetDate()
         serialPort->readAll();
 
         QStringList split = QString(received).split('/');
-        if(split.count() == 3)
+        if (split.count() == 3)
         {
             QDate nDate = QDate(split[2].toInt(), split[1].toInt(), split[0].toInt());
-            if(nDate.isValid())
+            if (nDate.isValid())
             {
                 QueueMessage("Setting date to " + nDate.toString("dd/MM/yyyy").toLatin1() + "\r\n");
                 SettingsHandler::GetInstance()->GetDate()->setValue(nDate.toString("ddMMyy"));
@@ -1831,12 +2153,19 @@ void SerialMenuHandler::SetDate()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintDate()
 {
@@ -1851,21 +2180,28 @@ void SerialMenuHandler::SetTime()
     received.clear();
 #ifdef USE_EXT_SER
     disconnect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QextSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QextSerialPort::readyRead, this, [=]() {
+#else
+
+#ifndef Q_OS_WIN
+    disconnect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+    connect(serialPort, &SerialPort::ReadyRead, this, [=]() {
 #else
     disconnect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
-    connect(serialPort, &QSerialPort::readyRead, this, [=](){
+    connect(serialPort, &QSerialPort::readyRead, this, [=]() {
+#endif
+
 #endif
         char temp = 0;
-        while(serialPort->bytesAvailable())
+        while (serialPort->bytesAvailable())
         {
-            serialPort->read(&temp, 1);
-            if(temp == '\n' || temp == '\r')
+            ReadChar(&temp);
+            if (temp == '\n' || temp == '\r')
             {
                 break;
             }
             // Delete key
-            else if(temp == 8)
+            else if (temp == 8)
             {
                 received.remove(received.count() - 1, 1);
                 QueueMessage("\b \b");
@@ -1876,30 +2212,37 @@ void SerialMenuHandler::SetTime()
                 disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+                disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+                connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
                 disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
                 connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
+#endif
+
 #endif
                 PrintMenuMessage();
                 return;
             }
             else
             {
-                 received.append(temp);
-                 QueueMessage(QByteArray().append(temp));
+                received.append(temp);
+                QueueMessage(QByteArray().append(temp));
             }
         }
         // If temp != \n or \r, then the read is not complete
-        if(temp != '\r' && temp != '\n')
+        if (temp != '\r' && temp != '\n')
             return;
 
         QueueMessage("\r\n");
         serialPort->readAll();
 
         QStringList split = QString(received).split(':');
-        if(split.count() == 3)
+        if (split.count() == 3)
         {
             QTime nTime = QTime(split[0].toInt(), split[1].toInt(), split[2].toInt());
-            if(nTime.isValid())
+            if (nTime.isValid())
             {
                 QueueMessage("Setting date to " + nTime.toString("hh:mm:ss").toLatin1() + "\r\n");
                 SettingsHandler::GetInstance()->GetTime()->setValue(nTime.toString("hhmmss"));
@@ -1919,12 +2262,19 @@ void SerialMenuHandler::SetTime()
         disconnect(serialPort, &QextSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QextSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #else
+
+#ifndef Q_OS_WIN
+        disconnect(serialPort, &SerialPort::ReadyRead, Q_NULLPTR, Q_NULLPTR);
+        connect(serialPort, &SerialPort::ReadyRead, this, &SerialMenuHandler::OnReadyRead);
+#else
         disconnect(serialPort, &QSerialPort::readyRead, Q_NULLPTR, Q_NULLPTR);
         connect(serialPort, &QSerialPort::readyRead, this, &SerialMenuHandler::OnReadyRead);
 #endif
+
+#endif
         PrintMenuMessage();
-    });
-}
+        });
+        }
 
 void SerialMenuHandler::PrintTime()
 {
@@ -1933,13 +2283,21 @@ void SerialMenuHandler::PrintTime()
 
 void SerialMenuHandler::PrintMenuMessage()
 {
-//    QueueMessage("Serial Menu:\r\n");
-//    QueueMessage("Press ? for list of commands\r\n");
-//    QueueMessage("Enter Upper case to display value and lower to set\r\n");
-//    QueueMessage("Press X to exit\r\n");
+    //    QueueMessage("Serial Menu:\r\n");
+    //    QueueMessage("Press ? for list of commands\r\n");
+    //    QueueMessage("Enter Upper case to display value and lower to set\r\n");
+    //    QueueMessage("Press X to exit\r\n");
     QueueMessage("menu>");
 }
 
+void SerialMenuHandler::ReadChar(char* chr)
+{
+#ifndef Q_OS_WIN
+    serialPort->readData(chr, 1);
+#else
+    serialPort->read(chr, 1);
+#endif
+}
 
 
 
