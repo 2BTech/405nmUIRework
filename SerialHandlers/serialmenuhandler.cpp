@@ -69,7 +69,7 @@ void SerialMenuHandler::OnReadyRead()
         {
             //qDebug() << "Not in menu";
             // Read in each byte indiidually
-            serialPort->read(&in, 1);
+            ReadChar(&in);
             //qDebug() << "In: " << in;
             if (in == 'M' || in == 'm')
             {
@@ -102,7 +102,7 @@ void SerialMenuHandler::OnReadyRead()
     {
         received.clear();
     }
-    }
+}
 
 void SerialMenuHandler::OutputMenuHeader()
 {
@@ -370,7 +370,7 @@ void SerialMenuHandler::SetSerialNumber()
 #endif
 
         char temp = 0;
-        serialPort->read(&temp, 1);
+        ReadChar(&temp);
         if (temp != 'Y' && temp != 'y' && temp != '\n' && temp != '\r')
         {
 #ifdef USE_EXT_SER
@@ -413,7 +413,7 @@ void SerialMenuHandler::SetSerialNumber()
                 char temp = 0;
                 while (serialPort->bytesAvailable())
                 {
-                    serialPort->read(&temp, 1);
+                    ReadChar(&temp);
 
                     //qDebug() << "Read: " << temp;
 
@@ -443,7 +443,7 @@ void SerialMenuHandler::SetSerialNumber()
                                 char temp = 0;
                                 while (serialPort->bytesAvailable())
                                 {
-                                    serialPort->read(&temp, 1);
+                                    ReadChar(&temp);
 
                                     if (temp == '\r' || temp == '\n')
                                     {
