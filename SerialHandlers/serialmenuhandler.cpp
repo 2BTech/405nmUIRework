@@ -62,7 +62,7 @@ void SerialMenuHandler::OnReadyRead()
     while (serialPort->bytesAvailable())
     {
         // Read in each byte indiidually
-        serialPort->readData(&in, 1);
+        //serialPort->readData(&in, 1);
 #endif
 
         if (!isInMenu)
@@ -117,17 +117,12 @@ void SerialMenuHandler::ParseReceived()
 {
     //qDebug() << "Serial menu handler received: " << received;
 
-    char in;
+    char in = 0;
 
-#ifdef Q_OS_WIN
-    serialPort->read(&in, 1);
-#else
-    serialPort->readData(&in, 1);
-#endif
+    ReadChar(&in);
+    //serialPort->readAll();
 
-    serialPort->readAll();
-
-    //qDebug() << "Read in: " << in;
+    //qDebug() << "Read in: " << in << " : " << QString::number(in);
     QueueMessage(QByteArray().append(in).append("\r\n"));
 
     switch (in)
