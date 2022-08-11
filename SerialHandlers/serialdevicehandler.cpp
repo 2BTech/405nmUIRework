@@ -230,7 +230,6 @@ void SerialDeviceHandler::ParseAsDataline()
     QDateTime receivedDateTime = QDateTime(date, time);
 
     QString tempURL = "http://localhost/WriteToDatabase.php?line=" + sqlInsert;
-    tempURL.append(sqlInsert);
     netManager->get(QNetworkRequest(QUrl(tempURL)));
 
     qDebug() << "SQL post string: " << tempURL;
