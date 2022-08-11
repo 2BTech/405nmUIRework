@@ -7,6 +7,7 @@ SerialDeviceHandler::SerialDeviceHandler() : SerialHandlerBase("Device")
     ConnectToSettingsObjects();
 
     netManager = new QNetworkAccessManager(this);
+    connect(netManager, &QNetworkAccessManager::finished, this, &SerialDeviceHandler::OnFinishPostingSQLData);
 }
 
 SerialDeviceHandler::~SerialDeviceHandler()
@@ -230,7 +231,9 @@ void SerialDeviceHandler::ParseAsDataline()
 
     QString tempURL = "http://localhost/WriteToDatabase.php?line=" + sqlInsert;
     tempURL.append(sqlInsert);
-    netManager->get(QNetworkRequest(QUrl(tempURL)))->deleteLater();
+    netManager->get(QNetworkRequest(QUrl(tempURL)));
+
+    qDebug() << "SQL post string: " << tempURL;
 
     if (qAbs(currentDateTime.secsTo(receivedDateTime)) > 2)
     {
@@ -245,6 +248,16 @@ void SerialDeviceHandler::ParseAsDataline()
     {
         WriteAllSettings();
     }
+}
+
+void SerialDeviceHandler::OnFinishPostingSQLData(QNetworkReply* reply)
+{
+    if(reply->error() != QNetworkReply::NetworkError::NoError)
+    {
+        qDebug() << "Failed to post message to sql database: " << reply->errorString();
+    }
+
+    reply->deleteLater();
 }
 
 void SerialDeviceHandler::WriteAllSettings()

@@ -30,6 +30,8 @@ private slots:
 
     void WriteNextMessage() override;
 
+    void OnFinishPostingSQLData(QNetworkReply* reply);
+
 private:
     QQueue<QByteArray> acksToCheck;
     QQueue<QByteArray> acksList;
