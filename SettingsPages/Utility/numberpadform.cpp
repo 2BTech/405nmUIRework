@@ -267,6 +267,7 @@ void NumberPadForm::OnToggleNegClicked()
         // There is no reason to add negatives to ip address
         break;
     }
+    textHolder->setText(textBuffer);
 }
 
 void NumberPadForm::OnDotClicked()
@@ -377,9 +378,9 @@ void NumberPadForm::AddDigit(char text)
 
 void NumberPadForm::ShiftBufferForward()
 {
-    for (int i = 0; i < 49; i++)
+    for (int i = 49; i > 0; i--)
     {
-        textBuffer[i + 1] = textBuffer[i];
+        textBuffer[i] = textBuffer[i - 1];
     }
 }
 

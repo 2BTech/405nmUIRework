@@ -5,6 +5,7 @@
 #include <QPushButton>
 #include <QTextEdit>
 #include <QLabel>
+#include <QDebug>
 
 #include "ValueHandlers/ValueObjects/basevalueobject.h"
 
