@@ -14,9 +14,9 @@ SerialMenuHandler::SerialMenuHandler() : SerialHandlerBase("Menu")
 void SerialMenuHandler::EchoMessage(QByteArray message)
 {
     //qDebug() << "SerialMenuHandler thread: " << QThread::currentThread();
-    if (!message.endsWith('\n'))
+    if (!message.endsWith("\r\n"))
     {
-        message = message.append('\n');
+        message = message.append("\r\n");
     }
 
 #ifdef DEBUG_ECHO_MESSAGE
@@ -346,7 +346,7 @@ void SerialMenuHandler::PrintSerialNumber()
 void SerialMenuHandler::SetSerialNumber()
 {
     //GetSerialNumber();
-    QueueMessage("Current Serial Number: " + SettingsHandler::GetInstance()->GetSerialNumber()->ToString().toLatin1() + "\n");
+    QueueMessage("Current Serial Number: " + SettingsHandler::GetInstance()->GetSerialNumber()->ToString().toLatin1() + "\r\n");
     QueueMessage("Change serial number?(Y/n)\r\n");
 
 #ifdef USE_EXT_SER
